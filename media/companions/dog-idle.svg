@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .body { animation: breathe 3s ease-in-out infinite; }
+    .tail { transform-origin: 52px 40px; animation: wagTail 0.8s ease-in-out infinite; }
+    .ear-l { transform-origin: 12px 18px; animation: earFlop 3s ease-in-out infinite; }
+    .ear-r { transform-origin: 52px 18px; animation: earFlop 3s ease-in-out infinite 0.2s; }
+    .blink { animation: blink 4s ease-in-out infinite; }
+    .tongue { animation: pant 1s ease-in-out infinite; }
+    
+    @keyframes breathe {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-1px); }
+    }
+    @keyframes wagTail {
+      0%, 100% { transform: rotate(-15deg); }
+      50% { transform: rotate(15deg); }
+    }
+    @keyframes earFlop {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(-5deg); }
+    }
+    @keyframes blink {
+      0%, 42%, 48%, 100% { transform: scaleY(1); }
+      45% { transform: scaleY(0.1); }
+    }
+    @keyframes pant {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.1); }
+    }
+  </style>
+  
+  <g class="body">
+    <!-- Floppy ears -->
+    <g class="ear-l">
+      <rect x="8" y="18" width="6" height="16" fill="#8B4513"/>
+      <rect x="10" y="16" width="4" height="4" fill="#8B4513"/>
+    </g>
+    <g class="ear-r">
+      <rect x="50" y="18" width="6" height="16" fill="#8B4513"/>
+      <rect x="50" y="16" width="4" height="4" fill="#8B4513"/>
+    </g>
+    
+    <!-- Head -->
+    <rect x="14" y="12" width="36" height="22" fill="#D2691E"/>
+    <rect x="12" y="16" width="4" height="14" fill="#D2691E"/>
+    <rect x="48" y="16" width="4" height="14" fill="#D2691E"/>
+    
+    <!-- Muzzle -->
+    <rect x="20" y="24" width="24" height="10" fill="#FAEBD7"/>
+    <rect x="24" y="22" width="16" height="4" fill="#FAEBD7"/>
+    
+    <!-- Eyes -->
+    <g class="blink" style="transform-origin: 22px 20px">
+      <rect x="18" y="16" width="8" height="8" fill="#ffffff"/>
+      <rect x="22" y="18" width="4" height="4" fill="#3d2314"/>
+      <rect x="24" y="18" width="2" height="2" fill="#ffffff"/>
+    </g>
+    <g class="blink" style="transform-origin: 42px 20px">
+      <rect x="38" y="16" width="8" height="8" fill="#ffffff"/>
+      <rect x="38" y="18" width="4" height="4" fill="#3d2314"/>
+      <rect x="38" y="18" width="2" height="2" fill="#ffffff"/>
+    </g>
+    
+    <!-- Nose -->
+    <rect x="28" y="26" width="8" height="4" fill="#2d2d2d"/>
+    <rect x="30" y="26" width="4" height="2" fill="#4a4a4a"/>
+    
+    <!-- Mouth -->
+    <rect x="30" y="30" width="4" height="2" fill="#D2691E"/>
+    
+    <!-- Tongue -->
+    <g class="tongue">
+      <rect x="28" y="32" width="8" height="4" fill="#ff6b6b"/>
+      <rect x="30" y="32" width="4" height="1" fill="#e85555"/>
+    </g>
+    
+    <!-- Body -->
+    <rect x="18" y="34" width="28" height="18" fill="#D2691E"/>
+    <rect x="14" y="38" width="4" height="10" fill="#D2691E"/>
+    <rect x="46" y="38" width="4" height="10" fill="#D2691E"/>
+    
+    <!-- Paws -->
+    <rect x="16" y="52" width="8" height="4" fill="#FAEBD7"/>
+    <rect x="40" y="52" width="8" height="4" fill="#FAEBD7"/>
+    
+    <!-- Paw pads -->
+    <rect x="18" y="54" width="2" height="2" fill="#ffb4b4"/>
+    <rect x="22" y="54" width="2" height="2" fill="#ffb4b4"/>
+    <rect x="42" y="54" width="2" height="2" fill="#ffb4b4"/>
+    <rect x="46" y="54" width="2" height="2" fill="#ffb4b4"/>
+  </g>
+  
+  <!-- Tail -->
+  <g class="tail">
+    <rect x="50" y="38" width="4" height="4" fill="#D2691E"/>
+    <rect x="54" y="34" width="4" height="4" fill="#D2691E"/>
+    <rect x="56" y="28" width="4" height="6" fill="#D2691E"/>
+  </g>
+</svg>

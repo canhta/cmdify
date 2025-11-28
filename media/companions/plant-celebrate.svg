@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .plant { animation: bounce 0.5s ease-out infinite; }
+    .flower1 { animation: bloom1 0.6s ease-out infinite; }
+    .flower2 { animation: bloom2 0.6s ease-out infinite 0.2s; }
+    .flower3 { animation: bloom3 0.6s ease-out infinite 0.4s; }
+    .sparkle1 { animation: sparkle 0.8s ease-out infinite; }
+    .sparkle2 { animation: sparkle 0.8s ease-out infinite 0.2s; }
+    .sparkle3 { animation: sparkle 0.8s ease-out infinite 0.4s; }
+    .sparkle4 { animation: sparkle 0.8s ease-out infinite 0.6s; }
+    .petal { animation: petalBurst 1s ease-out infinite; }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    @keyframes bloom1 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+    @keyframes bloom2 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    @keyframes bloom3 {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes petalBurst {
+      0% { opacity: 1; transform: translate(0, 0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.5); }
+    }
+  </style>
+  
+  <!-- Sparkles -->
+  <g class="sparkle1">
+    <rect x="2" y="8" width="2" height="6" fill="#ffd700"/>
+    <rect x="0" y="10" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle2">
+    <rect x="58" y="4" width="2" height="6" fill="#ffd700"/>
+    <rect x="56" y="6" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle3">
+    <rect x="4" y="32" width="2" height="4" fill="#ffd700"/>
+    <rect x="2" y="34" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle4">
+    <rect x="56" y="28" width="2" height="4" fill="#ffd700"/>
+    <rect x="54" y="30" width="6" height="2" fill="#ffd700"/>
+  </g>
+  
+  <!-- Burst petals -->
+  <g class="petal" style="--tx: -8px; --ty: -10px;">
+    <rect x="18" y="10" width="3" height="3" fill="#FFB6C1"/>
+  </g>
+  <g class="petal" style="--tx: 8px; --ty: -12px;">
+    <rect x="44" y="8" width="3" height="3" fill="#FFB6C1"/>
+  </g>
+  <g class="petal" style="--tx: -10px; --ty: 5px;">
+    <rect x="10" y="20" width="3" height="3" fill="#FFC0CB"/>
+  </g>
+  <g class="petal" style="--tx: 12px; --ty: 3px;">
+    <rect x="52" y="18" width="3" height="3" fill="#FFC0CB"/>
+  </g>
+  
+  <g class="plant">
+    <!-- Pot -->
+    <rect x="20" y="50" width="24" height="12" fill="#D2691E"/>
+    <rect x="18" y="48" width="28" height="4" fill="#CD853F"/>
+    
+    <!-- Soil -->
+    <rect x="22" y="46" width="20" height="4" fill="#5D4037"/>
+    
+    <!-- Stem - tall -->
+    <rect x="30" y="16" width="4" height="32" fill="#43A047"/>
+    <rect x="32" y="18" width="2" height="28" fill="#66BB6A"/>
+    
+    <!-- Side stems -->
+    <rect x="22" y="28" width="8" height="2" fill="#43A047"/>
+    <rect x="34" y="24" width="8" height="2" fill="#43A047"/>
+    
+    <!-- Main flower - top -->
+    <g class="flower1" style="transform-origin: 32px 10px">
+      <rect x="24" y="6" width="6" height="8" fill="#FF69B4"/>
+      <rect x="34" y="6" width="6" height="8" fill="#FF69B4"/>
+      <rect x="28" y="2" width="8" height="6" fill="#FF69B4"/>
+      <rect x="28" y="12" width="8" height="6" fill="#FF69B4"/>
+      <rect x="28" y="8" width="8" height="6" fill="#FFD700"/>
+      <rect x="30" y="10" width="4" height="2" fill="#FFA500"/>
+    </g>
+    
+    <!-- Left flower -->
+    <g class="flower2" style="transform-origin: 18px 26px">
+      <rect x="12" y="24" width="4" height="6" fill="#FF1493"/>
+      <rect x="18" y="24" width="4" height="6" fill="#FF1493"/>
+      <rect x="14" y="22" width="6" height="4" fill="#FF1493"/>
+      <rect x="14" y="28" width="6" height="4" fill="#FF1493"/>
+      <rect x="14" y="24" width="6" height="6" fill="#FFD700"/>
+    </g>
+    
+    <!-- Right flower -->
+    <g class="flower3" style="transform-origin: 46px 22px">
+      <rect x="40" y="20" width="4" height="6" fill="#FF6B9D"/>
+      <rect x="46" y="20" width="4" height="6" fill="#FF6B9D"/>
+      <rect x="42" y="18" width="6" height="4" fill="#FF6B9D"/>
+      <rect x="42" y="24" width="6" height="4" fill="#FF6B9D"/>
+      <rect x="42" y="20" width="6" height="6" fill="#FFD700"/>
+    </g>
+    
+    <!-- Leaves -->
+    <rect x="12" y="34" width="10" height="4" fill="#43A047"/>
+    <rect x="8" y="36" width="6" height="4" fill="#43A047"/>
+    
+    <rect x="42" y="32" width="10" height="4" fill="#43A047"/>
+    <rect x="50" y="34" width="6" height="4" fill="#43A047"/>
+    
+    <!-- Overjoyed face on pot -->
+    <!-- Eyes - super happy -->
+    <rect x="24" y="52" width="6" height="2" fill="#2d2d2d"/>
+    <rect x="22" y="54" width="2" height="2" fill="#2d2d2d"/>
+    <rect x="30" y="54" width="2" height="2" fill="#2d2d2d"/>
+    
+    <rect x="34" y="52" width="6" height="2" fill="#2d2d2d"/>
+    <rect x="32" y="54" width="2" height="2" fill="#2d2d2d"/>
+    <rect x="40" y="54" width="2" height="2" fill="#2d2d2d"/>
+    
+    <!-- Big smile -->
+    <rect x="26" y="56" width="2" height="2" fill="#2d2d2d"/>
+    <rect x="36" y="56" width="2" height="2" fill="#2d2d2d"/>
+    <rect x="28" y="58" width="8" height="2" fill="#2d2d2d"/>
+    
+    <!-- Blush -->
+    <rect x="18" y="54" width="4" height="2" fill="#ffb4b4"/>
+    <rect x="42" y="54" width="4" height="2" fill="#ffb4b4"/>
+  </g>
+</svg>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .body { animation: alertBreath 1.5s ease-in-out infinite; }
+    .ear-l { transform-origin: 14px 10px; animation: earTwitchL 2s ease-in-out infinite; }
+    .ear-r { transform-origin: 46px 10px; animation: earTwitchR 2s ease-in-out infinite 0.3s; }
+    .glow { animation: glowPulse 1.5s ease-in-out infinite; }
+    .pupil { animation: pupilFocus 1.5s ease-in-out infinite; }
+    
+    @keyframes alertBreath {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-1px); }
+    }
+    @keyframes earTwitchL {
+      0%, 85%, 100% { transform: rotate(0); }
+      90% { transform: rotate(-8deg); }
+    }
+    @keyframes earTwitchR {
+      0%, 85%, 100% { transform: rotate(0); }
+      90% { transform: rotate(8deg); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes pupilFocus {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+  </style>
+  
+  <!-- Focus glow -->
+  <rect class="glow" x="6" y="10" width="52" height="48" rx="4" fill="#ffa500" opacity="0.3"/>
+  
+  <g class="body">
+    <!-- Ears - alert/perked -->
+    <g class="ear-l">
+      <rect x="10" y="4" width="4" height="4" fill="#6b6b6b"/>
+      <rect x="14" y="8" width="4" height="4" fill="#6b6b6b"/>
+      <rect x="12" y="6" width="2" height="2" fill="#ffb4b4"/>
+    </g>
+    <g class="ear-r">
+      <rect x="46" y="4" width="4" height="4" fill="#6b6b6b"/>
+      <rect x="42" y="8" width="4" height="4" fill="#6b6b6b"/>
+      <rect x="46" y="6" width="2" height="2" fill="#ffb4b4"/>
+    </g>
+    
+    <!-- Head -->
+    <rect x="16" y="12" width="28" height="20" fill="#808080"/>
+    <rect x="12" y="16" width="4" height="12" fill="#808080"/>
+    <rect x="44" y="16" width="4" height="12" fill="#808080"/>
+    
+    <!-- Face highlight -->
+    <rect x="20" y="22" width="20" height="8" fill="#a0a0a0"/>
+    
+    <!-- Eyes - wide open -->
+    <rect x="18" y="16" width="8" height="10" fill="#ffffff"/>
+    <rect x="34" y="16" width="8" height="10" fill="#ffffff"/>
+    
+    <!-- Pupils - dilated -->
+    <g class="pupil" style="transform-origin: 23px 21px">
+      <rect x="20" y="18" width="6" height="6" fill="#2d2d2d"/>
+      <rect x="24" y="18" width="2" height="2" fill="#ffffff"/>
+    </g>
+    <g class="pupil" style="transform-origin: 39px 21px">
+      <rect x="36" y="18" width="6" height="6" fill="#2d2d2d"/>
+      <rect x="36" y="18" width="2" height="2" fill="#ffffff"/>
+    </g>
+    
+    <!-- Nose -->
+    <rect x="28" y="24" width="4" height="3" fill="#ffb4b4"/>
+    
+    <!-- Determined mouth - straight line -->
+    <rect x="26" y="28" width="8" height="2" fill="#4a4a4a"/>
+    
+    <!-- Whiskers -->
+    <rect x="6" y="22" width="10" height="1" fill="#4a4a4a"/>
+    <rect x="6" y="26" width="10" height="1" fill="#4a4a4a"/>
+    <rect x="44" y="22" width="10" height="1" fill="#4a4a4a"/>
+    <rect x="44" y="26" width="10" height="1" fill="#4a4a4a"/>
+    
+    <!-- Body - upright -->
+    <rect x="18" y="32" width="24" height="18" fill="#808080"/>
+    <rect x="14" y="36" width="4" height="10" fill="#808080"/>
+    <rect x="42" y="36" width="4" height="10" fill="#808080"/>
+    
+    <!-- Paws -->
+    <rect x="16" y="50" width="8" height="4" fill="#a0a0a0"/>
+    <rect x="36" y="50" width="8" height="4" fill="#a0a0a0"/>
+    
+    <!-- Tail up - alert -->
+    <rect x="46" y="36" width="4" height="4" fill="#808080"/>
+    <rect x="50" y="30" width="4" height="6" fill="#808080"/>
+    <rect x="54" y="24" width="4" height="6" fill="#808080"/>
+    <rect x="56" y="18" width="4" height="6" fill="#808080"/>
+  </g>
+</svg>

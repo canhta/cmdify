@@ -53,6 +53,11 @@
     "views": {
       "cmdify": [
         {
+          "id": "cmdify.focus",
+          "name": "Focus",
+          "type": "webview"
+        },
+        {
           "id": "cmdify.commands",
           "name": "Commands"
         }
@@ -168,6 +173,42 @@
         "title": "About Cmdify",
         "icon": "$(info)",
         "category": "Cmdify"
+      },
+      {
+        "command": "cmdify.focus.start",
+        "title": "Start Focus Session",
+        "icon": "$(play)",
+        "category": "Cmdify Focus"
+      },
+      {
+        "command": "cmdify.focus.pause",
+        "title": "Pause Focus Session",
+        "icon": "$(debug-pause)",
+        "category": "Cmdify Focus"
+      },
+      {
+        "command": "cmdify.focus.resume",
+        "title": "Resume Focus Session",
+        "icon": "$(play)",
+        "category": "Cmdify Focus"
+      },
+      {
+        "command": "cmdify.focus.stop",
+        "title": "Stop Focus Session",
+        "icon": "$(debug-stop)",
+        "category": "Cmdify Focus"
+      },
+      {
+        "command": "cmdify.focus.skip",
+        "title": "Skip to Next Phase",
+        "icon": "$(debug-step-over)",
+        "category": "Cmdify Focus"
+      },
+      {
+        "command": "cmdify.focus.showPanel",
+        "title": "Show Focus Companion",
+        "icon": "$(smiley)",
+        "category": "Cmdify Focus"
       }
     ],
     "keybindings": [
@@ -175,6 +216,12 @@
         "command": "cmdify.create",
         "key": "ctrl+shift+c",
         "mac": "cmd+shift+c"
+      },
+      {
+        "command": "cmdify.focus.start",
+        "key": "ctrl+shift+f",
+        "mac": "cmd+shift+f",
+        "when": "!editorFocus"
       }
     ],
     "menus": {
@@ -349,6 +396,76 @@
             "default": true,
             "description": "Automatically sync changes",
             "order": 2
+          }
+        }
+      },
+      {
+        "title": "Focus Timer",
+        "order": 5,
+        "properties": {
+          "cmdify.focus.focusDuration": {
+            "type": "number",
+            "default": 25,
+            "minimum": 1,
+            "maximum": 120,
+            "description": "Focus session duration in minutes",
+            "order": 1
+          },
+          "cmdify.focus.shortBreakDuration": {
+            "type": "number",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 30,
+            "description": "Short break duration in minutes",
+            "order": 2
+          },
+          "cmdify.focus.longBreakDuration": {
+            "type": "number",
+            "default": 15,
+            "minimum": 5,
+            "maximum": 60,
+            "description": "Long break duration in minutes",
+            "order": 3
+          },
+          "cmdify.focus.sessionsBeforeLongBreak": {
+            "type": "number",
+            "default": 4,
+            "minimum": 2,
+            "maximum": 10,
+            "description": "Number of focus sessions before a long break",
+            "order": 4
+          },
+          "cmdify.focus.soundEnabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Play sound notifications",
+            "order": 5
+          },
+          "cmdify.focus.autoStartBreak": {
+            "type": "boolean",
+            "default": false,
+            "description": "Automatically start break after focus session",
+            "order": 6
+          },
+          "cmdify.focus.companionType": {
+            "type": "string",
+            "enum": [
+              "cat",
+              "dog",
+              "robot",
+              "plant",
+              "flame"
+            ],
+            "enumDescriptions": [
+              "🐱 Cat - Cute and cuddly",
+              "🐶 Dog - Loyal friend",
+              "🤖 Robot - Tech buddy",
+              "🌱 Plant - Growing companion",
+              "🔥 Flame - Fiery spirit"
+            ],
+            "default": "robot",
+            "description": "Focus companion character",
+            "order": 7
           }
         }
       }

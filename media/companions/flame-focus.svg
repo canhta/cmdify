@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .flame { animation: intenseBurn 0.8s ease-in-out infinite; }
+    .outer { transform-origin: 32px 58px; animation: intenseFlicker 0.5s ease-in-out infinite; }
+    .inner { animation: coreIntense 0.6s ease-in-out infinite; }
+    .glow { animation: glowPulse 1s ease-in-out infinite; }
+    .heat1 { animation: heatWave 1.5s ease-in-out infinite; }
+    .heat2 { animation: heatWave 1.5s ease-in-out infinite 0.5s; }
+    
+    @keyframes intenseBurn {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-2px); }
+    }
+    @keyframes intenseFlicker {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      25% { transform: scaleY(1.05) scaleX(0.95); }
+      50% { transform: scaleY(0.97) scaleX(1.03); }
+      75% { transform: scaleY(1.08) scaleX(0.96); }
+    }
+    @keyframes coreIntense {
+      0%, 100% { opacity: 0.95; }
+      50% { opacity: 1; }
+    }
+    @keyframes glowPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes heatWave {
+      0% { opacity: 0; transform: translateY(0); }
+      50% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-10px); }
+    }
+  </style>
+  
+  <!-- Focus glow -->
+  <rect class="glow" x="8" y="4" width="48" height="56" rx="4" fill="#ffa500" opacity="0.4"/>
+  
+  <!-- Heat waves -->
+  <g class="heat1">
+    <rect x="10" y="8" width="2" height="8" fill="#FF8C00" opacity="0.5"/>
+    <rect x="8" y="12" width="2" height="4" fill="#FF8C00" opacity="0.3"/>
+  </g>
+  <g class="heat2">
+    <rect x="52" y="6" width="2" height="8" fill="#FF8C00" opacity="0.5"/>
+    <rect x="54" y="10" width="2" height="4" fill="#FF8C00" opacity="0.3"/>
+  </g>
+  
+  <g class="flame" style="transform-origin: 32px 40px">
+    <!-- Outer flame - taller -->
+    <g class="outer">
+      <!-- Base -->
+      <rect x="20" y="50" width="24" height="8" fill="#FF4500"/>
+      <rect x="16" y="46" width="32" height="6" fill="#FF5500"/>
+      
+      <!-- Main body -->
+      <rect x="16" y="30" width="32" height="18" fill="#FF6B00"/>
+      <rect x="12" y="34" width="6" height="14" fill="#FF5500"/>
+      <rect x="46" y="34" width="6" height="14" fill="#FF5500"/>
+      
+      <!-- Upper flame -->
+      <rect x="18" y="18" width="28" height="14" fill="#FF8C00"/>
+      <rect x="14" y="22" width="6" height="10" fill="#FF6B00"/>
+      <rect x="44" y="22" width="6" height="10" fill="#FF6B00"/>
+      
+      <!-- Top tips - more intense -->
+      <rect x="22" y="10" width="20" height="10" fill="#FFA500"/>
+      <rect x="18" y="14" width="6" height="6" fill="#FF8C00"/>
+      <rect x="40" y="14" width="6" height="6" fill="#FF8C00"/>
+      
+      <!-- Peak - taller -->
+      <rect x="26" y="4" width="12" height="8" fill="#FFB833"/>
+      <rect x="24" y="8" width="4" height="4" fill="#FFA500"/>
+      <rect x="36" y="8" width="4" height="4" fill="#FFA500"/>
+      <rect x="28" y="0" width="8" height="6" fill="#FFCC00"/>
+      <rect x="30" y="-2" width="4" height="4" fill="#FFE066"/>
+    </g>
+    
+    <!-- Inner core - white hot -->
+    <g class="inner">
+      <rect x="24" y="28" width="16" height="18" fill="#FFEE00"/>
+      <rect x="26" y="20" width="12" height="10" fill="#FFFF66"/>
+      <rect x="28" y="14" width="8" height="8" fill="#FFFFAA"/>
+      <rect x="30" y="8" width="4" height="8" fill="#FFFFFF"/>
+    </g>
+    
+    <!-- Face - determined -->
+    <!-- Eyes - focused -->
+    <rect x="22" y="34" width="6" height="4" fill="#FF4500"/>
+    <rect x="24" y="34" width="4" height="2" fill="#FFFFFF"/>
+    
+    <rect x="36" y="34" width="6" height="4" fill="#FF4500"/>
+    <rect x="36" y="34" width="4" height="2" fill="#FFFFFF"/>
+    
+    <!-- Determined mouth -->
+    <rect x="28" y="44" width="8" height="2" fill="#FF4500"/>
+  </g>
+</svg>

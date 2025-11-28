@@ -17,11 +17,19 @@ import {
   GitHubSyncService,
 } from './commands';
 import { disposeTerminal } from './utils/shell';
+import { FocusService } from './services/focus';
+import { CompanionService } from './services/companion';
+import { CompanionPanelProvider } from './views/companionPanel';
+import { formatTime } from './utils/dateUtils';
+import { COMPANION_EMOJIS } from './models/companion';
 
 let storage: StorageService;
 let treeProvider: CommandsTreeProvider;
 let syncService: GitHubSyncService;
 let aiProvider: AIProvider | undefined;
+let focusService: FocusService;
+let companionService: CompanionService;
+let focusStatusBarItem: vscode.StatusBarItem;
 
 /**
  * Update the noCommands context for welcome view
@@ -85,6 +93,35 @@ export async function activate(context: vscode.ExtensionContext) {
     await updateNoCommandsContext();
   });
 
+  // Initialize Focus Timer services
+  focusService = new FocusService(context);
+  companionService = new CompanionService(context, focusService);
+
+  // Initialize Focus Timer status bar
+  focusStatusBarItem = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100
+  );
+  focusStatusBarItem.command = 'cmdify.focus.showPanel';
+  updateFocusStatusBar();
+  focusStatusBarItem.show();
+
+  // Listen for focus timer updates
+  focusService.onTick(() => updateFocusStatusBar());
+  focusService.onStateChange(() => updateFocusStatusBar());
+  companionService.onStateChange(() => updateFocusStatusBar());
+
+  // Register Companion Panel webview
+  const companionPanelProvider = new CompanionPanelProvider(
+    context.extensionUri,
+    focusService,
+    companionService
+  );
+  const companionPanelDisposable = vscode.window.registerWebviewViewProvider(
+    CompanionPanelProvider.viewType,
+    companionPanelProvider
+  );
+
   // Register commands
   const commands = [
     vscode.commands.registerCommand('cmdify.create', () =>
@@ -141,6 +178,25 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('cmdify.about', () =>
       handleAbout()
     ),
+    // Focus Timer commands
+    vscode.commands.registerCommand('cmdify.focus.start', () =>
+      focusService.start()
+    ),
+    vscode.commands.registerCommand('cmdify.focus.pause', () =>
+      focusService.pause()
+    ),
+    vscode.commands.registerCommand('cmdify.focus.resume', () =>
+      focusService.resume()
+    ),
+    vscode.commands.registerCommand('cmdify.focus.stop', () =>
+      focusService.stop()
+    ),
+    vscode.commands.registerCommand('cmdify.focus.skip', () =>
+      focusService.skip()
+    ),
+    vscode.commands.registerCommand('cmdify.focus.showPanel', () =>
+      vscode.commands.executeCommand('cmdify.focus.focus')
+    ),
   ];
 
   // Listen for configuration changes
@@ -156,8 +212,61 @@ export async function activate(context: vscode.ExtensionContext) {
     storage,
     treeProvider,
     configListener,
+    focusService,
+    companionService,
+    focusStatusBarItem,
+    companionPanelDisposable,
     ...commands
   );
+}
+
+/**
+ * Update the focus timer status bar
+ */
+function updateFocusStatusBar(): void {
+  const focusState = focusService.getState();
+  const companionState = companionService.getState();
+  const stats = focusService.getStats();
+
+  const emojis = COMPANION_EMOJIS[companionState.type];
+  const emoji = emojis[focusState.status] || emojis.idle;
+  
+  let text = emoji;
+  
+  if (focusState.status === 'focusing' || focusState.status === 'break' || focusState.status === 'paused') {
+    text += ` ${formatTime(focusState.timeRemaining)}`;
+  }
+  
+  if (stats.currentStreak > 0) {
+    text += ` 🔥${stats.currentStreak}`;
+  }
+
+  focusStatusBarItem.text = text;
+  focusStatusBarItem.tooltip = getFocusTooltip(focusState.status, focusState.todaySessions);
+}
+
+/**
+ * Get tooltip for focus status bar
+ */
+function getFocusTooltip(status: string, todaySessions: number): string {
+  let tooltip = 'Focus Timer - Click to open panel\n';
+  tooltip += `${todaySessions} sessions today\n`;
+  
+  switch (status) {
+    case 'focusing':
+      tooltip += 'Currently focusing...';
+      break;
+    case 'break':
+      tooltip += 'Taking a break';
+      break;
+    case 'paused':
+      tooltip += 'Session paused';
+      break;
+    default:
+      tooltip += 'Ready to focus';
+  }
+  
+  return tooltip;
 }
 
 /**
@@ -451,5 +560,11 @@ async function handleAbout(): Promise<void> {
 
 export function deactivate() {
   disposeTerminal();
+  if (focusService) {
+    focusService.dispose();
+  }
+  if (companionService) {
+    companionService.dispose();
+  }
 }
 

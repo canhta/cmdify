@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .body { animation: bounce 0.4s ease-out infinite; }
+    .antenna { transform-origin: 32px 4px; animation: spin 0.3s linear infinite; }
+    .arm-l { transform-origin: 11px 38px; animation: armWave 0.4s ease-in-out infinite; }
+    .arm-r { transform-origin: 53px 38px; animation: armWave 0.4s ease-in-out infinite 0.1s; }
+    .sparkle1 { animation: sparkle 0.8s ease-out infinite; }
+    .sparkle2 { animation: sparkle 0.8s ease-out infinite 0.2s; }
+    .sparkle3 { animation: sparkle 0.8s ease-out infinite 0.4s; }
+    .sparkle4 { animation: sparkle 0.8s ease-out infinite 0.6s; }
+    .led { animation: ledRave 0.2s ease-in-out infinite; }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes armWave {
+      0%, 100% { transform: rotate(-30deg); }
+      50% { transform: rotate(30deg); }
+    }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes ledRave {
+      0%, 100% { fill: #ffd700; }
+      33% { fill: #4ecdc4; }
+      66% { fill: #ff6b6b; }
+    }
+  </style>
+  
+  <!-- Sparkles -->
+  <g class="sparkle1">
+    <rect x="4" y="8" width="2" height="6" fill="#ffd700"/>
+    <rect x="2" y="10" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle2">
+    <rect x="56" y="4" width="2" height="6" fill="#ffd700"/>
+    <rect x="54" y="6" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle3">
+    <rect x="2" y="34" width="2" height="4" fill="#ffd700"/>
+    <rect x="0" y="36" width="6" height="2" fill="#ffd700"/>
+  </g>
+  <g class="sparkle4">
+    <rect x="58" y="28" width="2" height="4" fill="#ffd700"/>
+    <rect x="56" y="30" width="6" height="2" fill="#ffd700"/>
+  </g>
+  
+  <g class="body">
+    <!-- Antenna - spinning -->
+    <rect x="30" y="6" width="4" height="6" fill="#5a5a6e"/>
+    <g class="antenna">
+      <rect x="26" y="0" width="12" height="6" rx="2" fill="#ffd700"/>
+      <rect x="30" y="2" width="4" height="2" fill="#ffec8b"/>
+    </g>
+    
+    <!-- Head -->
+    <rect x="14" y="12" width="36" height="20" fill="#6b6b7d"/>
+    <rect x="16" y="14" width="32" height="16" fill="#7d7d8f"/>
+    
+    <!-- Eye screens -->
+    <rect x="18" y="16" width="10" height="8" fill="#1a1a2e"/>
+    <rect x="36" y="16" width="10" height="8" fill="#1a1a2e"/>
+    
+    <!-- Happy eyes ^_^ -->
+    <rect x="20" y="18" width="6" height="2" fill="#4ecdc4"/>
+    <rect x="18" y="20" width="2" height="2" fill="#4ecdc4"/>
+    <rect x="26" y="20" width="2" height="2" fill="#4ecdc4"/>
+    
+    <rect x="38" y="18" width="6" height="2" fill="#4ecdc4"/>
+    <rect x="36" y="20" width="2" height="2" fill="#4ecdc4"/>
+    <rect x="44" y="20" width="2" height="2" fill="#4ecdc4"/>
+    
+    <!-- Mouth - big smile -->
+    <rect x="24" y="26" width="16" height="4" fill="#4a4a5a"/>
+    <rect x="26" y="26" width="2" height="2" fill="#4ecdc4"/>
+    <rect x="36" y="26" width="2" height="2" fill="#4ecdc4"/>
+    <rect x="28" y="28" width="8" height="2" fill="#4ecdc4"/>
+    
+    <!-- Neck -->
+    <rect x="28" y="32" width="8" height="4" fill="#5a5a6e"/>
+    
+    <!-- Body -->
+    <rect x="16" y="36" width="32" height="18" fill="#6b6b7d"/>
+    <rect x="18" y="38" width="28" height="14" fill="#7d7d8f"/>
+    
+    <!-- Chest panel - rave mode -->
+    <rect x="24" y="40" width="16" height="10" fill="#4a4a5a"/>
+    <rect class="led" x="26" y="44" width="4" height="4"/>
+    <rect class="led" x="30" y="44" width="4" height="4" style="animation-delay: 0.1s"/>
+    <rect class="led" x="34" y="44" width="4" height="4" style="animation-delay: 0.2s"/>
+    
+    <!-- Arms - waving up -->
+    <g class="arm-l">
+      <rect x="2" y="30" width="14" height="6" fill="#6b6b7d"/>
+      <rect x="2" y="36" width="8" height="4" fill="#5a5a6e"/>
+    </g>
+    <g class="arm-r">
+      <rect x="48" y="30" width="14" height="6" fill="#6b6b7d"/>
+      <rect x="54" y="36" width="8" height="4" fill="#5a5a6e"/>
+    </g>
+    
+    <!-- Wheels -->
+    <rect x="18" y="54" width="12" height="6" fill="#4a4a5a"/>
+    <rect x="34" y="54" width="12" height="6" fill="#4a4a5a"/>
+  </g>
+</svg>

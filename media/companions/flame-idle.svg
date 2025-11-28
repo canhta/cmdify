@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <style>
+    .flame { animation: sway 3s ease-in-out infinite; }
+    .outer { transform-origin: 32px 56px; animation: flicker 1.5s ease-in-out infinite; }
+    .inner { animation: corePulse 2s ease-in-out infinite; }
+    .ember1 { animation: ember 2.5s ease-in-out infinite; }
+    .ember2 { animation: ember 2.5s ease-in-out infinite 0.5s; }
+    
+    @keyframes sway {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    @keyframes flicker {
+      0%, 100% { transform: scaleY(1) scaleX(1); }
+      25% { transform: scaleY(1.02) scaleX(0.98); }
+      50% { transform: scaleY(0.98) scaleX(1.02); }
+      75% { transform: scaleY(1.03) scaleX(0.97); }
+    }
+    @keyframes corePulse {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; }
+    }
+    @keyframes ember {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+  </style>
+  
+  <g class="flame" style="transform-origin: 32px 40px">
+    <!-- Outer flame -->
+    <g class="outer">
+      <!-- Base -->
+      <rect x="20" y="48" width="24" height="8" fill="#FF6B00"/>
+      <rect x="16" y="44" width="32" height="6" fill="#FF6B00"/>
+      
+      <!-- Main body -->
+      <rect x="18" y="32" width="28" height="14" fill="#FF8C00"/>
+      <rect x="14" y="36" width="6" height="10" fill="#FF6B00"/>
+      <rect x="44" y="36" width="6" height="10" fill="#FF6B00"/>
+      
+      <!-- Upper flame -->
+      <rect x="20" y="22" width="24" height="12" fill="#FFA500"/>
+      <rect x="16" y="26" width="6" height="8" fill="#FF8C00"/>
+      <rect x="42" y="26" width="6" height="8" fill="#FF8C00"/>
+      
+      <!-- Top tips -->
+      <rect x="24" y="14" width="16" height="10" fill="#FFB833"/>
+      <rect x="22" y="18" width="4" height="6" fill="#FFA500"/>
+      <rect x="38" y="18" width="4" height="6" fill="#FFA500"/>
+      
+      <!-- Peak -->
+      <rect x="28" y="8" width="8" height="8" fill="#FFCC00"/>
+      <rect x="26" y="12" width="4" height="4" fill="#FFB833"/>
+      <rect x="34" y="12" width="4" height="4" fill="#FFB833"/>
+      <rect x="30" y="4" width="4" height="6" fill="#FFE066"/>
+    </g>
+    
+    <!-- Inner core -->
+    <g class="inner">
+      <rect x="26" y="30" width="12" height="16" fill="#FFDD00"/>
+      <rect x="28" y="24" width="8" height="8" fill="#FFEE66"/>
+      <rect x="30" y="18" width="4" height="8" fill="#FFFFAA"/>
+    </g>
+    
+    <!-- Face -->
+    <!-- Eyes - peaceful -->
+    <rect x="24" y="36" width="4" height="2" fill="#FF4500"/>
+    <rect x="22" y="38" width="2" height="2" fill="#FF4500"/>
+    <rect x="28" y="38" width="2" height="2" fill="#FF4500"/>
+    
+    <rect x="36" y="36" width="4" height="2" fill="#FF4500"/>
+    <rect x="34" y="38" width="2" height="2" fill="#FF4500"/>
+    <rect x="40" y="38" width="2" height="2" fill="#FF4500"/>
+    
+    <!-- Peaceful smile -->
+    <rect x="28" y="44" width="2" height="2" fill="#FF4500"/>
+    <rect x="34" y="44" width="2" height="2" fill="#FF4500"/>
+    <rect x="30" y="46" width="4" height="2" fill="#FF4500"/>
+    
+    <!-- Embers at base -->
+    <g class="ember1">
+      <rect x="12" y="52" width="4" height="4" fill="#FF4500"/>
+    </g>
+    <g class="ember2">
+      <rect x="48" y="50" width="4" height="4" fill="#FF4500"/>
+    </g>
+  </g>
+</svg>
