@@ -2,7 +2,7 @@
   "name": "cmdify",
   "displayName": "Cmdify",
   "description": "AI-powered CLI command manager - Describe what you want, get the shell command",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "canhta",
   "license": "MIT",
   "icon": "media/icon.png",
@@ -34,8 +34,9 @@
     "vscode": "^1.106.1"
   },
   "categories": [
-    "Machine Learning",
-    "Other"
+    "Programming Languages",
+    "Snippets",
+    "AI"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
