@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="termGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#312e81"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded square background -->
+  <rect x="4" y="4" width="120" height="120" rx="24" ry="24" fill="url(#bgGrad)"/>
+  
+  <!-- Terminal window -->
+  <rect x="16" y="24" width="96" height="80" rx="8" ry="8" fill="url(#termGrad)"/>
+  
+  <!-- Terminal title bar dots -->
+  <circle cx="28" cy="34" r="4" fill="#ef4444"/>
+  <circle cx="42" cy="34" r="4" fill="#eab308"/>
+  <circle cx="56" cy="34" r="4" fill="#22c55e"/>
+  
+  <!-- Terminal prompt arrow -->
+  <polyline points="28,58 40,70 28,82" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Command line cursor -->
+  <line x1="50" y1="82" x2="76" y2="82" stroke="#a5b4fc" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- AI sparkle - big star -->
+  <path d="M84 48 L88 56 L96 60 L88 64 L84 72 L80 64 L72 60 L80 56 Z" fill="#fbbf24"/>
+  
+  <!-- AI sparkle - small star -->
+  <path d="M98 70 L100 74 L104 76 L100 78 L98 82 L96 78 L92 76 L96 74 Z" fill="#fcd34d"/>
+</svg>

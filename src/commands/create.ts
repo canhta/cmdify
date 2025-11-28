@@ -99,31 +99,62 @@ async function handleAICreate(
   storage: StorageService,
   aiProvider: AIProvider
 ): Promise<CLICommand | undefined> {
-  // Show progress
-  return vscode.window.withProgress(
-    {
-      location: vscode.ProgressLocation.Notification,
-      title: 'Generating command...',
-      cancellable: true,
-    },
-    async (progress, token) => {
-      try {
-        const context = createAIContext(storage.getAllTags());
-        const response = await aiProvider.generate(prompt, context);
+  let shouldRegenerate = true;
 
-        if (token.isCancellationRequested) {
-          return undefined;
+  while (shouldRegenerate) {
+    shouldRegenerate = false;
+
+    // Show progress
+    const result = await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: 'Generating command...',
+        cancellable: true,
+      },
+      async (progress, token) => {
+        try {
+          const context = createAIContext(storage.getAllTags());
+          const response = await aiProvider.generate(prompt, context);
+
+          if (token.isCancellationRequested) {
+            return { action: 'cancelled' as const };
+          }
+
+          return { action: 'success' as const, response };
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown error';
+          vscode.window.showErrorMessage(`Failed to generate command: ${message}`);
+          return { action: 'error' as const };
         }
-
-        return showAIPreview(prompt, response, storage, aiProvider);
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Unknown error';
-        vscode.window.showErrorMessage(`Failed to generate command: ${message}`);
-        return undefined;
       }
+    );
+
+    if (result.action !== 'success') {
+      return undefined;
     }
-  );
+
+    const previewResult = await showAIPreview(prompt, result.response, storage, aiProvider);
+    
+    if (previewResult.action === 'regenerate') {
+      shouldRegenerate = true;
+      continue;
+    }
+
+    if (previewResult.action === 'saved') {
+      return previewResult.command;
+    }
+
+    return undefined;
+  }
+
+  return undefined;
 }
+
+type PreviewResult = 
+  | { action: 'regenerate' }
+  | { action: 'cancelled' }
+  | { action: 'saved'; command: CLICommand }
+  | { action: 'none'; command: undefined };
 
 /**
  * Show AI generation preview
@@ -133,7 +164,7 @@ async function showAIPreview(
   response: AIResponse,
   storage: StorageService,
   aiProvider: AIProvider
-): Promise<CLICommand | undefined> {
+): Promise<PreviewResult> {
   // Build a detailed preview message
   const previewLines: string[] = [
     '```',
@@ -195,12 +226,12 @@ async function showAIPreview(
   }
 
   if (!selection || selection.label === '$(close) Cancel') {
-    return undefined;
+    return { action: 'cancelled' };
   }
 
   // Handle regenerate
   if (selection.label === '$(sync) Regenerate') {
-    return handleAICreate(prompt, storage, aiProvider);
+    return { action: 'regenerate' };
   }
 
   let command = response.command;
@@ -213,7 +244,7 @@ async function showAIPreview(
     });
 
     if (!edited) {
-      return undefined;
+      return { action: 'none', command: undefined };
     }
 
     command = edited;
@@ -236,5 +267,5 @@ async function showAIPreview(
     vscode.window.showInformationMessage('Command saved!');
   }
 
-  return newCommand;
+  return { action: 'saved', command: newCommand };
 }

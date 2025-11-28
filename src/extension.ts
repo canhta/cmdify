@@ -31,6 +31,31 @@ async function updateNoCommandsContext(): Promise<void> {
   await vscode.commands.executeCommand('setContext', 'cmdify.noCommands', !hasCommands);
 }
 
+/**
+ * Check if AI provider is configured (has API key or is Ollama)
+ */
+async function checkAIConfigured(context: vscode.ExtensionContext): Promise<boolean> {
+  const config = vscode.workspace.getConfiguration('cmdify.ai');
+  const providerName = config.get<string>('provider', 'openai');
+
+  // Ollama doesn't need an API key
+  if (providerName === 'ollama') {
+    return true;
+  }
+
+  // Check if API key exists for the provider
+  const apiKey = await context.secrets.get(`cmdify.${providerName}`);
+  return !!apiKey;
+}
+
+/**
+ * Update the aiNotConfigured context for welcome view
+ */
+async function updateAIConfiguredContext(context: vscode.ExtensionContext): Promise<void> {
+  const isConfigured = await checkAIConfigured(context);
+  await vscode.commands.executeCommand('setContext', 'cmdify.aiNotConfigured', !isConfigured);
+}
+
 export async function activate(context: vscode.ExtensionContext) {
   console.log('Cmdify is now active!');
 
@@ -40,6 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Set initial context for welcome view
   await updateNoCommandsContext();
+  await updateAIConfiguredContext(context);
 
   // Initialize AI provider
   aiProvider = await initializeAIProvider(context);
@@ -118,6 +144,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const configListener = vscode.workspace.onDidChangeConfiguration(async (e) => {
     if (e.affectsConfiguration('cmdify.ai')) {
       aiProvider = await initializeAIProvider(context);
+      await updateAIConfiguredContext(context);
     }
   });
 
@@ -270,8 +297,9 @@ async function configureAIProvider(context: vscode.ExtensionContext): Promise<vo
     await config.update('customEndpoint', '', vscode.ConfigurationTarget.Global);
   }
 
-  // Reinitialize provider
+  // Reinitialize provider and update context
   aiProvider = await initializeAIProvider(context);
+  await updateAIConfiguredContext(context);
   vscode.window.showInformationMessage(
     `AI configured: ${selectedProvider.label} with ${selectedModel.label}`
   );
@@ -343,8 +371,9 @@ async function configureCustomProvider(
     await context.secrets.store('cmdify.custom', apiKey);
   }
 
-  // Reinitialize provider
+  // Reinitialize provider and update context
   aiProvider = await initializeAIProvider(context);
+  await updateAIConfiguredContext(context);
   vscode.window.showInformationMessage(`AI configured: Custom provider with ${modelName}`);
 }
 
