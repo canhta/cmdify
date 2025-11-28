@@ -17,7 +17,7 @@
         {
           "id": "cmdify",
           "title": "Cmdify",
-          "icon": "$(terminal)"
+          "icon": "media/cmdify-icon.svg"
         }
       ]
     },

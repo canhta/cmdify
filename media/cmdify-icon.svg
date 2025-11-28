@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Terminal window frame -->
+  <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/>
+  <!-- Terminal prompt arrow -->
+  <polyline points="6 10 9 13 6 16"/>
+  <!-- AI sparkle - 4-point star big -->
+  <path d="M16 7 L16.8 9.2 L19 10 L16.8 10.8 L16 13 L15.2 10.8 L13 10 L15.2 9.2 Z" fill="currentColor" stroke="none"/>
+  <!-- AI sparkle - 4-point star small -->
+  <path d="M18.5 13.5 L18.9 14.6 L20 15 L18.9 15.4 L18.5 16.5 L18.1 15.4 L17 15 L18.1 14.6 Z" fill="currentColor" stroke="none"/>
+  <!-- Command line -->
+  <line x1="11" y1="16" x2="16" y2="16"/>
+</svg>
