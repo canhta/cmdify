@@ -1,7 +1,7 @@
 {
   "name": "ai-commander",
   "displayName": "AI Commander",
-  "description": "An AI-first VS Code extension for managing and executing CLI commands.",
+  "description": "AI-powered CLI command manager for VS Code",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.106.1"

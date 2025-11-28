@@ -1,71 +1,51 @@
-# ai-commander README
+# AI Commander
 
-This is the README for your extension "ai-commander". After writing up a brief description, we recommend including the following sections.
+AI-powered CLI command manager for VS Code. Describe what you want, get the command.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **AI Command Generation** - Describe in plain English, get shell commands
+- **Smart Detection** - Auto-detects if input is natural language or a command
+- **Multiple AI Providers** - OpenAI, Anthropic Claude, or local Ollama
+- **Command Library** - Save, organize, and reuse commands with tags
+- **Variable Support** - Use `{{variable}}` syntax for dynamic commands
+- **Safety Warnings** - Alerts before running destructive commands
+- **GitHub Sync** - Sync commands across machines via Gist
 
-For example if there is an image subfolder under your extension project workspace:
+## Quick Start
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Press `Cmd+Shift+C` (Mac) or `Ctrl+Shift+C` (Windows/Linux)
+2. Type what you want to do: *"delete all merged git branches"*
+3. Review the generated command and save or run it
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+## Commands
 
-## Requirements
+| Command | Description |
+|---------|-------------|
+| `AI Commander: Create Command` | Create via AI or manual entry |
+| `AI Commander: Run Command` | Execute a saved command |
+| `AI Commander: Search Commands` | Find and run commands |
+| `AI Commander: Configure AI Provider` | Set up OpenAI/Anthropic/Ollama |
+| `AI Commander: Sync Commands` | Sync with GitHub Gist |
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+## Settings
 
-## Extension Settings
+| Setting | Description | Default |
+|---------|-------------|--------|
+| `aiCommander.ai.provider` | AI provider (openai/anthropic/ollama) | `openai` |
+| `aiCommander.ai.model` | Model to use | `gpt-4o-mini` |
+| `aiCommander.execution.confirmDestructive` | Warn on dangerous commands | `true` |
+| `aiCommander.view.groupBy` | Group commands by tags/source/none | `tags` |
+| `aiCommander.sync.enabled` | Enable GitHub sync | `false` |
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## AI Provider Setup
 
-For example:
+1. Run `AI Commander: Configure AI Provider`
+2. Select your provider and enter API key
+3. Choose a model
 
-This extension contributes the following settings:
+**Ollama** runs locally - no API key needed.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## License
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+MIT
