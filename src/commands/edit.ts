@@ -48,46 +48,94 @@ export async function handleEdit(
  * Edit a specific command
  */
 async function editCommand(cmd: CLICommand, storage: StorageService): Promise<void> {
-  // Edit command
-  const newCommand = await vscode.window.showInputBox({
-    prompt: 'Edit the command',
-    value: cmd.command,
-    title: 'Edit Command',
+  // Show options for what to edit
+  const editOptions: vscode.QuickPickItem[] = [
+    {
+      label: '$(terminal) Command',
+      description: cmd.command.length > 50 ? cmd.command.substring(0, 50) + '...' : cmd.command,
+      detail: 'Edit the CLI command',
+    },
+    {
+      label: '$(comment) Description',
+      description: cmd.prompt || '(no description)',
+      detail: 'Edit the command description',
+    },
+    {
+      label: '$(tag) Tags',
+      description: cmd.tags.length > 0 ? cmd.tags.join(', ') : '(no tags)',
+      detail: 'Edit command tags',
+    },
+    {
+      label: '$(check-all) Edit All',
+      description: 'Edit all fields',
+      detail: 'Edit command, description, and tags',
+    },
+  ];
+
+  const selection = await vscode.window.showQuickPick(editOptions, {
+    placeHolder: 'What would you like to edit?',
+    title: `Edit: ${cmd.prompt || cmd.command}`,
   });
 
-  if (newCommand === undefined) {
-    return; // User cancelled
+  if (!selection) {
+    return;
   }
 
-  // Edit description/prompt
-  const newPrompt = await vscode.window.showInputBox({
-    prompt: 'Edit the description',
-    value: cmd.prompt,
-    title: 'Edit Description',
-  });
+  let newCommand = cmd.command;
+  let newPrompt = cmd.prompt;
+  let tags = cmd.tags;
 
-  if (newPrompt === undefined) {
-    return; // User cancelled
+  // Edit based on selection
+  if (selection.label === '$(terminal) Command' || selection.label === '$(check-all) Edit All') {
+    const editedCommand = await vscode.window.showInputBox({
+      prompt: 'Edit the command',
+      value: cmd.command,
+      title: 'Edit Command',
+    });
+
+    if (editedCommand === undefined) {
+      return; // User cancelled
+    }
+    newCommand = editedCommand;
   }
 
-  // Edit tags
-  const newTags = await vscode.window.showInputBox({
-    prompt: 'Edit tags (comma-separated)',
-    value: cmd.tags.join(', '),
-    title: 'Edit Tags',
-  });
+  if (selection.label === '$(comment) Description' || selection.label === '$(check-all) Edit All') {
+    const editedPrompt = await vscode.window.showInputBox({
+      prompt: 'Edit the description',
+      value: cmd.prompt,
+      title: 'Edit Description',
+    });
 
-  if (newTags === undefined) {
-    return; // User cancelled
+    if (editedPrompt === undefined) {
+      return; // User cancelled
+    }
+    newPrompt = editedPrompt;
   }
 
-  const tags = newTags
-    .split(',')
-    .map((t) => t.trim())
-    .filter((t) => t.length > 0);
+  if (selection.label === '$(tag) Tags' || selection.label === '$(check-all) Edit All') {
+    const existingTags = storage.getAllTags();
+    const tagHint = existingTags.length > 0 
+      ? `Existing tags: ${existingTags.slice(0, 5).join(', ')}${existingTags.length > 5 ? '...' : ''}`
+      : 'e.g., git, docker, npm';
 
-  // Extract new variables
-  const variables = extractVariables(newCommand);
+    const editedTags = await vscode.window.showInputBox({
+      prompt: `Edit tags (comma-separated). ${tagHint}`,
+      value: cmd.tags.join(', '),
+      title: 'Edit Tags',
+    });
+
+    if (editedTags === undefined) {
+      return; // User cancelled
+    }
+
+    tags = editedTags
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => t.length > 0);
+  }
+
+  // Extract new variables if command changed
+  const variables = newCommand !== cmd.command ? extractVariables(newCommand) : cmd.variables;
 
   // Update the command
   const updatedCommand: CLICommand = {

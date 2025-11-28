@@ -198,13 +198,13 @@
               "Custom OpenAI-compatible endpoint"
             ],
             "default": "openai",
-            "description": "AI provider for command generation. Use 'Cmdify: Configure AI Provider' command for guided setup.",
+            "markdownDescription": "AI provider for command generation. Run the **[Cmdify: Configure AI Provider](command:cmdify.configureAI)** command to set up your API key.",
             "order": 1
           },
           "cmdify.ai.model": {
             "type": "string",
             "default": "gpt-4o-mini",
-            "description": "AI model to use. Use 'Cmdify: Configure AI Provider' command to select from available models.",
+            "markdownDescription": "AI model to use. Run **[Cmdify: Configure AI Provider](command:cmdify.configureAI)** to select from available models.",
             "order": 2
           },
           "cmdify.ai.customEndpoint": {
@@ -212,6 +212,11 @@
             "default": "",
             "description": "Custom API endpoint (required for Azure and Custom providers)",
             "order": 3
+          },
+          "cmdify.ai.setupApiKey": {
+            "type": "null",
+            "markdownDescription": "**[🔑 Click here to configure your API key](command:cmdify.configureAI)**\n\nAPI keys are stored securely in VS Code's secret storage and never exposed in settings files.",
+            "order": 0
           }
         }
       },
@@ -266,7 +271,7 @@
               "source",
               "none"
             ],
-            "default": "tags",
+            "default": "none",
             "description": "How to group commands in the sidebar",
             "order": 3
           }
