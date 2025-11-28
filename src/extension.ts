@@ -22,7 +22,7 @@ let syncService: GitHubSyncService;
 let aiProvider: AIProvider | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log('AI Commander is now active!');
+  console.log('Cmdify is now active!');
 
   // Initialize storage
   storage = new StorageService(context);
@@ -36,60 +36,60 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Initialize tree view
   treeProvider = new CommandsTreeProvider(storage);
-  const treeView = vscode.window.createTreeView('aiCommander.commands', {
+  const treeView = vscode.window.createTreeView('cmdify.commands', {
     treeDataProvider: treeProvider,
     showCollapseAll: true,
   });
 
   // Register commands
   const commands = [
-    vscode.commands.registerCommand('aiCommander.create', () =>
+    vscode.commands.registerCommand('cmdify.create', () =>
       handleCreate(storage, aiProvider)
     ),
-    vscode.commands.registerCommand('aiCommander.run', () =>
+    vscode.commands.registerCommand('cmdify.run', () =>
       handleRun(undefined, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.runFromTree', (item) =>
+    vscode.commands.registerCommand('cmdify.runFromTree', (item) =>
       handleRun(item, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.search', () =>
+    vscode.commands.registerCommand('cmdify.search', () =>
       handleSearch(storage)
     ),
-    vscode.commands.registerCommand('aiCommander.copy', () =>
+    vscode.commands.registerCommand('cmdify.copy', () =>
       handleCopy(undefined, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.copyFromTree', (item) =>
+    vscode.commands.registerCommand('cmdify.copyFromTree', (item) =>
       handleCopy(item, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.edit', (item) =>
+    vscode.commands.registerCommand('cmdify.edit', (item) =>
       handleEdit(item, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.delete', (item) =>
+    vscode.commands.registerCommand('cmdify.delete', (item) =>
       handleDelete(item, storage)
     ),
-    vscode.commands.registerCommand('aiCommander.sync', () =>
+    vscode.commands.registerCommand('cmdify.sync', () =>
       handleSync(syncService)
     ),
-    vscode.commands.registerCommand('aiCommander.login', () =>
+    vscode.commands.registerCommand('cmdify.login', () =>
       handleLogin(syncService)
     ),
-    vscode.commands.registerCommand('aiCommander.settings', () =>
+    vscode.commands.registerCommand('cmdify.settings', () =>
       vscode.commands.executeCommand(
         'workbench.action.openSettings',
-        'aiCommander'
+        'cmdify'
       )
     ),
-    vscode.commands.registerCommand('aiCommander.configureAI', () =>
+    vscode.commands.registerCommand('cmdify.configureAI', () =>
       configureAIProvider(context)
     ),
-    vscode.commands.registerCommand('aiCommander.refresh', () =>
+    vscode.commands.registerCommand('cmdify.refresh', () =>
       treeProvider.refresh()
     ),
   ];
 
   // Listen for configuration changes
   const configListener = vscode.workspace.onDidChangeConfiguration(async (e) => {
-    if (e.affectsConfiguration('aiCommander.ai')) {
+    if (e.affectsConfiguration('cmdify.ai')) {
       aiProvider = await initializeAIProvider(context);
     }
   });
@@ -109,7 +109,7 @@ export async function activate(context: vscode.ExtensionContext) {
 async function initializeAIProvider(
   context: vscode.ExtensionContext
 ): Promise<AIProvider | undefined> {
-  const config = vscode.workspace.getConfiguration('aiCommander.ai');
+  const config = vscode.workspace.getConfiguration('cmdify.ai');
   const providerName = config.get<string>('provider', 'openai');
 
   switch (providerName) {
@@ -128,7 +128,7 @@ async function initializeAIProvider(
  * Configure AI provider (API key setup)
  */
 async function configureAIProvider(context: vscode.ExtensionContext): Promise<void> {
-  const config = vscode.workspace.getConfiguration('aiCommander.ai');
+  const config = vscode.workspace.getConfiguration('cmdify.ai');
   const currentProvider = config.get<string>('provider', 'openai');
 
   // Select provider
@@ -159,7 +159,7 @@ async function configureAIProvider(context: vscode.ExtensionContext): Promise<vo
     });
 
     if (apiKey) {
-      await context.secrets.store(`aiCommander.${selected.value}`, apiKey);
+      await context.secrets.store(`cmdify.${selected.value}`, apiKey);
       vscode.window.showInformationMessage(`${selected.label} API key saved securely.`);
     }
   }

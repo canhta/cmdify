@@ -13,12 +13,12 @@ export class AnthropicProvider implements AIProvider {
   constructor(private secretStorage: vscode.SecretStorage) {}
 
   async generate(prompt: string, context: AIContext): Promise<AIResponse> {
-    const apiKey = await this.secretStorage.get('aiCommander.anthropic');
+    const apiKey = await this.secretStorage.get('cmdify.anthropic');
     if (!apiKey) {
-      throw new Error('Anthropic API key not configured. Use "AI Commander: Configure AI Provider" to set it up.');
+      throw new Error('Anthropic API key not configured. Use "Cmdify: Configure AI Provider" to set it up.');
     }
 
-    const config = vscode.workspace.getConfiguration('aiCommander.ai');
+    const config = vscode.workspace.getConfiguration('cmdify.ai');
     const model = config.get<string>('model') || 'claude-sonnet-4-20250514';
     const customEndpoint = config.get<string>('customEndpoint');
 

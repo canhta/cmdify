@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { CLICommand } from '../models/command';
 
-const STORAGE_FILE = 'ai-commander-commands.json';
+const STORAGE_FILE = 'cmdify-commands.json';
 
 interface StorageData {
   version: string;

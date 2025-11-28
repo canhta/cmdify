@@ -1,4 +1,4 @@
-# AI Commander
+# Cmdify
 
 AI-powered CLI command manager for VS Code. Describe what you want, get the command.
 
@@ -22,25 +22,25 @@ AI-powered CLI command manager for VS Code. Describe what you want, get the comm
 
 | Command | Description |
 |---------|-------------|
-| `AI Commander: Create Command` | Create via AI or manual entry |
-| `AI Commander: Run Command` | Execute a saved command |
-| `AI Commander: Search Commands` | Find and run commands |
-| `AI Commander: Configure AI Provider` | Set up OpenAI/Anthropic/Ollama |
-| `AI Commander: Sync Commands` | Sync with GitHub Gist |
+| `Cmdify: Create Command` | Create via AI or manual entry |
+| `Cmdify: Run Command` | Execute a saved command |
+| `Cmdify: Search Commands` | Find and run commands |
+| `Cmdify: Configure AI Provider` | Set up OpenAI/Anthropic/Ollama |
+| `Cmdify: Sync Commands` | Sync with GitHub Gist |
 
 ## Settings
 
 | Setting | Description | Default |
 |---------|-------------|--------|
-| `aiCommander.ai.provider` | AI provider (openai/anthropic/ollama) | `openai` |
-| `aiCommander.ai.model` | Model to use | `gpt-4o-mini` |
-| `aiCommander.execution.confirmDestructive` | Warn on dangerous commands | `true` |
-| `aiCommander.view.groupBy` | Group commands by tags/source/none | `tags` |
-| `aiCommander.sync.enabled` | Enable GitHub sync | `false` |
+| `cmdify.ai.provider` | AI provider (openai/anthropic/ollama) | `openai` |
+| `cmdify.ai.model` | Model to use | `gpt-4o-mini` |
+| `cmdify.execution.confirmDestructive` | Warn on dangerous commands | `true` |
+| `cmdify.view.groupBy` | Group commands by tags/source/none | `tags` |
+| `cmdify.sync.enabled` | Enable GitHub sync | `false` |
 
 ## AI Provider Setup
 
-1. Run `AI Commander: Configure AI Provider`
+1. Run `Cmdify: Configure AI Provider`
 2. Select your provider and enter API key
 3. Choose a model
 

@@ -55,7 +55,7 @@ export function getTerminal(reuseTerminal: boolean): vscode.Terminal {
   }
 
   commanderTerminal = vscode.window.createTerminal({
-    name: 'AI Commander',
+    name: 'Cmdify',
     iconPath: new vscode.ThemeIcon('terminal'),
   });
 
@@ -69,7 +69,7 @@ export function executeCommand(command: string, options?: {
   workingDirectory?: string;
   reuseTerminal?: boolean;
 }): void {
-  const config = vscode.workspace.getConfiguration('aiCommander.execution');
+  const config = vscode.workspace.getConfiguration('cmdify.execution');
   const reuseTerminal = options?.reuseTerminal ?? config.get<boolean>('reuseTerminal', true);
 
   const terminal = getTerminal(reuseTerminal);

@@ -38,7 +38,7 @@ export async function handleCreate(
     );
 
     if (configure === 'Configure') {
-      await vscode.commands.executeCommand('aiCommander.configureAI');
+      await vscode.commands.executeCommand('cmdify.configureAI');
       return undefined;
     } else if (configure === 'Enter Manually') {
       return handleManualCreate(input, storage);
@@ -196,7 +196,7 @@ async function showAIPreview(
   await storage.add(newCommand);
 
   if (selection.label === '$(play) Run & Save') {
-    await vscode.commands.executeCommand('aiCommander.runFromTree', { commandData: newCommand });
+    await vscode.commands.executeCommand('cmdify.runFromTree', { commandData: newCommand });
   } else {
     vscode.window.showInformationMessage('Command saved!');
   }

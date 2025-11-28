@@ -48,7 +48,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
   }
 
   private getRootItems(): CommandTreeItem[] {
-    const config = vscode.workspace.getConfiguration('aiCommander.view');
+    const config = vscode.workspace.getConfiguration('cmdify.view');
     const showRecent = config.get<boolean>('showRecent', true);
     const groupBy = config.get<string>('groupBy', 'tags');
 
@@ -85,7 +85,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
         label: '✨ Create your first command',
         itemType: 'command',
         command: {
-          command: 'aiCommander.create',
+          command: 'cmdify.create',
           title: 'Create Command',
         },
         collapsibleState: vscode.TreeItemCollapsibleState.None,
@@ -97,7 +97,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
   }
 
   private getRecentCommands(): CommandTreeItem[] {
-    const config = vscode.workspace.getConfiguration('aiCommander.view');
+    const config = vscode.workspace.getConfiguration('cmdify.view');
     const recentCount = config.get<number>('recentCount', 5);
     const recent = this.storage.getRecent(recentCount);
     return recent.map((cmd) => this.createCommandItem(cmd));

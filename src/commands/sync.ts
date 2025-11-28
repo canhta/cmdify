@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { CLICommand } from '../models/command';
 import { StorageService } from '../services/storage';
 
-const GIST_FILENAME = 'ai-commander-commands.json';
+const GIST_FILENAME = 'cmdify-commands.json';
 
 interface SyncPayload {
   version: string;
@@ -21,7 +21,7 @@ export class GitHubSyncService {
     private context: vscode.ExtensionContext
   ) {
     // Load stored gist ID
-    this.gistId = context.globalState.get('aiCommander.gistId');
+    this.gistId = context.globalState.get('cmdify.gistId');
   }
 
   /**
@@ -112,7 +112,7 @@ export class GitHubSyncService {
    * Full sync (push local changes, pull remote changes)
    */
   async sync(): Promise<boolean> {
-    const config = vscode.workspace.getConfiguration('aiCommander.sync');
+    const config = vscode.workspace.getConfiguration('cmdify.sync');
     const enabled = config.get<boolean>('enabled', false);
 
     if (!enabled) {
@@ -146,7 +146,7 @@ export class GitHubSyncService {
         'Accept': 'application/vnd.github+json',
       },
       body: JSON.stringify({
-        description: 'AI Commander - Synced Commands',
+        description: 'Cmdify - Synced Commands',
         public: false,
         files: {
           [GIST_FILENAME]: {
@@ -162,7 +162,7 @@ export class GitHubSyncService {
 
     const data = await response.json() as { id: string };
     this.gistId = data.id;
-    await this.context.globalState.update('aiCommander.gistId', this.gistId);
+    await this.context.globalState.update('cmdify.gistId', this.gistId);
   }
 
   /**
@@ -189,7 +189,7 @@ export class GitHubSyncService {
       // Gist might have been deleted, try creating new one
       if (response.status === 404) {
         this.gistId = undefined;
-        await this.context.globalState.update('aiCommander.gistId', undefined);
+        await this.context.globalState.update('cmdify.gistId', undefined);
         return this.createGist(token, payload);
       }
       throw new Error(`GitHub API error: ${response.status}`);
@@ -210,7 +210,7 @@ export class GitHubSyncService {
     if (!response.ok) {
       if (response.status === 404) {
         this.gistId = undefined;
-        await this.context.globalState.update('aiCommander.gistId', undefined);
+        await this.context.globalState.update('cmdify.gistId', undefined);
         return undefined;
       }
       throw new Error(`GitHub API error: ${response.status}`);
@@ -229,7 +229,7 @@ export class GitHubSyncService {
   }
 
   /**
-   * Find existing AI Commander gist
+   * Find existing Cmdify gist
    */
   private async findExistingGist(token: string): Promise<boolean> {
     const response = await fetch('https://api.github.com/gists', {
@@ -251,7 +251,7 @@ export class GitHubSyncService {
 
     if (existing) {
       this.gistId = existing.id;
-      await this.context.globalState.update('aiCommander.gistId', this.gistId);
+      await this.context.globalState.update('cmdify.gistId', this.gistId);
       return true;
     }
 

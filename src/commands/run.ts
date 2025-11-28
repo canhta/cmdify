@@ -25,7 +25,7 @@ export async function handleRun(
         'Create'
       );
       if (create === 'Create') {
-        await vscode.commands.executeCommand('aiCommander.create');
+        await vscode.commands.executeCommand('cmdify.create');
       }
       return;
     }
@@ -72,7 +72,7 @@ async function runCommand(cmd: CLICommand, storage: StorageService): Promise<voi
   }
 
   // Security check
-  const config = vscode.workspace.getConfiguration('aiCommander.execution');
+  const config = vscode.workspace.getConfiguration('cmdify.execution');
   const confirmDestructive = config.get<boolean>('confirmDestructive', true);
 
   if (confirmDestructive) {
@@ -197,7 +197,7 @@ export async function handleSearch(storage: StorageService): Promise<void> {
   }
 
   if (selection.label === '$(sparkle) Generate with AI...') {
-    await vscode.commands.executeCommand('aiCommander.create');
+    await vscode.commands.executeCommand('cmdify.create');
     return;
   }
 

@@ -11,7 +11,7 @@ export class OllamaProvider implements AIProvider {
   private endpoint = 'http://localhost:11434/api/generate';
 
   async generate(prompt: string, context: AIContext): Promise<AIResponse> {
-    const config = vscode.workspace.getConfiguration('aiCommander.ai');
+    const config = vscode.workspace.getConfiguration('cmdify.ai');
     const model = config.get<string>('model') || 'llama3.2';
     const customEndpoint = config.get<string>('customEndpoint');
 

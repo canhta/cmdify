@@ -13,12 +13,12 @@ export class OpenAIProvider implements AIProvider {
   constructor(private secretStorage: vscode.SecretStorage) {}
 
   async generate(prompt: string, context: AIContext): Promise<AIResponse> {
-    const apiKey = await this.secretStorage.get('aiCommander.openai');
+    const apiKey = await this.secretStorage.get('cmdify.openai');
     if (!apiKey) {
-      throw new Error('OpenAI API key not configured. Use "AI Commander: Configure AI Provider" to set it up.');
+      throw new Error('OpenAI API key not configured. Use "Cmdify: Configure AI Provider" to set it up.');
     }
 
-    const config = vscode.workspace.getConfiguration('aiCommander.ai');
+    const config = vscode.workspace.getConfiguration('cmdify.ai');
     const model = config.get<string>('model') || 'gpt-4o-mini';
     const customEndpoint = config.get<string>('customEndpoint');
 
