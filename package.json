@@ -1,14 +1,40 @@
 {
   "name": "cmdify",
   "displayName": "Cmdify",
-  "description": "AI-powered CLI command manager",
+  "description": "AI-powered CLI command manager - Describe what you want, get the shell command",
   "version": "0.0.1",
   "publisher": "canhta",
+  "license": "MIT",
   "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canhta/cmdify"
+  },
+  "homepage": "https://github.com/canhta/cmdify#readme",
+  "bugs": {
+    "url": "https://github.com/canhta/cmdify/issues"
+  },
+  "keywords": [
+    "ai",
+    "cli",
+    "terminal",
+    "command",
+    "shell",
+    "openai",
+    "gpt",
+    "anthropic",
+    "claude",
+    "ollama"
+  ],
+  "galleryBanner": {
+    "color": "#6366f1",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.106.1"
   },
   "categories": [
+    "Machine Learning",
     "Other"
   ],
   "activationEvents": [],
