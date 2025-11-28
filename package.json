@@ -2,7 +2,7 @@
   "name": "cmdify",
   "displayName": "Cmdify",
   "description": "AI-powered CLI command manager - Describe what you want, get the shell command",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "canhta",
   "license": "MIT",
   "icon": "media/icon.png",
