@@ -111,7 +111,7 @@ export class ReminderService implements vscode.Disposable {
    * Show notification for a TODO
    */
   private async showTodoNotification(todo: DetectedTodo, isOverdue: boolean): Promise<void> {
-    const prefix = isOverdue ? '$(warning) Overdue' : '$(calendar) Due Today';
+    const prefix = isOverdue ? '⚠️ Overdue' : '📅 Due Today';
     const message = `${prefix}: ${todo.description}`;
 
     const action = await vscode.window.showInformationMessage(

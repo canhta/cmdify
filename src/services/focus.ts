@@ -71,6 +71,8 @@ export class FocusService implements vscode.Disposable {
       sessionsBeforeLongBreak: config.get<number>('sessionsBeforeLongBreak', DEFAULT_FOCUS_CONFIG.sessionsBeforeLongBreak),
       soundEnabled: config.get<boolean>('soundEnabled', DEFAULT_FOCUS_CONFIG.soundEnabled),
       autoStartBreak: config.get<boolean>('autoStartBreak', DEFAULT_FOCUS_CONFIG.autoStartBreak),
+      minimumFocusForStreak: config.get<number>('minimumFocusForStreak', DEFAULT_FOCUS_CONFIG.minimumFocusForStreak),
+      minimumSessionPercent: config.get<number>('minimumSessionPercent', DEFAULT_FOCUS_CONFIG.minimumSessionPercent),
     };
   }
 
@@ -94,7 +96,18 @@ export class FocusService implements vscode.Disposable {
    */
   private loadStats(): FocusStats {
     const saved = this.context.globalState.get<FocusStats>(FOCUS_STATS_KEY);
-    return saved || { ...DEFAULT_FOCUS_STATS };
+    if (saved) {
+      // Migrate old stats format to new format
+      return {
+        ...DEFAULT_FOCUS_STATS,
+        ...saved,
+        totalCompletedSessions: saved.totalCompletedSessions ?? saved.totalSessions ?? 0,
+        totalActualFocusMinutes: saved.totalActualFocusMinutes ?? saved.totalFocusMinutes ?? 0,
+        lastActivityDate: saved.lastActivityDate ?? saved.lastSessionDate ?? '',
+        skippedSessions: saved.skippedSessions ?? 0,
+      };
+    }
+    return { ...DEFAULT_FOCUS_STATS };
   }
 
   /**
@@ -241,19 +254,96 @@ export class FocusService implements vscode.Disposable {
 
   /**
    * Skip to the next phase (focus -> break or break -> focus)
+   * Skipping a focus session does NOT count for streak
    */
   async skip(): Promise<void> {
     this.stopTimer();
 
     if (this.state.status === 'focusing' || this.state.status === 'paused') {
-      // Skip to break
+      // Calculate actual focus time before skipping
+      const actualFocusMinutes = this.getActualFocusMinutes();
+      const effectiveConfig = this.getEffectiveConfig();
+      const today = getTodayString();
+      
+      // Check if user focused enough to count (even if skipping to break early)
+      const meetsMinimum = actualFocusMinutes >= effectiveConfig.minimumFocusForStreak;
+      const meetsPercent = actualFocusMinutes >= (effectiveConfig.focusDuration * effectiveConfig.minimumSessionPercent / 100);
+      
+      if (meetsMinimum && meetsPercent) {
+        // Partial session completion - still counts for streak!
+        await this.recordPartialSession(actualFocusMinutes, today);
+        vscode.window.showInformationMessage(
+          `✅ Good job! ${Math.round(actualFocusMinutes)} minutes of focus recorded.`
+        );
+      } else {
+        // Not enough focus time - track as skipped
+        this.stats.skippedSessions++;
+        this.stats.lastActivityDate = today;
+        this.updateDailyStats(today, 0, actualFocusMinutes, false, true);
+        await this.saveStats();
+        
+        const minRequired = Math.max(
+          effectiveConfig.minimumFocusForStreak,
+          Math.ceil(effectiveConfig.focusDuration * effectiveConfig.minimumSessionPercent / 100)
+        );
+        vscode.window.showWarningMessage(
+          `⚠️ Session skipped. Focus at least ${minRequired} min to count for streak.`
+        );
+      }
+      
+      this.sessionStartTime = null;
       await this.startBreak();
     } else if (this.state.status === 'break') {
-      // Skip break, start new focus session
+      // Skip break is allowed without penalty
       this.state.status = 'idle';
       await this.saveState();
       await this.start();
     }
+  }
+
+  /**
+   * Get actual focus minutes from session start
+   */
+  private getActualFocusMinutes(): number {
+    if (!this.sessionStartTime) {
+      return 0;
+    }
+    const effectiveConfig = this.getEffectiveConfig();
+    const elapsedMs = Date.now() - this.sessionStartTime.getTime();
+    const elapsedMinutes = elapsedMs / 1000 / 60;
+    // Cap at configured duration (in case of pauses/resumes affecting time)
+    return Math.min(elapsedMinutes, effectiveConfig.focusDuration);
+  }
+
+  /**
+   * Record a partial session (skipped early but met minimum requirements)
+   */
+  private async recordPartialSession(actualMinutes: number, date: string): Promise<void> {
+    // Update state
+    this.state.todaySessions++;
+    this.state.todayFocusMinutes += actualMinutes;
+
+    // Update stats
+    this.stats.totalSessions++;
+    this.stats.totalCompletedSessions++;
+    this.stats.totalFocusMinutes += actualMinutes;
+    this.stats.totalActualFocusMinutes += actualMinutes;
+    
+    if (actualMinutes > this.stats.longestSessionMinutes) {
+      this.stats.longestSessionMinutes = actualMinutes;
+    }
+
+    // Update streak (same logic as completeSession)
+    this.updateStreak(date);
+    
+    this.stats.lastSessionDate = date;
+    this.stats.lastActivityDate = date;
+
+    // Update daily stats
+    this.updateDailyStats(date, actualMinutes, actualMinutes, true, false);
+
+    await this.saveState();
+    await this.saveStats();
   }
 
   /**
@@ -300,42 +390,39 @@ export class FocusService implements vscode.Disposable {
   }
 
   /**
-   * Complete a focus session
+   * Complete a focus session (timer reached 0)
    */
   private async completeSession(): Promise<void> {
     const today = getTodayString();
-    const sessionMinutes = this.config.focusDuration;
+    const effectiveConfig = this.getEffectiveConfig();
+    const configuredMinutes = effectiveConfig.focusDuration;
+    const actualMinutes = this.getActualFocusMinutes() || configuredMinutes;
 
     // Update state
     this.state.todaySessions++;
-    this.state.todayFocusMinutes += sessionMinutes;
+    this.state.todayFocusMinutes += actualMinutes;
 
     // Update stats
     this.stats.totalSessions++;
-    this.stats.totalFocusMinutes += sessionMinutes;
+    this.stats.totalCompletedSessions++;
+    this.stats.totalFocusMinutes += configuredMinutes;
+    this.stats.totalActualFocusMinutes += actualMinutes;
     
-    if (sessionMinutes > this.stats.longestSessionMinutes) {
-      this.stats.longestSessionMinutes = sessionMinutes;
+    if (actualMinutes > this.stats.longestSessionMinutes) {
+      this.stats.longestSessionMinutes = actualMinutes;
     }
 
     // Update streak
-    if (this.stats.lastSessionDate !== today) {
-      if (isYesterday(this.stats.lastSessionDate) || !this.stats.lastSessionDate) {
-        this.stats.currentStreak++;
-      } else {
-        this.stats.currentStreak = 1;
-      }
-      
-      if (this.stats.currentStreak > this.stats.longestStreak) {
-        this.stats.longestStreak = this.stats.currentStreak;
-      }
-    }
+    this.updateStreak(today);
     
     this.stats.lastSessionDate = today;
+    this.stats.lastActivityDate = today;
 
     // Update daily stats
-    this.updateDailyStats(today, sessionMinutes);
+    this.updateDailyStats(today, configuredMinutes, actualMinutes, true, false);
 
+    this.sessionStartTime = null;
+    
     await this.saveState();
     await this.saveStats();
 
@@ -354,6 +441,24 @@ export class FocusService implements vscode.Disposable {
       this.state.status = 'idle';
       this.currentSessionConfig = null; // Reset session config
       await this.saveState();
+    }
+  }
+
+  /**
+   * Update streak based on date
+   */
+  private updateStreak(today: string): void {
+    if (this.stats.lastSessionDate !== today) {
+      if (isYesterday(this.stats.lastSessionDate) || !this.stats.lastSessionDate) {
+        this.stats.currentStreak++;
+      } else {
+        // Streak broken - reset to 1
+        this.stats.currentStreak = 1;
+      }
+      
+      if (this.stats.currentStreak > this.stats.longestStreak) {
+        this.stats.longestStreak = this.stats.currentStreak;
+      }
     }
   }
 
@@ -383,7 +488,7 @@ export class FocusService implements vscode.Disposable {
     // Show break notification with suggestion (Phase 4)
     const suggestion = getBreakSuggestion(breakDuration);
     vscode.window.showInformationMessage(
-      `$(coffee) Time for a ${isLongBreak ? 'long' : 'short'} break! (${breakDuration} min)\n${suggestion}`
+      `☕ Time for a ${isLongBreak ? 'long' : 'short'} break! (${breakDuration} min)\n${suggestion}`
     );
   }
 
@@ -397,7 +502,7 @@ export class FocusService implements vscode.Disposable {
     this._onBreakComplete.fire();
 
     const action = await vscode.window.showInformationMessage(
-      '$(play) Break over! Ready for another focus session?',
+      '▶️ Break over! Ready for another focus session?',
       'Start Focus',
       'Not Now'
     );
@@ -410,17 +515,34 @@ export class FocusService implements vscode.Disposable {
   /**
    * Update daily stats array
    */
-  private updateDailyStats(date: string, minutes: number): void {
+  private updateDailyStats(
+    date: string, 
+    configuredMinutes: number, 
+    actualMinutes: number, 
+    completed: boolean, 
+    skipped: boolean
+  ): void {
     const existingIndex = this.stats.dailyStats.findIndex(d => d.date === date);
     
     if (existingIndex >= 0) {
-      this.stats.dailyStats[existingIndex].sessions++;
-      this.stats.dailyStats[existingIndex].focusMinutes += minutes;
+      const existing = this.stats.dailyStats[existingIndex];
+      existing.sessions++;
+      existing.focusMinutes += configuredMinutes;
+      existing.actualFocusMinutes += actualMinutes;
+      if (completed) {
+        existing.completedSessions++;
+      }
+      if (skipped) {
+        existing.skippedSessions++;
+      }
     } else {
       this.stats.dailyStats.unshift({
         date,
         sessions: 1,
-        focusMinutes: minutes,
+        completedSessions: completed ? 1 : 0,
+        focusMinutes: configuredMinutes,
+        actualFocusMinutes: actualMinutes,
+        skippedSessions: skipped ? 1 : 0,
       });
     }
 
@@ -433,6 +555,18 @@ export class FocusService implements vscode.Disposable {
    */
   isActive(): boolean {
     return this.state.status === 'focusing' || this.state.status === 'break';
+  }
+
+  /**
+   * Get the last session's actual focus minutes (from today's stats)
+   */
+  getLastSessionMinutes(): number {
+    const today = getTodayString();
+    const todayStats = this.stats.dailyStats.find(d => d.date === today);
+    if (todayStats && todayStats.completedSessions > 0) {
+      return Math.round(todayStats.actualFocusMinutes / todayStats.completedSessions);
+    }
+    return this.getEffectiveConfig().focusDuration;
   }
 
   /**

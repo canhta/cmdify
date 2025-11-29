@@ -652,6 +652,22 @@
             "description": "Automatically start break after focus session",
             "order": 6
           },
+          "cmdify.focus.minimumFocusForStreak": {
+            "type": "number",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 60,
+            "description": "Minimum focus time (minutes) required to count for streak. Prevents gaming by requiring real focus.",
+            "order": 7
+          },
+          "cmdify.focus.minimumSessionPercent": {
+            "type": "number",
+            "default": 80,
+            "minimum": 50,
+            "maximum": 100,
+            "description": "Minimum percentage of session that must be completed to count for streak (50-100%)",
+            "order": 8
+          },
           "cmdify.focus.companionType": {
             "type": "string",
             "enum": [
