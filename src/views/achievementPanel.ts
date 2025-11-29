@@ -12,6 +12,7 @@ import {
   ACHIEVEMENTS,
   getAchievementById,
 } from '../models/achievement';
+import { ACHIEVEMENT_CATEGORY_EMOJIS } from '../utils/icons';
 
 /**
  * Achievement Panel Webview Provider
@@ -442,11 +443,11 @@ export class AchievementPanelProvider implements vscode.Disposable {
     progressMap: Map<string, { currentValue: number; targetValue: number; percentage: number }>
   ): string {
     const categoryInfo: Record<AchievementCategory, { icon: string; name: string }> = {
-      focus: { icon: '🎯', name: 'Focus' },
-      streaks: { icon: '🔥', name: 'Streaks' },
-      todos: { icon: '✅', name: 'Tasks' },
-      commands: { icon: '⌨️', name: 'Commands' },
-      special: { icon: '⭐', name: 'Special' },
+      focus: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['focus'], name: 'Focus' },
+      streaks: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['streaks'], name: 'Streaks' },
+      todos: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['todos'], name: 'Tasks' },
+      commands: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['commands'], name: 'Commands' },
+      special: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['special'], name: 'Special' },
     };
 
     const categories: AchievementCategory[] = ['focus', 'streaks', 'todos', 'commands', 'special'];

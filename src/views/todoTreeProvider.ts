@@ -8,12 +8,16 @@ import {
   DetectedTodo,
   TodoCategory,
   getCategoryLabel,
-  getTodoTypeIcon,
   getPriorityWeight,
   GlobalReminder,
 } from '../models/todo';
 import { TodoScannerService } from '../services/todoScanner';
 import { ReminderService } from '../services/reminder';
+import {
+  getTodoThemeIcon,
+  getTodoCategoryThemeIcon,
+  TODO_CATEGORY_THEME_ICONS,
+} from '../utils/icons';
 import * as path from 'path';
 
 /**
@@ -43,8 +47,9 @@ export class TodoTreeItem extends vscode.TreeItem {
   }
 
   private setupTodoItem(todo: DetectedTodo): void {
-    const icon = getTodoTypeIcon(todo.type);
-    this.displayLabel = `${icon} ${todo.description}`;
+    // Clean label without emoji - let ThemeIcon handle the visual
+    this.displayLabel = todo.description;
+    this.label = todo.description;
     this.description = path.basename(todo.filePath);
     
     // Tooltip with full info
@@ -66,33 +71,14 @@ export class TodoTreeItem extends vscode.TreeItem {
       arguments: [todo],
     };
 
-    // Icon based on type
-    this.iconPath = new vscode.ThemeIcon(this.getThemeIcon(todo.type));
-  }
-
-  private getThemeIcon(type: string): string {
-    switch (type.toUpperCase()) {
-      case 'TODO':
-        return 'checklist';
-      case 'FIXME':
-        return 'tools';
-      case 'BUG':
-        return 'bug';
-      case 'HACK':
-        return 'zap';
-      case 'XXX':
-        return 'warning';
-      case 'OPTIMIZE':
-        return 'rocket';
-      case 'REVIEW':
-        return 'eye';
-      default:
-        return 'note';
-    }
+    // Use centralized icon system
+    this.iconPath = getTodoThemeIcon(todo.type);
   }
 
   private setupReminderItem(reminder: GlobalReminder): void {
-    this.displayLabel = `🔔 ${reminder.title}`;
+    // Clean label without emoji
+    this.displayLabel = reminder.title;
+    this.label = reminder.title;
     this.description = reminder.dueAt.toLocaleDateString();
     
     let tooltip = `Reminder: ${reminder.title}\n`;
@@ -103,28 +89,11 @@ export class TodoTreeItem extends vscode.TreeItem {
     this.tooltip = tooltip;
 
     this.contextValue = 'reminder';
-    this.iconPath = new vscode.ThemeIcon('bell');
+    this.iconPath = new vscode.ThemeIcon(TODO_CATEGORY_THEME_ICONS['reminder']);
   }
 
   private setupCategoryItem(category: TodoCategory): void {
-    this.iconPath = new vscode.ThemeIcon(this.getCategoryIcon(category));
-  }
-
-  private getCategoryIcon(category: TodoCategory): string {
-    switch (category) {
-      case 'overdue':
-        return 'warning';
-      case 'today':
-        return 'calendar';
-      case 'thisWeek':
-        return 'calendar';
-      case 'upcoming':
-        return 'clock';
-      case 'noDate':
-        return 'note';
-      case 'completed':
-        return 'check';
-    }
+    this.iconPath = getTodoCategoryThemeIcon(category);
   }
 }
 

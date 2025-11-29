@@ -2,6 +2,13 @@
  * Companion types and interfaces - Enhanced with Evolution 2.0
  */
 
+import {
+  COMPANION_STATUS_CODICONS,
+  COMPANION_TYPE_EMOJIS,
+  COMPANION_MOOD_EMOJIS,
+  ACCESSORY_EMOJIS,
+} from '../utils/icons';
+
 /**
  * Available companion types (including new unlockable ones)
  */
@@ -15,14 +22,9 @@ export type CompanionType =
 export type CompanionMood = 'happy' | 'focused' | 'tired' | 'celebrating';
 
 /**
- * Mood emoji for status bar display
+ * Re-export mood emojis from centralized icon system
  */
-export const MOOD_EMOJIS: Record<CompanionMood, string> = {
-  happy: '😊',
-  focused: '🎯',
-  tired: '😫',
-  celebrating: '🤩',
-};
+export const MOOD_EMOJIS = COMPANION_MOOD_EMOJIS;
 
 /**
  * SVG animation states (maps to file names)
@@ -134,68 +136,69 @@ export function totalXpForLevel(level: number): number {
 
 /**
  * Companion unlock conditions
+ * Note: emoji values reference COMPANION_TYPE_EMOJIS from utils/icons
  */
 export const COMPANION_UNLOCKS: CompanionUnlock[] = [
   {
     type: 'robot',
     name: 'Robot',
-    emoji: '🤖',
+    emoji: COMPANION_TYPE_EMOJIS['robot'],
     unlockedBy: { type: 'level', value: 0 },  // Default
     isDefault: true,
   },
   {
     type: 'cat',
     name: 'Cat',
-    emoji: '🐱',
+    emoji: COMPANION_TYPE_EMOJIS['cat'],
     unlockedBy: { type: 'sessions', value: 10, description: 'Complete 10 focus sessions' },
     isDefault: false,
   },
   {
     type: 'dog',
     name: 'Dog',
-    emoji: '🐕',
+    emoji: COMPANION_TYPE_EMOJIS['dog'],
     unlockedBy: { type: 'sessions', value: 25, description: 'Complete 25 focus sessions' },
     isDefault: false,
   },
   {
     type: 'plant',
     name: 'Plant',
-    emoji: '🌱',
+    emoji: COMPANION_TYPE_EMOJIS['plant'],
     unlockedBy: { type: 'streak', value: 7, description: 'Achieve 7-day streak' },
     isDefault: false,
   },
   {
     type: 'flame',
     name: 'Flame',
-    emoji: '🔥',
+    emoji: COMPANION_TYPE_EMOJIS['flame'],
     unlockedBy: { type: 'streak', value: 30, description: 'Achieve 30-day streak' },
     isDefault: false,
   },
   {
     type: 'fox',
     name: 'Fox',
-    emoji: '🦊',
+    emoji: COMPANION_TYPE_EMOJIS['fox'],
     unlockedBy: { type: 'todos', value: 50, description: 'Complete 50 TODOs' },
     isDefault: false,
   },
   {
     type: 'owl',
     name: 'Owl',
-    emoji: '🦉',
+    emoji: COMPANION_TYPE_EMOJIS['owl'],
     unlockedBy: { type: 'special', value: 5, description: 'Use extension after midnight 5 times' },
     isDefault: false,
   },
   {
     type: 'panda',
     name: 'Panda',
-    emoji: '🐼',
+    emoji: COMPANION_TYPE_EMOJIS['panda'],
     unlockedBy: { type: 'streak', value: 100, description: 'Achieve 100-day streak (legendary!)' },
     isDefault: false,
   },
   {
     type: 'star',
     name: 'Star',
-    emoji: '⭐',
+    emoji: COMPANION_TYPE_EMOJIS['star'],
     unlockedBy: { type: 'level', value: 25, description: 'Reach level 25' },
     isDefault: false,
   },
@@ -203,40 +206,41 @@ export const COMPANION_UNLOCKS: CompanionUnlock[] = [
 
 /**
  * Accessory definitions
+ * Note: emoji values reference ACCESSORY_EMOJIS from utils/icons
  */
 export const ACCESSORIES: Accessory[] = [
   {
     id: 'party_hat',
     name: 'Party Hat',
-    emoji: '🎩',
+    emoji: ACCESSORY_EMOJIS['party_hat'],
     category: 'hat',
     unlockedBy: { type: 'level', value: 5, description: 'Reach level 5' },
   },
   {
     id: 'crown',
     name: 'Crown',
-    emoji: '👑',
+    emoji: ACCESSORY_EMOJIS['crown'],
     category: 'hat',
     unlockedBy: { type: 'streak', value: 30, description: 'Achieve 30-day streak' },
   },
   {
     id: 'sunglasses',
     name: 'Sunglasses',
-    emoji: '😎',
+    emoji: ACCESSORY_EMOJIS['sunglasses'],
     category: 'glasses',
     unlockedBy: { type: 'sessions', value: 50, description: 'Complete 50 focus sessions' },
   },
   {
     id: 'nerd_glasses',
     name: 'Nerd Glasses',
-    emoji: '🤓',
+    emoji: ACCESSORY_EMOJIS['nerd_glasses'],
     category: 'glasses',
     unlockedBy: { type: 'todos', value: 100, description: 'Complete 100 TODOs' },
   },
   {
     id: 'confetti',
     name: 'Confetti',
-    emoji: '🎊',
+    emoji: ACCESSORY_EMOJIS['confetti'],
     category: 'background',
     unlockedBy: { type: 'level', value: 10, description: 'Reach level 10' },
   },
@@ -244,73 +248,9 @@ export const ACCESSORIES: Accessory[] = [
 
 /**
  * Companion codicons for status bar (VS Code built-in icons)
- * Using codicon syntax: $(icon-name)
+ * Re-export from centralized icon system
  */
-export const COMPANION_ICONS: Record<CompanionType, Record<string, string>> = {
-  cat: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  dog: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  robot: {
-    idle: '$(hubot)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  plant: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  flame: {
-    idle: '$(flame)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  fox: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  owl: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  panda: {
-    idle: '$(smiley)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-  star: {
-    idle: '$(star-full)',
-    focusing: '$(flame)',
-    break: '$(coffee)',
-    paused: '$(debug-pause)',
-    celebrating: '$(star-full)',
-  },
-};
+export const COMPANION_ICONS = COMPANION_STATUS_CODICONS;
 
 /**
  * Companion display names

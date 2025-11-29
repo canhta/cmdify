@@ -2,6 +2,10 @@ import * as vscode from 'vscode';
 import { CLICommand, getDisplayName } from '../models/command';
 import { CommandTreeItem, TreeItemType } from '../models/types';
 import { StorageService } from '../services/storage';
+import {
+  COMMAND_SOURCE_THEME_ICONS,
+  CATEGORY_THEME_ICONS,
+} from '../utils/icons';
 
 /**
  * Tree data provider for the commands sidebar
@@ -64,7 +68,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showFavorites) {
       const favoritesCount = this.storage.getFavorites().length;
       if (favoritesCount > 0) {
-        items.push(this.createCategoryItem('Favorites', 'favorites', favoritesCount, 'star-full'));
+        items.push(this.createCategoryItem('Favorites', 'favorites', favoritesCount, CATEGORY_THEME_ICONS['favorites']));
       }
     }
 
@@ -72,7 +76,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showMostUsed) {
       const mostUsed = this.getMostUsedCommands();
       if (mostUsed.length > 0) {
-        items.push(this.createCategoryItem('Most Used', 'mostUsed', mostUsed.length, 'graph'));
+        items.push(this.createCategoryItem('Most Used', 'mostUsed', mostUsed.length, CATEGORY_THEME_ICONS['mostUsed']));
       }
     }
 
@@ -80,7 +84,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showRecent) {
       const recentCount = this.storage.getRecent().length;
       if (recentCount > 0) {
-        items.push(this.createCategoryItem('Recent', 'recent', recentCount, 'history'));
+        items.push(this.createCategoryItem('Recent', 'recent', recentCount, CATEGORY_THEME_ICONS['recent']));
       }
     }
 
@@ -91,7 +95,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
 
       for (const tag of sortedTags) {
         const count = grouped.get(tag)?.length || 0;
-        items.push(this.createCategoryItem(tag, 'tag', count, 'tag', tag));
+        items.push(this.createCategoryItem(tag, 'tag', count, CATEGORY_THEME_ICONS['tag'], tag));
       }
     } else if (groupBy === 'source') {
       const grouped = this.storage.getGroupedBySource();
@@ -102,12 +106,6 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
         'imported': 'Imported',
         'shared': 'Shared',
       };
-      const sourceIcons: Record<string, string> = {
-        'ai': 'sparkle',
-        'manual': 'edit',
-        'imported': 'cloud-download',
-        'shared': 'cloud',
-      };
 
       for (const source of sourceOrder) {
         const commands = grouped.get(source);
@@ -116,7 +114,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
             sourceLabels[source] || source,
             'source' as TreeItemType,
             commands.length,
-            sourceIcons[source] || 'terminal',
+            COMMAND_SOURCE_THEME_ICONS[source] || COMMAND_SOURCE_THEME_ICONS['DEFAULT'],
             undefined,
             source
           ));
@@ -133,8 +131,9 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     // Show welcome message if no commands
     if (items.length === 0) {
       const welcomeItem: CommandTreeItem = {
-        label: '✨ Create your first command',
+        label: 'Create your first command',
         itemType: 'command',
+        iconPath: new vscode.ThemeIcon('add'),
         command: {
           command: 'cmdify.create',
           title: 'Create Command',

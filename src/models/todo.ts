@@ -110,47 +110,22 @@ export interface StoredTodoMeta {
 export type TodoCategory = 'overdue' | 'today' | 'thisWeek' | 'upcoming' | 'noDate' | 'completed';
 
 /**
- * Get category label
+ * Get category label (plain text, no icons)
  */
 export function getCategoryLabel(category: TodoCategory): string {
   switch (category) {
     case 'overdue':
-      return '⚠️ Overdue';
+      return 'Overdue';
     case 'today':
-      return '📅 Today';
+      return 'Today';
     case 'thisWeek':
-      return '📆 This Week';
+      return 'This Week';
     case 'upcoming':
-      return '🗓️ Upcoming';
+      return 'Upcoming';
     case 'noDate':
-      return '📝 No Date';
+      return 'No Date';
     case 'completed':
-      return '✅ Completed';
-  }
-}
-
-/**
- * Get icon for TODO type
- */
-export function getTodoTypeIcon(type: string): string {
-  const upperType = type.toUpperCase();
-  switch (upperType) {
-    case 'TODO':
-      return '📌';
-    case 'FIXME':
-      return '🔧';
-    case 'BUG':
-      return '🐛';
-    case 'HACK':
-      return '⚡';
-    case 'XXX':
-      return '⚠️';
-    case 'OPTIMIZE':
-      return '🚀';
-    case 'REVIEW':
-      return '👀';
-    default:
-      return '📋';
+      return 'Completed';
   }
 }
 

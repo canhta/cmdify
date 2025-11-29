@@ -4,6 +4,11 @@
  */
 
 import * as vscode from 'vscode';
+import {
+  COMPANION_TYPE_EMOJIS,
+  AI_PROVIDER_EMOJIS,
+  FEATURE_EMOJIS,
+} from '../utils/icons';
 
 // Storage keys
 const ONBOARDING_COMPLETED_KEY = 'cmdify.onboarding.completed';
@@ -71,12 +76,12 @@ export class OnboardingService implements vscode.Disposable {
   /**
    * Get available AI providers
    */
-  getAvailableAIProviders(): { id: string; name: string; description: string }[] {
+  getAvailableAIProviders(): { id: string; name: string; description: string; icon: string }[] {
     return [
-      { id: 'openai', name: 'OpenAI', description: 'GPT-4o, GPT-4o-mini' },
-      { id: 'anthropic', name: 'Anthropic', description: 'Claude 3.5 Sonnet' },
-      { id: 'ollama', name: 'Ollama', description: 'Local, free - runs on your machine' },
-      { id: 'azure', name: 'Azure OpenAI', description: 'Enterprise Azure deployment' },
+      { id: 'openai', name: 'OpenAI', description: 'GPT-4o, GPT-4o-mini', icon: AI_PROVIDER_EMOJIS['openai'] },
+      { id: 'anthropic', name: 'Anthropic', description: 'Claude 3.5 Sonnet', icon: AI_PROVIDER_EMOJIS['anthropic'] },
+      { id: 'ollama', name: 'Ollama', description: 'Local, free - runs on your machine', icon: AI_PROVIDER_EMOJIS['ollama'] },
+      { id: 'azure', name: 'Azure OpenAI', description: 'Enterprise Azure deployment', icon: AI_PROVIDER_EMOJIS['azure'] },
     ];
   }
 
@@ -85,11 +90,11 @@ export class OnboardingService implements vscode.Disposable {
    */
   getStarterCompanions(): { type: string; icon: string; name: string; unlocked: boolean }[] {
     return [
-      { type: 'robot', icon: '🤖', name: 'Robot', unlocked: true },
-      { type: 'cat', icon: '🐱', name: 'Cat', unlocked: false },
-      { type: 'dog', icon: '🐕', name: 'Dog', unlocked: false },
-      { type: 'plant', icon: '🌱', name: 'Plant', unlocked: false },
-      { type: 'flame', icon: '🔥', name: 'Flame', unlocked: false },
+      { type: 'robot', icon: COMPANION_TYPE_EMOJIS['robot'], name: 'Robot', unlocked: true },
+      { type: 'cat', icon: COMPANION_TYPE_EMOJIS['cat'], name: 'Cat', unlocked: false },
+      { type: 'dog', icon: COMPANION_TYPE_EMOJIS['dog'], name: 'Dog', unlocked: false },
+      { type: 'plant', icon: COMPANION_TYPE_EMOJIS['plant'], name: 'Plant', unlocked: false },
+      { type: 'flame', icon: COMPANION_TYPE_EMOJIS['flame'], name: 'Flame', unlocked: false },
     ];
   }
 
@@ -99,22 +104,22 @@ export class OnboardingService implements vscode.Disposable {
   getQuickTips(): { icon: string; title: string; description: string }[] {
     return [
       {
-        icon: '⌨️',
+        icon: FEATURE_EMOJIS['keyboard'],
         title: 'Cmd+Shift+C',
         description: 'Create or run commands instantly',
       },
       {
-        icon: '🤖',
+        icon: FEATURE_EMOJIS['companion'],
         title: 'Click your companion',
         description: 'Start a focus session',
       },
       {
-        icon: '📋',
+        icon: FEATURE_EMOJIS['todo'],
         title: 'TODOs are scanned',
         description: 'Automatically from your codebase',
       },
       {
-        icon: '🏆',
+        icon: FEATURE_EMOJIS['achievement'],
         title: 'Earn achievements',
         description: 'Level up your companion',
       },

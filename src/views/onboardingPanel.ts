@@ -468,7 +468,7 @@ export class OnboardingPanelProvider {
                 .map(
                   (p) => `
                 <div class="ai-provider" onclick="configureAI('${p.id}')">
-                  <span class="icon">${p.id === 'openai' ? '🧠' : p.id === 'anthropic' ? '🤖' : p.id === 'ollama' ? '🦙' : '☁️'}</span>
+                  <span class="icon">${p.icon}</span>
                   <div class="info">
                     <div class="name">${p.name}</div>
                     <div class="description">${p.description}</div>
