@@ -40,6 +40,10 @@ import { createTodoTreeView, TodoTreeItem } from './views/todoTreeProvider';
 import { AchievementPanelProvider } from './views/achievementPanel';
 import { OnboardingPanelProvider } from './views/onboardingPanel';
 import { DetectedTodo } from './models/todo';
+import { CodeNote } from './models/note';
+import { NotesService } from './services/notes';
+import { NotesPanelProvider } from './views/notesPanel';
+import { createNotesTreeView, NoteTreeItem } from './views/notesTreeProvider';
 
 // =============================================================================
 // Global Service References
@@ -65,10 +69,18 @@ let achievementPanelProvider: AchievementPanelProvider;
 let onboardingService: OnboardingService;
 let onboardingPanelProvider: OnboardingPanelProvider;
 let todoTreeProvider: ReturnType<typeof createTodoTreeView>['provider'];
+let notesService: NotesService;
+let notesPanelProvider: NotesPanelProvider;
+let notesTreeProvider: ReturnType<typeof createNotesTreeView>['provider'];
 
 // =============================================================================
 // Context Management
 // =============================================================================
+
+async function updateNoNotesContext(): Promise<void> {
+  const hasNotes = notesService.getAllNotes().length > 0;
+  await vscode.commands.executeCommand('setContext', 'cmdify.noNotes', !hasNotes);
+}
 
 async function updateNoCommandsContext(): Promise<void> {
   const hasCommands = storage.getAll().length > 0;
@@ -148,6 +160,10 @@ async function initializeCoreServices(context: vscode.ExtensionContext): Promise
 
   // Activity Tracking
   activityService = new ActivityService(context);
+
+  // Notes Service
+  notesService = new NotesService();
+  await notesService.initialize();
 }
 
 function initializeUIComponents(context: vscode.ExtensionContext): void {
@@ -177,8 +193,19 @@ function initializeUIComponents(context: vscode.ExtensionContext): void {
   todoTreeProvider = todoTreeResult.provider;
   context.subscriptions.push(todoTreeResult.treeView, todoTreeResult.provider);
 
+  // Notes Tree View
+  const notesTreeResult = createNotesTreeView(notesService);
+  notesTreeProvider = notesTreeResult.provider;
+  context.subscriptions.push(notesTreeResult.treeView, notesTreeResult.provider);
+
   // Activity Panel
   activityPanelProvider = new ActivityPanelProvider(context.extensionUri, activityService);
+
+  // Notes Panel
+  notesPanelProvider = new NotesPanelProvider(context.extensionUri, notesService);
+
+  // Update notes context
+  updateNoNotesContext();
 
   // Status Bars
   initializeStatusBars();
@@ -607,6 +634,91 @@ function registerCommands(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('cmdify.showAchievements', () =>
       achievementPanelProvider.show()
     ),
+
+    // =============================================================================
+    // Notes Commands
+    // =============================================================================
+    vscode.commands.registerCommand('cmdify.notes.add', async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showWarningMessage('No active editor');
+        return;
+      }
+
+      const selection = editor.selection;
+      if (selection.isEmpty) {
+        vscode.window.showWarningMessage('Please select some code first');
+        return;
+      }
+
+      const noteText = await vscode.window.showInputBox({
+        prompt: 'Add a note for this code',
+        placeHolder: 'Enter your note...',
+      });
+
+      if (noteText) {
+        try {
+          await notesService.addNote(editor, selection, noteText);
+          await updateNoNotesContext();
+          vscode.window.showInformationMessage('📝 Note added!');
+        } catch (error) {
+          vscode.window.showErrorMessage(`Failed to add note: ${error}`);
+        }
+      }
+    }),
+    vscode.commands.registerCommand('cmdify.notes.showPanel', () => notesPanelProvider.show()),
+    vscode.commands.registerCommand(
+      'cmdify.notes.goToNote',
+      async (item: NoteTreeItem | CodeNote | { id: string }) => {
+        let note: CodeNote | undefined;
+
+        // Check if it's a NoteTreeItem (from context menu)
+        if (item && 'itemType' in item && item.itemType === 'note' && item.note) {
+          note = item.note;
+        }
+        // Check if it's a CodeNote directly (from tree item click)
+        else if (item && 'filePath' in item && 'startLine' in item) {
+          note = item as CodeNote;
+        }
+        // Check if it's just an id object
+        else if (item && 'id' in item) {
+          note = notesService.getNote((item as { id: string }).id);
+        }
+
+        if (note) {
+          await notesService.goToNote(note);
+        } else {
+          vscode.window.showWarningMessage('Note not found');
+        }
+      }
+    ),
+    vscode.commands.registerCommand('cmdify.notes.edit', async (item: NoteTreeItem) => {
+      if (item.note) {
+        const newText = await vscode.window.showInputBox({
+          prompt: 'Edit note',
+          value: item.note.note,
+          placeHolder: 'Enter your note...',
+        });
+        if (newText !== undefined) {
+          await notesService.updateNote(item.note.id, { note: newText });
+          vscode.window.showInformationMessage('📝 Note updated!');
+        }
+      }
+    }),
+    vscode.commands.registerCommand('cmdify.notes.delete', async (item: NoteTreeItem) => {
+      if (item.note) {
+        const confirm = await vscode.window.showWarningMessage(
+          'Delete this note?',
+          { modal: true },
+          'Delete'
+        );
+        if (confirm === 'Delete') {
+          await notesService.deleteNote(item.note.id);
+          await updateNoNotesContext();
+          vscode.window.showInformationMessage('Note deleted');
+        }
+      }
+    }),
 
     // Onboarding Commands
     vscode.commands.registerCommand('cmdify.showOnboarding', () => onboardingPanelProvider.show()),
@@ -1100,7 +1212,9 @@ function addDisposables(context: vscode.ExtensionContext): void {
     activityService,
     activityPanelProvider,
     achievementService,
-    achievementPanelProvider
+    achievementPanelProvider,
+    notesService,
+    notesPanelProvider
   );
 
   if (activityStatusBarItem) {
@@ -1119,6 +1233,8 @@ export function deactivate(): void {
     reminderService,
     activityService,
     activityPanelProvider,
+    notesService,
+    notesPanelProvider,
   ];
 
   services.forEach((service) => service?.dispose());

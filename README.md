@@ -4,7 +4,7 @@
 
 **Developer productivity toolkit for VS Code**
 
-AI command generation, focus timer, TODO scanner, and achievements.
+AI command generation, focus timer, TODO scanner, code notes, and achievements.
 
 [![Version](https://img.shields.io/visual-studio-marketplace/v/canhta.cmdify?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=canhta.cmdify)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/canhta.cmdify?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=canhta.cmdify)
@@ -34,6 +34,9 @@ Pomodoro timer with animated companions, session tracking, and streak counter.
 **📋 TODO Scanner**  
 Auto-detects `TODO`, `FIXME`, `HACK` comments. Set reminders with `@tomorrow` or `@2024-12-01`.
 
+**📝 Code Notes**  
+Select code and add notes directly in your editor. Notes are saved at workspace level, displayed in a webview panel and sidebar tree. Supports color coding, tags, and language detection.
+
 ## AI Provider Setup
 
 1. Run `Cmdify: Configure AI Provider` from Command Palette
@@ -51,6 +54,15 @@ Auto-detects `TODO`, `FIXME`, `HACK` comments. Set reminders with `@tomorrow` or
 | `Cmdify: Sync Commands` | Sync with GitHub Gist |
 | `Cmdify Focus: Start` | Start focus timer |
 | `Cmdify TODOs: Scan` | Scan workspace for TODOs |
+| `Cmdify: Add Note to Selection` | Add a note to selected code |
+| `Cmdify: Show Notes` | Open the notes panel |
+
+## Keyboard Shortcuts
+
+| Shortcut | Command |
+|----------|---------|
+| `Cmd+Shift+C` / `Ctrl+Shift+C` | Create Command |
+| `Cmd+Shift+N` / `Ctrl+Shift+N` | Add Note to Selection |
 
 ## Settings
 
