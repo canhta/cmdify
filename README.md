@@ -2,9 +2,9 @@
 
 # Cmdify
 
-**AI-powered CLI command manager for VS Code**
+**Developer productivity toolkit for VS Code**
 
-Describe what you want in plain English. Get the shell command instantly.
+AI command generation, focus timer, TODO scanner, and achievements.
 
 [![Version](https://img.shields.io/visual-studio-marketplace/v/canhta.cmdify?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=canhta.cmdify)
 [![Installs](https://img.shields.io/visual-studio-marketplace/i/canhta.cmdify?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=canhta.cmdify)

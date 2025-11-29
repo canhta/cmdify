@@ -1,9 +1,13 @@
 {
   "name": "cmdify",
   "displayName": "Cmdify",
-  "description": "AI-powered CLI command manager - Describe what you want, get the shell command",
-  "version": "0.0.6",
+  "description": "Developer productivity toolkit with AI command generation, focus timer, TODO scanner, and achievements.",
+  "version": "1.0.0",
   "publisher": "canhta",
+  "author": {
+    "name": "Canh Ta",
+    "url": "https://github.com/canhta"
+  },
   "license": "MIT",
   "icon": "media/icon.png",
   "repository": {
@@ -14,17 +18,28 @@
   "bugs": {
     "url": "https://github.com/canhta/cmdify/issues"
   },
+  "sponsor": {
+    "url": "https://ko-fi.com/canhta"
+  },
   "keywords": [
     "ai",
     "cli",
     "terminal",
     "command",
     "shell",
+    "bash",
+    "zsh",
+    "powershell",
     "openai",
     "gpt",
     "anthropic",
     "claude",
-    "ollama"
+    "ollama",
+    "pomodoro",
+    "focus",
+    "timer",
+    "todo",
+    "productivity"
   ],
   "galleryBanner": {
     "color": "#6366f1",
@@ -34,9 +49,8 @@
     "vscode": "^1.106.1"
   },
   "categories": [
-    "Programming Languages",
-    "Snippets",
-    "AI"
+    "Other",
+    "Snippets"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
@@ -927,9 +941,6 @@
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.3"
-  },
-  "sponsor": {
-    "url": "https://ko-fi.com/canhta"
   },
   "dependencies": {
     "lucide-static": "^0.555.0"

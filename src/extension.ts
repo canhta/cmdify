@@ -1169,7 +1169,7 @@ async function handleAbout(): Promise<void> {
   const version = extension?.packageJSON?.version || "unknown";
 
   const action = await vscode.window.showInformationMessage(
-    `Cmdify v${version} - AI-powered CLI command manager\n\nDescribe what you want, get the shell command.`,
+    `Cmdify v${version} - Developer productivity toolkit\n\nAI commands, focus timer, TODO scanner & achievements.`,
     "GitHub",
     "Sponsor",
     "Settings"
