@@ -195,16 +195,16 @@ async function showAIPreview(
   ];
 
   if (response.explanation) {
-    previewLines.push('', `💡 ${response.explanation}`);
+    previewLines.push('', `**Explanation:** ${response.explanation}`);
   }
 
   if (response.suggestedTags?.length) {
-    previewLines.push('', `🏷️ Tags: ${response.suggestedTags.join(', ')}`);
+    previewLines.push('', `**Tags:** ${response.suggestedTags.join(', ')}`);
   }
 
   if (response.variables?.length) {
     const varNames = response.variables.map(v => `{{${v.name}}}`).join(', ');
-    previewLines.push('', `📝 Variables: ${varNames}`);
+    previewLines.push('', `**Variables:** ${varNames}`);
   }
 
   // Create quick pick with command preview
@@ -236,7 +236,7 @@ async function showAIPreview(
   previewMarkdown.isTrusted = true;
 
   const selection = await vscode.window.showQuickPick(items, {
-    title: '✨ AI Generated Command',
+    title: '$(sparkle) AI Generated Command',
     placeHolder: response.command,
     matchOnDescription: true,
   });
@@ -244,7 +244,7 @@ async function showAIPreview(
   // Also show the explanation in an information message for better visibility
   if (response.explanation && selection && selection.label !== '$(close) Cancel') {
     // Show as a non-blocking notification
-    vscode.window.setStatusBarMessage(`💡 ${response.explanation}`, 5000);
+    vscode.window.setStatusBarMessage(`$(lightbulb) ${response.explanation}`, 5000);
   }
 
   if (!selection || selection.label === '$(close) Cancel') {

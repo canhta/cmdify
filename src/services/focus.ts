@@ -343,7 +343,7 @@ export class FocusService implements vscode.Disposable {
 
     // Show notification
     const action = await vscode.window.showInformationMessage(
-      `🎉 Focus session complete! You've done ${this.state.todaySessions} session${this.state.todaySessions > 1 ? 's' : ''} today.`,
+      `$(check) Focus session complete! You've done ${this.state.todaySessions} session${this.state.todaySessions > 1 ? 's' : ''} today.`,
       'Take Break',
       'Skip Break'
     );
@@ -383,7 +383,7 @@ export class FocusService implements vscode.Disposable {
     // Show break notification with suggestion (Phase 4)
     const suggestion = getBreakSuggestion(breakDuration);
     vscode.window.showInformationMessage(
-      `☕ Time for a ${isLongBreak ? 'long' : 'short'} break! (${breakDuration} min)\n${suggestion}`
+      `$(coffee) Time for a ${isLongBreak ? 'long' : 'short'} break! (${breakDuration} min)\n${suggestion}`
     );
   }
 
@@ -397,7 +397,7 @@ export class FocusService implements vscode.Disposable {
     this._onBreakComplete.fire();
 
     const action = await vscode.window.showInformationMessage(
-      '✨ Break over! Ready for another focus session?',
+      '$(play) Break over! Ready for another focus session?',
       'Start Focus',
       'Not Now'
     );

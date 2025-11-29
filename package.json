@@ -73,12 +73,12 @@
     "viewsWelcome": [
       {
         "view": "cmdify.commands",
-        "contents": "Welcome to Cmdify! \u2728\n\nTo get started, configure your AI provider to generate commands from natural language.\n\n[$(key) Configure AI Provider](command:cmdify.configureAI)\n\n**Supported providers:**\n- OpenAI (GPT-4o, GPT-4o-mini)\n- Anthropic (Claude)\n- Ollama (Local, free)\n- Azure OpenAI\n- Custom endpoints",
+        "contents": "Welcome to Cmdify! ✨\n\nTo get started, configure your AI provider to generate commands from natural language.\n\n[$(key) Configure AI Provider](command:cmdify.configureAI)\n\n**Supported providers:**\n- OpenAI (GPT-4o, GPT-4o-mini)\n- Anthropic (Claude)\n- Ollama (Local, free)\n- Azure OpenAI\n- Custom endpoints",
         "when": "cmdify.aiNotConfigured"
       },
       {
         "view": "cmdify.commands",
-        "contents": "No commands yet.\n[Create Command](command:cmdify.create)\n\nDescribe what you want to do and let AI generate the command for you.\n\n[\u2764\ufe0f Support on Ko-fi](command:cmdify.sponsor)",
+        "contents": "No commands yet.\n[Create Command](command:cmdify.create)\n\nDescribe what you want to do and let AI generate the command for you.\n\n[❤️ Support on Ko-fi](command:cmdify.sponsor)",
         "when": "cmdify.noCommands && !cmdify.aiNotConfigured"
       },
       {
@@ -590,7 +590,12 @@
           "cmdify.sync.conflictResolution": {
             "type": "string",
             "default": "ask",
-            "enum": ["ask", "keep_local", "keep_remote", "keep_both"],
+            "enum": [
+              "ask",
+              "keep_local",
+              "keep_remote",
+              "keep_both"
+            ],
             "enumDescriptions": [
               "Ask for each conflict",
               "Always keep local version",
@@ -832,7 +837,9 @@
             "media": {
               "markdown": "docs/walkthrough/ai-setup.md"
             },
-            "completionEvents": ["onSettingChanged:cmdify.ai.provider"]
+            "completionEvents": [
+              "onSettingChanged:cmdify.ai.provider"
+            ]
           },
           {
             "id": "cmdify.welcome.companion",
@@ -841,7 +848,9 @@
             "media": {
               "markdown": "docs/walkthrough/companion.md"
             },
-            "completionEvents": ["onCommand:cmdify.focus.start"]
+            "completionEvents": [
+              "onCommand:cmdify.focus.start"
+            ]
           },
           {
             "id": "cmdify.welcome.createCommand",
@@ -850,7 +859,9 @@
             "media": {
               "markdown": "docs/walkthrough/create-command.md"
             },
-            "completionEvents": ["onCommand:cmdify.create"]
+            "completionEvents": [
+              "onCommand:cmdify.create"
+            ]
           },
           {
             "id": "cmdify.welcome.todos",
@@ -859,7 +870,9 @@
             "media": {
               "markdown": "docs/walkthrough/todos.md"
             },
-            "completionEvents": ["onCommand:cmdify.todos.scan"]
+            "completionEvents": [
+              "onCommand:cmdify.todos.scan"
+            ]
           },
           {
             "id": "cmdify.welcome.achievements",
@@ -868,7 +881,9 @@
             "media": {
               "markdown": "docs/walkthrough/achievements.md"
             },
-            "completionEvents": ["onCommand:cmdify.showAchievements"]
+            "completionEvents": [
+              "onCommand:cmdify.showAchievements"
+            ]
           }
         ]
       }
@@ -889,18 +904,21 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.106.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "22.x",
-    "typescript-eslint": "^8.46.3",
-    "eslint": "^9.39.1",
+    "@types/vscode": "^1.106.1",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.0",
+    "eslint": "^9.39.1",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.46.3"
   },
   "sponsor": {
     "url": "https://ko-fi.com/canhta"
+  },
+  "dependencies": {
+    "lucide-static": "^0.555.0"
   }
 }

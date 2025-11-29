@@ -12,7 +12,7 @@ import {
   ACHIEVEMENTS,
   getAchievementById,
 } from '../models/achievement';
-import { ACHIEVEMENT_CATEGORY_EMOJIS } from '../utils/icons';
+import { icon, getLucideStyles } from '../utils/lucide';
 
 /**
  * Achievement Panel Webview Provider
@@ -128,6 +128,8 @@ export class AchievementPanelProvider implements vscode.Disposable {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Achievements</title>
   <style>
+    ${getLucideStyles()}
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
@@ -176,6 +178,16 @@ export class AchievementPanelProvider implements vscode.Disposable {
       border-radius: 8px;
       padding: 16px;
       text-align: center;
+    }
+    
+    .summary-icon {
+      margin-bottom: 8px;
+      color: var(--vscode-textLink-foreground);
+    }
+    
+    .summary-icon svg {
+      display: inline-block;
+      vertical-align: middle;
     }
     
     .summary-value {
@@ -356,20 +368,23 @@ export class AchievementPanelProvider implements vscode.Disposable {
 </head>
 <body>
   <div class="header">
-    <h1>🏆 Achievements</h1>
+    <h1>${icon('trophy', 20)} Achievements</h1>
     <span class="stats-badge" id="stats-badge">${stats.unlockedCount}/${stats.totalAchievements}</span>
   </div>
   
   <div class="summary-cards">
     <div class="summary-card">
+      <div class="summary-icon">${icon('award', 24)}</div>
       <div class="summary-value" id="unlocked-count">${stats.unlockedCount}</div>
       <div class="summary-label">Unlocked</div>
     </div>
     <div class="summary-card">
+      <div class="summary-icon">${icon('zap', 24)}</div>
       <div class="summary-value" id="total-xp">${stats.totalXPEarned}</div>
       <div class="summary-label">XP Earned</div>
     </div>
     <div class="summary-card">
+      <div class="summary-icon">${icon('circleCheck', 24)}</div>
       <div class="summary-value" id="completion-rate">${Math.round((stats.unlockedCount / stats.totalAchievements) * 100)}%</div>
       <div class="summary-label">Complete</div>
     </div>
@@ -443,11 +458,11 @@ export class AchievementPanelProvider implements vscode.Disposable {
     progressMap: Map<string, { currentValue: number; targetValue: number; percentage: number }>
   ): string {
     const categoryInfo: Record<AchievementCategory, { icon: string; name: string }> = {
-      focus: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['focus'], name: 'Focus' },
-      streaks: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['streaks'], name: 'Streaks' },
-      todos: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['todos'], name: 'Tasks' },
-      commands: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['commands'], name: 'Commands' },
-      special: { icon: ACHIEVEMENT_CATEGORY_EMOJIS['special'], name: 'Special' },
+      focus: { icon: icon('target', 16), name: 'Focus' },
+      streaks: { icon: icon('flame', 16), name: 'Streaks' },
+      todos: { icon: icon('listTodo', 16), name: 'Tasks' },
+      commands: { icon: icon('terminal', 16), name: 'Commands' },
+      special: { icon: icon('star', 16), name: 'Special' },
     };
 
     const categories: AchievementCategory[] = ['focus', 'streaks', 'todos', 'commands', 'special'];
@@ -490,13 +505,13 @@ export class AchievementPanelProvider implements vscode.Disposable {
 
     // For secret achievements that aren't unlocked, show mystery
     const isHiddenSecret = achievement.secret && !unlocked;
-    const icon = isHiddenSecret ? '❓' : achievement.icon;
+    const achievementIcon = isHiddenSecret ? icon('alertCircle', 24) : achievement.icon;
     const name = isHiddenSecret ? '???' : achievement.name;
     const description = isHiddenSecret ? 'Secret achievement' : achievement.description;
 
     const statusHtml = unlocked 
       ? `
-        <div class="status-unlocked">✓ Unlocked</div>
+        <div class="status-unlocked">${icon('check', 14)} Unlocked</div>
         ${unlockedData ? `<div class="status-date">${this.formatDate(unlockedData.unlockedAt)}</div>` : ''}
       `
       : prog 
@@ -510,7 +525,7 @@ export class AchievementPanelProvider implements vscode.Disposable {
 
     return `
       <div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">
-        <div class="achievement-icon">${icon}</div>
+        <div class="achievement-icon">${achievementIcon}</div>
         <div class="achievement-info">
           <div class="achievement-name">
             ${name}

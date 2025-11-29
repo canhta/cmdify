@@ -7,6 +7,7 @@ import * as vscode from 'vscode';
 import { ActivityService } from '../services/activity';
 import { DailyActivity } from '../models/activity';
 import { formatMinutes } from '../utils/dateUtils';
+import { icon, getLucideStyles } from '../utils/lucide';
 
 /**
  * Activity Panel Webview Provider
@@ -113,6 +114,8 @@ export class ActivityPanelProvider implements vscode.Disposable {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Activity Dashboard</title>
   <style>
+    ${getLucideStyles()}
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
@@ -339,10 +342,10 @@ export class ActivityPanelProvider implements vscode.Disposable {
 </head>
 <body>
   <div class="header">
-    <h1>📊 Today's Activity</h1>
+    <h1>${icon('barChart3', 20)} Today's Activity</h1>
     <div class="header-actions">
-      <button class="btn" id="refreshBtn">🔄 Refresh</button>
-      <button class="btn" id="settingsBtn">⚙️ Settings</button>
+      <button class="btn" id="refreshBtn">${icon('refreshCw', 14)} Refresh</button>
+      <button class="btn" id="settingsBtn">${icon('settings', 14)} Settings</button>
     </div>
   </div>
 
@@ -378,19 +381,19 @@ export class ActivityPanelProvider implements vscode.Disposable {
     <div class="card-title">Statistics</div>
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-value" id="streakValue">🔥 ${stats.currentStreak}</div>
+        <div class="stat-value" id="streakValue">${icon('flame', 24)} ${stats.currentStreak}</div>
         <div class="stat-label">Current Streak (days)</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" id="longestStreakValue">${stats.longestStreak}</div>
+        <div class="stat-value" id="longestStreakValue">${icon('trophy', 24)} ${stats.longestStreak}</div>
         <div class="stat-label">Longest Streak</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" id="totalSessionsValue">${stats.totalSessions}</div>
+        <div class="stat-value" id="totalSessionsValue">${icon('target', 24)} ${stats.totalSessions}</div>
         <div class="stat-label">Total Focus Sessions</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value" id="filesEditedValue">${today.filesEdited}</div>
+        <div class="stat-value" id="filesEditedValue">${icon('code', 24)} ${today.filesEdited}</div>
         <div class="stat-label">Files Edited Today</div>
       </div>
     </div>
@@ -428,11 +431,15 @@ export class ActivityPanelProvider implements vscode.Disposable {
       // Update week chart
       document.getElementById('weekChart').innerHTML = getWeekChartHtml(stats.weeklyData);
       
-      // Update stats
-      document.getElementById('streakValue').textContent = '🔥 ' + stats.currentStreak;
-      document.getElementById('longestStreakValue').textContent = stats.longestStreak;
-      document.getElementById('totalSessionsValue').textContent = stats.totalSessions;
-      document.getElementById('filesEditedValue').textContent = today.filesEdited;
+      // Update stats - use innerHTML to preserve icons
+      const flameIcon = '${icon('flame', 24).replace(/'/g, "\\'")}';
+      const trophyIcon = '${icon('trophy', 24).replace(/'/g, "\\'")}';
+      const targetIcon = '${icon('target', 24).replace(/'/g, "\\'")}';
+      const codeIcon = '${icon('code', 24).replace(/'/g, "\\'")}';
+      document.getElementById('streakValue').innerHTML = flameIcon + ' ' + stats.currentStreak;
+      document.getElementById('longestStreakValue').innerHTML = trophyIcon + ' ' + stats.longestStreak;
+      document.getElementById('totalSessionsValue').innerHTML = targetIcon + ' ' + stats.totalSessions;
+      document.getElementById('filesEditedValue').innerHTML = codeIcon + ' ' + today.filesEdited;
     });
     
     function formatHoursMinutes(minutes) {
@@ -450,16 +457,17 @@ export class ActivityPanelProvider implements vscode.Disposable {
     }
     
     function getTomatoDisplay(sessions, max) {
+      const timerIcon = '${icon('timer', 16).replace(/'/g, "\\'")}';
       let html = '';
       for (let i = 0; i < max; i++) {
-        html += '<span class="tomato' + (i < sessions ? '' : ' empty') + '">🍅</span>';
+        html += '<span class="tomato' + (i < sessions ? '' : ' empty') + '">' + timerIcon + '</span>';
       }
       return html;
     }
     
     function getLanguagesHtml(languages, totalMinutes) {
       if (languages.length === 0) {
-        return '<div class="empty-state"><div class="empty-state-icon">📝</div>Start coding to see language breakdown</div>';
+        return '<div class="empty-state"><div class="empty-state-icon">${icon('code', 32)}</div>Start coding to see language breakdown</div>';
       }
       
       let html = '';
@@ -516,7 +524,8 @@ export class ActivityPanelProvider implements vscode.Disposable {
   private getTomatoDisplay(sessions: number, max: number): string {
     let html = '';
     for (let i = 0; i < max; i++) {
-      html += `<span class="tomato${i < sessions ? '' : ' empty'}">🍅</span>`;
+      const filled = i < sessions;
+      html += `<span class="tomato${filled ? '' : ' empty'}">${icon('timer', 16)}</span>`;
     }
     return html;
   }
@@ -530,7 +539,7 @@ export class ActivityPanelProvider implements vscode.Disposable {
   ): string {
     if (languages.length === 0) {
       return `<div class="empty-state">
-        <div class="empty-state-icon">📝</div>
+        <div class="empty-state-icon">${icon('code', 32)}</div>
         Start coding to see language breakdown
       </div>`;
     }

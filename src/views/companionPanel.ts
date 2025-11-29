@@ -13,6 +13,7 @@ import {
   ALL_COMPANIONS,
   COMPANION_NAMES,
 } from "../models/companion";
+import { LUCIDE_ICONS, icon } from "../utils/lucide";
 
 /**
  * Companion Panel WebviewViewProvider
@@ -119,13 +120,13 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
 
     const items = [
       ...unlocked.map((type) => ({
-        label: `${type === currentState.type ? "✓ " : ""}${COMPANION_NAMES[type]}`,
+        label: `${type === currentState.type ? "$(check) " : ""}${COMPANION_NAMES[type]}`,
         description: type === currentState.type ? "Current" : "Unlocked",
         value: type,
         picked: type === currentState.type,
       })),
       ...locked.map((item) => ({
-        label: `🔒 ${item.name}`,
+        label: `$(lock) ${item.name}`,
         description: item.condition,
         value: item.type,
         picked: false,
@@ -401,7 +402,7 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
   </div>
   
   <div class="stats-row" style="margin-top: 8px;">
-    <span class="stats-label">🔥 Streak</span>
+    <span class="stats-label">${icon('flame', 14)} Streak</span>
     <span class="stats-value" id="streak">${stats.currentStreak} days</span>
   </div>
   
@@ -456,10 +457,10 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     
     function getButtons(s) {
       const icons = {
-        play: '<svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg>',
-        pause: '<svg viewBox="0 0 16 16"><path d="M4 2h3v12H4V2zm5 0h3v12H9V2z"/></svg>',
-        skip: '<svg viewBox="0 0 16 16"><path d="M2 2l8 6-8 6V2zm9 0h3v12h-3V2z"/></svg>',
-        stop: '<svg viewBox="0 0 16 16"><path d="M3 3h10v10H3z"/></svg>'
+        play: '${icon('play', 14).replace(/'/g, "\\'")}',
+        pause: '${icon('pause', 14).replace(/'/g, "\\'")}',
+        skip: '${icon('skipForward', 14).replace(/'/g, "\\'")}',
+        stop: '${icon('stop', 14).replace(/'/g, "\\'")}'
       };
       if (s === 'idle') return '<button class="btn primary" data-action="start">' + icons.play + ' Start</button>';
       if (s === 'focusing' || s === 'break') return \`
@@ -497,10 +498,10 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
 
   private getControlButtons(status: string): string {
     const icons = {
-      play: '<svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg>',
-      pause: '<svg viewBox="0 0 16 16"><path d="M4 2h3v12H4V2zm5 0h3v12H9V2z"/></svg>',
-      skip: '<svg viewBox="0 0 16 16"><path d="M2 2l8 6-8 6V2zm9 0h3v12h-3V2z"/></svg>',
-      stop: '<svg viewBox="0 0 16 16"><path d="M3 3h10v10H3z"/></svg>',
+      play: icon('play', 14),
+      pause: icon('pause', 14),
+      skip: icon('skipForward', 14),
+      stop: icon('stop', 14),
     };
     if (status === "idle") {
       return `<button class="btn primary" data-action="start">${icons.play} Start</button>`;
