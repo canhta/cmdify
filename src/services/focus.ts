@@ -35,6 +35,7 @@ export class FocusService implements vscode.Disposable {
   private readonly _onSessionComplete = new vscode.EventEmitter<void>();
   private readonly _onBreakStart = new vscode.EventEmitter<void>();
   private readonly _onBreakComplete = new vscode.EventEmitter<void>();
+  private readonly _onFocusStart = new vscode.EventEmitter<void>();
 
   // Public events
   readonly onTick = this._onTick.event;
@@ -42,6 +43,7 @@ export class FocusService implements vscode.Disposable {
   readonly onSessionComplete = this._onSessionComplete.event;
   readonly onBreakStart = this._onBreakStart.event;
   readonly onBreakComplete = this._onBreakComplete.event;
+  readonly onFocusStart = this._onFocusStart.event;
 
   constructor(private readonly context: vscode.ExtensionContext) {
     this.state = this.loadState();
@@ -206,6 +208,7 @@ export class FocusService implements vscode.Disposable {
       this.state.status = 'focusing';
       this.state.timeRemaining = effectiveConfig.focusDuration * 60;
       this.sessionStartTime = new Date();
+      this._onFocusStart.fire();
     }
 
     await this.saveState();
@@ -292,7 +295,7 @@ export class FocusService implements vscode.Disposable {
       }
       
       this.sessionStartTime = null;
-      await this.startBreak();
+      await this.startBreak(true); // Silent - skip notification already shown
     } else if (this.state.status === 'break') {
       // Skip break is allowed without penalty
       this.state.status = 'idle';
@@ -464,8 +467,9 @@ export class FocusService implements vscode.Disposable {
 
   /**
    * Start a break
+   * @param silent - If true, don't fire the break start event (no notification)
    */
-  private async startBreak(): Promise<void> {
+  private async startBreak(silent: boolean = false): Promise<void> {
     const effectiveConfig = this.getEffectiveConfig();
     const isLongBreak = this.state.currentSession >= effectiveConfig.sessionsBeforeLongBreak;
     const breakDuration = isLongBreak
@@ -482,14 +486,10 @@ export class FocusService implements vscode.Disposable {
     }
 
     await this.saveState();
-    this._onBreakStart.fire();
+    if (!silent) {
+      this._onBreakStart.fire();
+    }
     this.startTimer();
-
-    // Show break notification with suggestion (Phase 4)
-    const suggestion = getBreakSuggestion(breakDuration);
-    vscode.window.showInformationMessage(
-      `☕ Time for a ${isLongBreak ? 'long' : 'short'} break! (${breakDuration} min)\n${suggestion}`
-    );
   }
 
   /**

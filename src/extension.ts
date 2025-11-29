@@ -296,12 +296,11 @@ function setupEventListeners(context: vscode.ExtensionContext): void {
   // Focus timer events
   context.subscriptions.push(
     focusService.onTick(() => updateFocusStatusBar()),
-    focusService.onStateChange((state) => {
+    focusService.onStateChange(() => {
       updateFocusStatusBar();
-      // Trigger companion messages on focus state changes
-      if (state.status === 'focusing') {
-        companionService.showMessage('focusStart');
-      }
+    }),
+    focusService.onFocusStart(() => {
+      companionService.showMessage('focusStart');
     }),
     companionService.onStateChange(() => updateFocusStatusBar())
   );
@@ -317,7 +316,14 @@ function setupEventListeners(context: vscode.ExtensionContext): void {
   // Break start
   context.subscriptions.push(
     focusService.onBreakStart(async () => {
-      companionService.showMessage('breakStart');
+      const focusState = focusService.getState();
+      const breakDuration = Math.round(focusState.timeRemaining / 60);
+      const suggestion = getBreakSuggestion(breakDuration);
+      
+      vscode.window.showInformationMessage(
+        `☕ Time for a break! (${breakDuration} min)\n${suggestion}`
+      );
+      
       await companionService.awardXP(25, "breakTaken");
     })
   );
@@ -793,16 +799,25 @@ function updateFocusStatusBar(): void {
 
   const icons = COMPANION_ICONS[companionState.type];
   const icon = icons[focusState.status] || icons.idle;
-  const moodEmoji = companionService.getMoodEmoji();
 
-  let text = `${icon}${moodEmoji}`;
+  let text = '';
 
-  if (["focusing", "break", "paused"].includes(focusState.status)) {
-    text += ` ${formatTime(focusState.timeRemaining)}`;
+  if (focusState.status === 'focusing') {
+    text = `${icon} ${formatTime(focusState.timeRemaining)}`;
+    focusStatusBarItem.command = "cmdify.focus.pause";
+  } else if (focusState.status === 'break') {
+    text = `${icon} Break ${formatTime(focusState.timeRemaining)}`;
+    focusStatusBarItem.command = "cmdify.focus.skip";
+  } else if (focusState.status === 'paused') {
+    text = `${icon} Paused ${formatTime(focusState.timeRemaining)}`;
+    focusStatusBarItem.command = "cmdify.focus.resume";
+  } else {
+    text = `$(play) Start`;
+    focusStatusBarItem.command = "cmdify.focus.start";
   }
 
   if (stats.currentStreak > 0) {
-    text += ` $(flame)${stats.currentStreak}`;
+    text += ` $(zap)${stats.currentStreak}`;
   }
 
   focusStatusBarItem.text = text;
@@ -839,15 +854,15 @@ function updateActivityStatusBar(): void {
 
 function getFocusTooltip(status: string, todaySessions: number): string {
   const statusMessages: Record<string, string> = {
-    focusing: "Currently focusing...",
-    break: "Taking a break",
-    paused: "Session paused",
+    focusing: "Click to pause",
+    break: "Click to skip break",
+    paused: "Click to resume",
+    idle: "Click to start focus",
   };
 
   return [
-    "Focus Timer - Click to open panel",
+    `Focus Timer - ${statusMessages[status] || statusMessages.idle}`,
     `${todaySessions} sessions today`,
-    statusMessages[status] || "Ready to focus",
   ].join("\n");
 }
 
