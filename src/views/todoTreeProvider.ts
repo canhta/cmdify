@@ -1,24 +1,20 @@
 /**
  * TODO Tree View Provider
  * Provides a tree view for TODO items in the sidebar
+ * Groups by assignee, sorted by due date (with date on top)
  */
 
 import * as vscode from 'vscode';
-import {
-  DetectedTodo,
-  TodoCategory,
-  getCategoryLabel,
-  getPriorityWeight,
-  GlobalReminder,
-} from '../models/todo';
+import { DetectedTodo, GlobalReminder } from '../models/todo';
 import { TodoScannerService } from '../services/todoScanner';
 import { ReminderService } from '../services/reminder';
-import {
-  getTodoThemeIcon,
-  getTodoCategoryThemeIcon,
-  TODO_CATEGORY_THEME_ICONS,
-} from '../utils/icons';
+import { getTodoThemeIcon, TODO_CATEGORY_THEME_ICONS } from '../utils/icons';
 import * as path from 'path';
+
+/**
+ * Assignee group type for tree view
+ */
+type AssigneeGroup = string; // assignee name or 'Unassigned'
 
 /**
  * Tree item for the TODO tree view
@@ -29,10 +25,10 @@ export class TodoTreeItem extends vscode.TreeItem {
   constructor(
     label: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-    public readonly itemType: 'category' | 'todo' | 'reminder',
+    public readonly itemType: 'assignee' | 'todo' | 'reminder' | 'reminderCategory',
     public readonly todo?: DetectedTodo,
     public readonly reminder?: GlobalReminder,
-    public readonly category?: TodoCategory
+    public readonly assigneeGroup?: AssigneeGroup
   ) {
     super(label, collapsibleState);
     this.displayLabel = label;
@@ -41,23 +37,24 @@ export class TodoTreeItem extends vscode.TreeItem {
       this.setupTodoItem(todo);
     } else if (reminder) {
       this.setupReminderItem(reminder);
-    } else if (category) {
-      this.setupCategoryItem(category);
+    } else if (assigneeGroup !== undefined) {
+      this.setupAssigneeItem(assigneeGroup);
     }
   }
 
   private setupTodoItem(todo: DetectedTodo): void {
-    // Clean label without emoji - let ThemeIcon handle the visual
     this.displayLabel = todo.description;
     this.label = todo.description;
-    
-    // Description shows file name and assignee if present
+
+    // Description shows file name and due date if present
     let descParts: string[] = [path.basename(todo.filePath)];
-    if (todo.assignee) {
-      descParts.push(`👤 ${todo.assignee}`);
+    if (todo.dueDate) {
+      const isOverdue = todo.dueDate < new Date(new Date().setHours(0, 0, 0, 0));
+      const dateStr = todo.dueDate.toLocaleDateString();
+      descParts.push(isOverdue ? `⚠️ ${dateStr}` : `📅 ${dateStr}`);
     }
     this.description = descParts.join(' • ');
-    
+
     // Tooltip with full info
     let tooltip = `${todo.type}: ${todo.description}\n`;
     tooltip += `File: ${todo.filePath}\n`;
@@ -70,26 +67,22 @@ export class TodoTreeItem extends vscode.TreeItem {
     }
     this.tooltip = tooltip;
 
-    // Context value for menus
     this.contextValue = 'todo';
 
-    // Command to open file
     this.command = {
       command: 'cmdify.todo.goToCode',
       title: 'Go to Code',
       arguments: [todo],
     };
 
-    // Use centralized icon system
     this.iconPath = getTodoThemeIcon(todo.type);
   }
 
   private setupReminderItem(reminder: GlobalReminder): void {
-    // Clean label without emoji
     this.displayLabel = reminder.title;
     this.label = reminder.title;
     this.description = reminder.dueAt.toLocaleDateString();
-    
+
     let tooltip = `Reminder: ${reminder.title}\n`;
     tooltip += `Due: ${reminder.dueAt.toLocaleString()}`;
     if (reminder.description) {
@@ -101,13 +94,18 @@ export class TodoTreeItem extends vscode.TreeItem {
     this.iconPath = new vscode.ThemeIcon(TODO_CATEGORY_THEME_ICONS['reminder']);
   }
 
-  private setupCategoryItem(category: TodoCategory): void {
-    this.iconPath = getTodoCategoryThemeIcon(category);
+  private setupAssigneeItem(assignee: AssigneeGroup): void {
+    if (assignee === 'Unassigned') {
+      this.iconPath = new vscode.ThemeIcon('circle-outline');
+    } else {
+      this.iconPath = new vscode.ThemeIcon('person');
+    }
   }
 }
 
 /**
  * TODO Tree Data Provider
+ * Groups TODOs by assignee, sorted by due date (with date on top)
  */
 export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, vscode.Disposable {
   private _onDidChangeTreeData = new vscode.EventEmitter<TodoTreeItem | undefined | null | void>();
@@ -120,9 +118,7 @@ export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, 
     private readonly reminderService: ReminderService
   ) {
     // Refresh when TODOs change
-    this.disposables.push(
-      this.scanner.onTodosChanged(() => this.refresh())
-    );
+    this.disposables.push(this.scanner.onTodosChanged(() => this.refresh()));
   }
 
   refresh(): void {
@@ -135,13 +131,29 @@ export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, 
 
   async getChildren(element?: TodoTreeItem): Promise<TodoTreeItem[]> {
     if (!element) {
-      // Root level - show categories
+      // Root level - show assignee groups
       return this.getRootItems();
     }
 
-    // Children of a category
-    if (element.category) {
-      return this.getCategoryChildren(element.category);
+    // Children of an assignee group
+    if (element.assigneeGroup !== undefined) {
+      return this.getAssigneeChildren(element.assigneeGroup);
+    }
+
+    // Children of reminder category
+    if (element.itemType === 'reminderCategory') {
+      return this.reminderService
+        .getPendingReminders()
+        .map(
+          (reminder) =>
+            new TodoTreeItem(
+              reminder.title,
+              vscode.TreeItemCollapsibleState.None,
+              'reminder',
+              undefined,
+              reminder
+            )
+        );
     }
 
     return [];
@@ -149,40 +161,47 @@ export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, 
 
   private getRootItems(): TodoTreeItem[] {
     const items: TodoTreeItem[] = [];
+    const todos = this.scanner.getTodos().filter((t) => t.status === 'open');
 
-    // Count items in each category
-    const overdue = this.scanner.getOverdueTodos();
-    const today = this.scanner.getTodayTodos();
-    const thisWeek = this.scanner.getThisWeekTodos();
-    const noDate = this.scanner.getNoDateTodos();
-    const reminders = this.reminderService.getPendingReminders();
+    // Group by assignee
+    const assigneeGroups = new Map<string, DetectedTodo[]>();
 
-    // Add categories with counts
-    if (overdue.length > 0) {
-      items.push(this.createCategoryItem('overdue', overdue.length));
+    for (const todo of todos) {
+      const assignee = todo.assignee || 'Unassigned';
+      if (!assigneeGroups.has(assignee)) {
+        assigneeGroups.set(assignee, []);
+      }
+      assigneeGroups.get(assignee)!.push(todo);
     }
 
-    if (today.length > 0) {
-      items.push(this.createCategoryItem('today', today.length));
-    }
+    // Sort assignees: assigned people first (alphabetically), then Unassigned
+    const sortedAssignees = Array.from(assigneeGroups.keys()).sort((a, b) => {
+      if (a === 'Unassigned') return 1;
+      if (b === 'Unassigned') return -1;
+      return a.localeCompare(b);
+    });
 
-    if (thisWeek.length > 0) {
-      items.push(this.createCategoryItem('thisWeek', thisWeek.length));
-    }
-
-    if (noDate.length > 0) {
-      items.push(this.createCategoryItem('noDate', noDate.length));
+    // Create assignee group items
+    for (const assignee of sortedAssignees) {
+      const count = assigneeGroups.get(assignee)!.length;
+      const item = new TodoTreeItem(
+        `${assignee} (${count})`,
+        vscode.TreeItemCollapsibleState.Expanded,
+        'assignee',
+        undefined,
+        undefined,
+        assignee
+      );
+      items.push(item);
     }
 
     // Add global reminders
+    const reminders = this.reminderService.getPendingReminders();
     if (reminders.length > 0) {
       const reminderCategory = new TodoTreeItem(
         `🔔 Reminders (${reminders.length})`,
         vscode.TreeItemCollapsibleState.Expanded,
-        'category',
-        undefined,
-        undefined,
-        'upcoming' as TodoCategory  // Use 'upcoming' for reminders
+        'reminderCategory'
       );
       reminderCategory.contextValue = 'reminderCategory';
       items.push(reminderCategory);
@@ -193,7 +212,10 @@ export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, 
       const emptyItem = new TodoTreeItem(
         'No TODOs found',
         vscode.TreeItemCollapsibleState.None,
-        'category'
+        'assignee',
+        undefined,
+        undefined,
+        'empty'
       );
       emptyItem.description = 'Click ↻ to scan workspace';
       items.push(emptyItem);
@@ -202,67 +224,30 @@ export class TodoTreeProvider implements vscode.TreeDataProvider<TodoTreeItem>, 
     return items;
   }
 
-  private createCategoryItem(category: TodoCategory, count: number): TodoTreeItem {
-    const label = `${getCategoryLabel(category)} (${count})`;
-    const item = new TodoTreeItem(
-      label,
-      vscode.TreeItemCollapsibleState.Expanded,
-      'category',
-      undefined,
-      undefined,
-      category
-    );
-    return item;
-  }
+  private getAssigneeChildren(assignee: AssigneeGroup): TodoTreeItem[] {
+    const todos = this.scanner.getTodos().filter((t) => {
+      if (t.status !== 'open') return false;
+      const todoAssignee = t.assignee || 'Unassigned';
+      return todoAssignee === assignee;
+    });
 
-  private getCategoryChildren(category: TodoCategory): TodoTreeItem[] {
-    let todos: DetectedTodo[] = [];
-
-    switch (category) {
-      case 'overdue':
-        todos = this.scanner.getOverdueTodos();
-        break;
-      case 'today':
-        todos = this.scanner.getTodayTodos();
-        break;
-      case 'thisWeek':
-        todos = this.scanner.getThisWeekTodos();
-        break;
-      case 'noDate':
-        todos = this.scanner.getNoDateTodos();
-        break;
-      case 'completed':
-        todos = this.scanner.getCompletedTodos();
-        break;
-      case 'upcoming':
-        // Return reminders instead of todos
-        return this.reminderService.getPendingReminders().map(
-          reminder => new TodoTreeItem(
-            reminder.title,
-            vscode.TreeItemCollapsibleState.None,
-            'reminder',
-            undefined,
-            reminder
-          )
-        );
-    }
-
-    // Sort by priority then by file
+    // Sort: TODOs with due date first (by date ascending), then without date
     todos.sort((a, b) => {
-      const priorityDiff = getPriorityWeight(b.priority) - getPriorityWeight(a.priority);
-      if (priorityDiff !== 0) {
-        return priorityDiff;
+      // Both have dates - sort by date
+      if (a.dueDate && b.dueDate) {
+        return a.dueDate.getTime() - b.dueDate.getTime();
       }
+      // Only a has date - a comes first
+      if (a.dueDate && !b.dueDate) return -1;
+      // Only b has date - b comes first
+      if (!a.dueDate && b.dueDate) return 1;
+      // Neither has date - sort by file path
       return a.filePath.localeCompare(b.filePath);
     });
 
     return todos.map(
-      todo => new TodoTreeItem(
-        todo.description,
-        vscode.TreeItemCollapsibleState.None,
-        'todo',
-        todo
-      )
+      (todo) =>
+        new TodoTreeItem(todo.description, vscode.TreeItemCollapsibleState.None, 'todo', todo)
     );
   }
 
@@ -282,7 +267,7 @@ export function createTodoTreeView(
   reminderService: ReminderService
 ): { treeView: vscode.TreeView<TodoTreeItem>; provider: TodoTreeProvider } {
   const provider = new TodoTreeProvider(scanner, reminderService);
-  
+
   const treeView = vscode.window.createTreeView('cmdify.todos', {
     treeDataProvider: provider,
     showCollapseAll: true,

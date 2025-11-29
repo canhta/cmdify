@@ -15,10 +15,7 @@ import {
   ACTIVITY_TRACKING_INTERVAL,
   ACTIVITY_HISTORY_DAYS,
 } from '../models/activity';
-import {
-  getTodayString,
-  formatDateString,
-} from '../utils/dateUtils';
+import { getTodayString, formatDateString } from '../utils/dateUtils';
 
 /**
  * Activity Tracking Service
@@ -101,9 +98,15 @@ export class ActivityService implements vscode.Disposable {
     const config = vscode.workspace.getConfiguration('cmdify.activity');
     return {
       enabled: config.get<boolean>('enabled', DEFAULT_ACTIVITY_CONFIG.enabled),
-      dailyGoalMinutes: config.get<number>('dailyGoalMinutes', DEFAULT_ACTIVITY_CONFIG.dailyGoalMinutes),
+      dailyGoalMinutes: config.get<number>(
+        'dailyGoalMinutes',
+        DEFAULT_ACTIVITY_CONFIG.dailyGoalMinutes
+      ),
       trackLanguages: config.get<boolean>('trackLanguages', DEFAULT_ACTIVITY_CONFIG.trackLanguages),
-      showInStatusBar: config.get<boolean>('showInStatusBar', DEFAULT_ACTIVITY_CONFIG.showInStatusBar),
+      showInStatusBar: config.get<boolean>(
+        'showInStatusBar',
+        DEFAULT_ACTIVITY_CONFIG.showInStatusBar
+      ),
     };
   }
 
@@ -283,7 +286,7 @@ export class ActivityService implements vscode.Disposable {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32bit integer
     }
     return hash.toString(16);

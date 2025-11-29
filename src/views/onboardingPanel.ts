@@ -57,7 +57,9 @@ export class OnboardingPanelProvider {
         case 'complete':
           await this.onboardingService.completeOnboarding();
           this.panel?.dispose();
-          vscode.window.showInformationMessage('Welcome to Cmdify! Start coding and your companion will be with you.');
+          vscode.window.showInformationMessage(
+            'Welcome to Cmdify! Start coding and your companion will be with you.'
+          );
           break;
         case 'openSettings':
           await vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify');

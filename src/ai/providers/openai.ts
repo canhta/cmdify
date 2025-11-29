@@ -19,7 +19,7 @@ export class OpenAIProvider implements AIProvider {
 
     return generateOpenAICompatible(
       config.customEndpoint || this.endpoint,
-      { 'Authorization': `Bearer ${apiKey}` },
+      { Authorization: `Bearer ${apiKey}` },
       config.model,
       prompt,
       context,

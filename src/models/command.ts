@@ -21,16 +21,16 @@ export interface CLICommand {
   id: string;
 
   // Core - Only TWO required concepts
-  prompt: string;           // What user asked for (natural language)
-  command: string;          // The actual CLI command
+  prompt: string; // What user asked for (natural language)
+  command: string; // The actual CLI command
 
   // Organization
-  tags: string[];           // Simple tagging
+  tags: string[]; // Simple tagging
 
   // Execution context
-  shell?: ShellType;        // Default: auto-detect
+  shell?: ShellType; // Default: auto-detect
   workingDirectory?: WorkingDirectory;
-  variables?: CommandVariable[];  // Auto-extracted from {{var}} syntax
+  variables?: CommandVariable[]; // Auto-extracted from {{var}} syntax
 
   // Metadata (auto-managed)
   createdAt: string;
@@ -40,16 +40,16 @@ export interface CLICommand {
   lastUsedAt?: string;
 
   // Security
-  skipDestructiveWarning?: boolean;  // Don't warn for this command
+  skipDestructiveWarning?: boolean; // Don't warn for this command
 
   // Organization
-  isFavorite?: boolean;  // Mark as favorite for quick access
+  isFavorite?: boolean; // Mark as favorite for quick access
 
   // Sync metadata
-  syncId?: string;              // Unique ID for sync tracking
-  syncHash?: string;            // Hash of command content for conflict detection
-  lastSyncedAt?: string;        // Last time this command was synced
-  deletedAt?: string;           // Soft delete timestamp for sync purposes
+  syncId?: string; // Unique ID for sync tracking
+  syncHash?: string; // Hash of command content for conflict detection
+  lastSyncedAt?: string; // Last time this command was synced
+  deletedAt?: string; // Soft delete timestamp for sync purposes
 }
 
 /**
@@ -75,7 +75,7 @@ export function generateCommandHash(cmd: CLICommand): string {
   let hash = 0;
   for (let i = 0; i < content.length; i++) {
     const char = content.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   return hash.toString(36);

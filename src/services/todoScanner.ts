@@ -28,7 +28,7 @@ export class TodoScannerService implements vscode.Disposable {
   private config: TodoScannerConfig;
   private customPatterns: TodoPattern[] = [];
   private disposables: vscode.Disposable[] = [];
-  
+
   // Compiled regex patterns from config
   private datePattern: RegExp;
   private assigneePattern: RegExp;
@@ -92,10 +92,19 @@ export class TodoScannerService implements vscode.Disposable {
    */
   private loadConfig(): TodoScannerConfig {
     const config = vscode.workspace.getConfiguration('cmdify.todos');
-    const metadataConfig = config.get<typeof DEFAULT_METADATA_FORMAT>('metadataFormat', DEFAULT_METADATA_FORMAT);
+    const metadataConfig = config.get<typeof DEFAULT_METADATA_FORMAT>(
+      'metadataFormat',
+      DEFAULT_METADATA_FORMAT
+    );
     return {
-      includePatterns: config.get<string[]>('includePatterns', DEFAULT_SCANNER_CONFIG.includePatterns),
-      excludePatterns: config.get<string[]>('excludePatterns', DEFAULT_SCANNER_CONFIG.excludePatterns),
+      includePatterns: config.get<string[]>(
+        'includePatterns',
+        DEFAULT_SCANNER_CONFIG.includePatterns
+      ),
+      excludePatterns: config.get<string[]>(
+        'excludePatterns',
+        DEFAULT_SCANNER_CONFIG.excludePatterns
+      ),
       scanOnSave: config.get<boolean>('scanOnSave', DEFAULT_SCANNER_CONFIG.scanOnSave),
       customPatterns: config.get<string[]>('customPatterns', DEFAULT_SCANNER_CONFIG.customPatterns),
       metadataFormat: {
@@ -125,11 +134,15 @@ export class TodoScannerService implements vscode.Disposable {
    */
   private buildMetadataPattern(): RegExp {
     const wrapper = this.config.metadataFormat.metadataWrapper;
-    // Replace {metadata} with capture group
-    const escaped = wrapper
-      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')  // Escape special chars
-      .replace('\\{metadata\\}', '([^)]+)');    // Replace placeholder with capture
-    return new RegExp(`\\s*${escaped}\\s*$`);
+    // Escape special regex chars except for the placeholder
+    // First replace placeholder with a unique token
+    const token = '___METADATA___';
+    const withToken = wrapper.replace('{metadata}', token);
+    // Escape special chars
+    const escaped = withToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Replace token with capture group
+    const pattern = escaped.replace(token, '([^)]+)');
+    return new RegExp(`\\s*${pattern}\\s*$`);
   }
 
   /**
@@ -259,7 +272,7 @@ export class TodoScannerService implements vscode.Disposable {
       const batchSize = 20;
       for (let i = 0; i < files.length; i += batchSize) {
         const batch = files.slice(i, i + batchSize);
-        await Promise.all(batch.map(uri => this.scanFile(uri, false)));
+        await Promise.all(batch.map((uri) => this.scanFile(uri, false)));
       }
 
       this._onTodosChanged.fire(this.getTodos());
@@ -311,7 +324,7 @@ export class TodoScannerService implements vscode.Disposable {
             const metadataMatch = this.metadataPattern.exec(description);
             if (metadataMatch) {
               const metadataContent = metadataMatch[1];
-              
+
               // Parse due date from metadata
               const dateMatch = this.datePattern.exec(metadataContent);
               if (dateMatch && dateMatch[1]) {
@@ -333,9 +346,7 @@ export class TodoScannerService implements vscode.Disposable {
             const finalAssignee = assignee || storedMeta?.assignee;
 
             // Clean description by removing metadata block
-            const cleanDescription = description
-              .replace(this.metadataPattern, '')
-              .trim();
+            const cleanDescription = description.replace(this.metadataPattern, '').trim();
 
             const todo: DetectedTodo = {
               id,
@@ -407,7 +418,7 @@ export class TodoScannerService implements vscode.Disposable {
    * Get all detected TODOs
    */
   getTodos(): DetectedTodo[] {
-    return Array.from(this.todos.values()).filter(t => t.status !== 'completed');
+    return Array.from(this.todos.values()).filter((t) => t.status !== 'completed');
   }
 
   /**
@@ -431,7 +442,7 @@ export class TodoScannerService implements vscode.Disposable {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    return this.getTodos().filter(todo => {
+    return this.getTodos().filter((todo) => {
       if (!todo.dueDate || todo.status !== 'open') {
         return false;
       }
@@ -450,7 +461,7 @@ export class TodoScannerService implements vscode.Disposable {
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    return this.getTodos().filter(todo => {
+    return this.getTodos().filter((todo) => {
       if (!todo.dueDate || todo.status !== 'open') {
         return false;
       }
@@ -471,7 +482,7 @@ export class TodoScannerService implements vscode.Disposable {
     const endOfWeek = new Date(now);
     endOfWeek.setDate(endOfWeek.getDate() + (7 - endOfWeek.getDay()));
 
-    return this.getTodos().filter(todo => {
+    return this.getTodos().filter((todo) => {
       if (!todo.dueDate || todo.status !== 'open') {
         return false;
       }
@@ -485,14 +496,14 @@ export class TodoScannerService implements vscode.Disposable {
    * Get TODOs with no date
    */
   getNoDateTodos(): DetectedTodo[] {
-    return this.getTodos().filter(todo => !todo.dueDate && todo.status === 'open');
+    return this.getTodos().filter((todo) => !todo.dueDate && todo.status === 'open');
   }
 
   /**
    * Get completed TODOs
    */
   getCompletedTodos(): DetectedTodo[] {
-    return Array.from(this.todos.values()).filter(t => t.status === 'completed');
+    return Array.from(this.todos.values()).filter((t) => t.status === 'completed');
   }
 
   /**
@@ -589,7 +600,7 @@ export class TodoScannerService implements vscode.Disposable {
    * Get total count of open TODOs
    */
   getOpenCount(): number {
-    return this.getTodos().filter(t => t.status === 'open').length;
+    return this.getTodos().filter((t) => t.status === 'open').length;
   }
 
   /**

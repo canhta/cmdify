@@ -41,7 +41,7 @@ export function createEnhancedQuickPickItems(storage: StorageService): vscode.Qu
   }
 
   // Recent section
-  const recentNotInFavorites = recent.filter(cmd => !cmd.isFavorite);
+  const recentNotInFavorites = recent.filter((cmd) => !cmd.isFavorite);
   if (recentNotInFavorites.length > 0) {
     items.push({
       label: '🕐 RECENT',
@@ -59,11 +59,11 @@ export function createEnhancedQuickPickItems(storage: StorageService): vscode.Qu
 
   // All commands section (excluding those already shown)
   const shownIds = new Set([
-    ...favorites.map(c => c.id),
-    ...recentNotInFavorites.map(c => c.id),
+    ...favorites.map((c) => c.id),
+    ...recentNotInFavorites.map((c) => c.id),
   ]);
-  const otherCommands = allCommands.filter(cmd => !shownIds.has(cmd.id));
-  
+  const otherCommands = allCommands.filter((cmd) => !shownIds.has(cmd.id));
+
   if (otherCommands.length > 0) {
     items.push({
       label: '📁 ALL COMMANDS',
@@ -102,7 +102,7 @@ export async function selectCommand(
   }
 
   const commands = storage.getAll();
-  
+
   if (commands.length === 0) {
     if (options.showCreateOption) {
       const create = await vscode.window.showInformationMessage(
@@ -119,9 +119,10 @@ export async function selectCommand(
   }
 
   // Use enhanced UI if requested and we have multiple commands
-  const items = options.useEnhancedUI && commands.length > 3
-    ? createEnhancedQuickPickItems(storage)
-    : createCommandQuickPickItems(commands);
+  const items =
+    options.useEnhancedUI && commands.length > 3
+      ? createEnhancedQuickPickItems(storage)
+      : createCommandQuickPickItems(commands);
 
   const selection = await vscode.window.showQuickPick(items, {
     placeHolder: options.placeHolder,
@@ -149,7 +150,7 @@ export async function selectCommandWithFuzzySearch(
 
   const updateItems = (query: string) => {
     const items: (CommandQuickPickItem | vscode.QuickPickItem)[] = [];
-    
+
     if (query.trim()) {
       // Use fuzzy search
       const results = storage.fuzzySearch(query);
@@ -187,9 +188,11 @@ export async function selectCommandWithFuzzySearch(
 
   return new Promise((resolve) => {
     quickPick.onDidAccept(() => {
-      const selected = quickPick.selectedItems[0] as CommandQuickPickItem & { isAIOption?: boolean };
+      const selected = quickPick.selectedItems[0] as CommandQuickPickItem & {
+        isAIOption?: boolean;
+      };
       quickPick.hide();
-      
+
       if (selected?.isAIOption) {
         resolve({ generateAI: true });
       } else if (selected?.command) {

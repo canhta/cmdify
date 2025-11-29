@@ -82,7 +82,7 @@ export async function promptForVariablesWithPreview(
   }
 
   const values = new Map<string, string>();
-  
+
   // Initialize with default values
   for (const variable of variables) {
     values.set(variable.name, variable.defaultValue || '');
@@ -91,7 +91,7 @@ export async function promptForVariablesWithPreview(
   for (let i = 0; i < variables.length; i++) {
     const variable = variables[i];
     const currentPreview = replaceVariables(command, values);
-    
+
     const value = await vscode.window.showInputBox({
       prompt: variable.description || `Enter value for "${variable.name}"`,
       placeHolder: variable.defaultValue || variable.name,
@@ -113,21 +113,24 @@ export async function promptForVariablesWithPreview(
   }
 
   const finalCommand = replaceVariables(command, values);
-  
+
   // Show final preview confirmation
-  const confirm = await vscode.window.showQuickPick([
+  const confirm = await vscode.window.showQuickPick(
+    [
+      {
+        label: '$(play) Run',
+        description: 'Execute this command',
+      },
+      {
+        label: '$(close) Cancel',
+        description: 'Cancel execution',
+      },
+    ],
     {
-      label: '$(play) Run',
-      description: 'Execute this command',
-    },
-    {
-      label: '$(close) Cancel',
-      description: 'Cancel execution',
-    },
-  ], {
-    title: 'Command Preview',
-    placeHolder: finalCommand,
-  });
+      title: 'Command Preview',
+      placeHolder: finalCommand,
+    }
+  );
 
   if (!confirm || confirm.label === '$(close) Cancel') {
     return undefined;
@@ -148,11 +151,11 @@ export function mergeVariables(
   }
 
   const merged: CommandVariable[] = [];
-  const extractedNames = new Set(extracted.map(v => v.name));
+  const extractedNames = new Set(extracted.map((v) => v.name));
 
   // Add extracted variables, enriching with suggested data if available
   for (const ext of extracted) {
-    const sug = suggested.find(s => s.name === ext.name);
+    const sug = suggested.find((s) => s.name === ext.name);
     merged.push({
       name: ext.name,
       defaultValue: sug?.defaultValue || ext.defaultValue,

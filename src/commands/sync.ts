@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
-import { CLICommand, SyncConflict, SyncConflictType, ConflictResolution, generateCommandHash } from '../models/command';
+import {
+  CLICommand,
+  SyncConflict,
+  SyncConflictType,
+  ConflictResolution,
+  generateCommandHash,
+} from '../models/command';
 import { StorageService } from '../services/storage';
 
 const GIST_FILENAME = 'cmdify-commands.json';
@@ -8,7 +14,7 @@ interface SyncPayload {
   version: string;
   commands: CLICommand[];
   exportedAt: string;
-  syncVersion?: number;  // Incremented on each sync
+  syncVersion?: number; // Incremented on each sync
 }
 
 /**
@@ -50,7 +56,7 @@ export class GitHubSyncService {
     }
 
     const now = new Date().toISOString();
-    const commands = this.storage.exportCommands().map(cmd => ({
+    const commands = this.storage.exportCommands().map((cmd) => ({
       ...cmd,
       syncId: cmd.syncId || cmd.id,
       lastSyncedAt: now,
@@ -102,7 +108,9 @@ export class GitHubSyncService {
       // Try to find existing gist
       const found = await this.findExistingGist(session.accessToken);
       if (!found) {
-        vscode.window.showInformationMessage('No synced commands found. Push first to create a sync.');
+        vscode.window.showInformationMessage(
+          'No synced commands found. Push first to create a sync.'
+        );
         return false;
       }
     }
@@ -115,7 +123,9 @@ export class GitHubSyncService {
       }
 
       await this.storage.importCommands(payload.commands, true);
-      vscode.window.showInformationMessage(`Synced ${payload.commands.length} commands from GitHub!`);
+      vscode.window.showInformationMessage(
+        `Synced ${payload.commands.length} commands from GitHub!`
+      );
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
@@ -175,7 +185,11 @@ export class GitHubSyncService {
 
       if (conflicts.length > 0) {
         // Show conflict resolution UI
-        const resolvedCommands = await this.resolveConflicts(conflicts, localCommands, remoteCommands);
+        const resolvedCommands = await this.resolveConflicts(
+          conflicts,
+          localCommands,
+          remoteCommands
+        );
         if (!resolvedCommands) {
           vscode.window.showInformationMessage('Sync cancelled.');
           return false;
@@ -203,8 +217,8 @@ export class GitHubSyncService {
    */
   private detectConflicts(local: CLICommand[], remote: CLICommand[]): SyncConflict[] {
     const conflicts: SyncConflict[] = [];
-    const localMap = new Map(local.map(cmd => [cmd.syncId || cmd.id, cmd]));
-    const remoteMap = new Map(remote.map(cmd => [cmd.syncId || cmd.id, cmd]));
+    const localMap = new Map(local.map((cmd) => [cmd.syncId || cmd.id, cmd]));
+    const remoteMap = new Map(remote.map((cmd) => [cmd.syncId || cmd.id, cmd]));
 
     // Check for modified conflicts (same ID, different content)
     for (const [id, localCmd] of localMap) {
@@ -218,7 +232,9 @@ export class GitHubSyncService {
           // Check if both have been updated after their last sync
           const localUpdated = new Date(localCmd.updatedAt).getTime();
           const remoteUpdated = new Date(remoteCmd.updatedAt).getTime();
-          const localLastSync = localCmd.lastSyncedAt ? new Date(localCmd.lastSyncedAt).getTime() : 0;
+          const localLastSync = localCmd.lastSyncedAt
+            ? new Date(localCmd.lastSyncedAt).getTime()
+            : 0;
 
           // If both sides have changes since last sync, it's a conflict
           if (localUpdated > localLastSync && remoteUpdated > localLastSync) {
@@ -302,7 +318,7 @@ export class GitHubSyncService {
     }
 
     // Filter out soft-deleted commands
-    return Array.from(merged.values()).filter(cmd => !cmd.deletedAt);
+    return Array.from(merged.values()).filter((cmd) => !cmd.deletedAt);
   }
 
   /**
@@ -383,13 +399,15 @@ export class GitHubSyncService {
     }
 
     // Filter out soft-deleted commands
-    return Array.from(merged.values()).filter(cmd => !cmd.deletedAt);
+    return Array.from(merged.values()).filter((cmd) => !cmd.deletedAt);
   }
 
   /**
    * Show dialog for a single conflict
    */
-  private async showConflictDialog(conflict: SyncConflict): Promise<ConflictResolution | undefined> {
+  private async showConflictDialog(
+    conflict: SyncConflict
+  ): Promise<ConflictResolution | undefined> {
     // Check if user has a default resolution preference
     const config = vscode.workspace.getConfiguration('cmdify.sync');
     const defaultResolution = config.get<string>('conflictResolution', 'ask');
@@ -399,9 +417,9 @@ export class GitHubSyncService {
     }
 
     const typeLabel = {
-      'modified': 'Modified on both sides',
-      'deleted_local': 'Deleted locally, modified remotely',
-      'deleted_remote': 'Deleted remotely, modified locally',
+      modified: 'Modified on both sides',
+      deleted_local: 'Deleted locally, modified remotely',
+      deleted_remote: 'Deleted remotely, modified locally',
     }[conflict.type];
 
     const localDisplay = this.formatCommandForDisplay(conflict.local);
@@ -453,9 +471,9 @@ export class GitHubSyncService {
     const response = await fetch('https://api.github.com/gists', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github+json',
+        Accept: 'application/vnd.github+json',
       },
       body: JSON.stringify({
         description: 'Cmdify - Synced Commands',
@@ -472,7 +490,7 @@ export class GitHubSyncService {
       throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    const data = await response.json() as { id: string };
+    const data = (await response.json()) as { id: string };
     this.gistId = data.id;
     await this.context.globalState.update('cmdify.gistId', this.gistId);
   }
@@ -484,9 +502,9 @@ export class GitHubSyncService {
     const response = await fetch(`https://api.github.com/gists/${this.gistId}`, {
       method: 'PATCH',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github+json',
+        Accept: 'application/vnd.github+json',
       },
       body: JSON.stringify({
         files: {
@@ -514,8 +532,8 @@ export class GitHubSyncService {
   private async fetchGist(token: string): Promise<SyncPayload | undefined> {
     const response = await fetch(`https://api.github.com/gists/${this.gistId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
       },
     });
 
@@ -528,7 +546,7 @@ export class GitHubSyncService {
       throw new Error(`GitHub API error: ${response.status}`);
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
       files: Record<string, { content: string }>;
     };
     const content = data.files?.[GIST_FILENAME]?.content;
@@ -546,8 +564,8 @@ export class GitHubSyncService {
   private async findExistingGist(token: string): Promise<boolean> {
     const response = await fetch('https://api.github.com/gists', {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/vnd.github+json',
       },
     });
 
@@ -555,7 +573,7 @@ export class GitHubSyncService {
       return false;
     }
 
-    const gists = await response.json() as Array<{
+    const gists = (await response.json()) as Array<{
       id: string;
       files: Record<string, unknown>;
     }>;
@@ -593,7 +611,7 @@ export async function handleLogin(syncService: GitHubSyncService): Promise<void>
  */
 export async function handleExport(storage: StorageService): Promise<void> {
   const commands = storage.exportCommands();
-  
+
   if (commands.length === 0) {
     vscode.window.showInformationMessage('No commands to export.');
     return;
@@ -658,21 +676,24 @@ export async function handleImport(storage: StorageService): Promise<void> {
     }
 
     // Ask user how to handle import
-    const mergeOption = await vscode.window.showQuickPick([
+    const mergeOption = await vscode.window.showQuickPick(
+      [
+        {
+          label: '$(git-merge) Merge',
+          description: 'Merge with existing commands (keeps both)',
+          value: true,
+        },
+        {
+          label: '$(replace-all) Replace',
+          description: 'Replace all existing commands',
+          value: false,
+        },
+      ],
       {
-        label: '$(git-merge) Merge',
-        description: 'Merge with existing commands (keeps both)',
-        value: true,
-      },
-      {
-        label: '$(replace-all) Replace',
-        description: 'Replace all existing commands',
-        value: false,
-      },
-    ], {
-      placeHolder: 'How would you like to import?',
-      title: 'Import Commands',
-    });
+        placeHolder: 'How would you like to import?',
+        title: 'Import Commands',
+      }
+    );
 
     if (!mergeOption) {
       return;

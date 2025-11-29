@@ -4,14 +4,14 @@
  */
 
 // Achievement condition types
-export type AchievementConditionType = 
-  | 'sessions'      // Focus sessions completed
-  | 'streak'        // Consecutive days with activity
-  | 'todos'         // TODOs completed
-  | 'commands'      // Commands created/saved
-  | 'level'         // Companion level reached
-  | 'time'          // Total time in VS Code
-  | 'special';      // Special conditions (night owl, etc.)
+export type AchievementConditionType =
+  | 'sessions' // Focus sessions completed
+  | 'streak' // Consecutive days with activity
+  | 'todos' // TODOs completed
+  | 'commands' // Commands created/saved
+  | 'level' // Companion level reached
+  | 'time' // Total time in VS Code
+  | 'special'; // Special conditions (night owl, etc.)
 
 // Achievement categories
 export type AchievementCategory = 'focus' | 'todos' | 'commands' | 'streaks' | 'special';
@@ -30,13 +30,13 @@ export interface Achievement {
   category: AchievementCategory;
   condition: AchievementCondition;
   xpReward: number;
-  secret?: boolean;  // Hidden until unlocked
+  secret?: boolean; // Hidden until unlocked
 }
 
 export interface UnlockedAchievement {
   id: string;
-  unlockedAt: string;  // ISO date string
-  notified: boolean;   // Whether user was notified
+  unlockedAt: string; // ISO date string
+  notified: boolean; // Whether user was notified
 }
 
 export interface AchievementProgress {
@@ -68,7 +68,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🎯',
     category: 'focus',
     condition: { type: 'sessions', value: 1 },
-    xpReward: 50
+    xpReward: 50,
   },
   {
     id: 'focus_10',
@@ -77,7 +77,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🍅',
     category: 'focus',
     condition: { type: 'sessions', value: 10 },
-    xpReward: 100
+    xpReward: 100,
   },
   {
     id: 'focus_25',
@@ -86,7 +86,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🎪',
     category: 'focus',
     condition: { type: 'sessions', value: 25 },
-    xpReward: 200
+    xpReward: 200,
   },
   {
     id: 'focus_50',
@@ -95,7 +95,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🧘',
     category: 'focus',
     condition: { type: 'sessions', value: 50 },
-    xpReward: 300
+    xpReward: 300,
   },
   {
     id: 'focus_100',
@@ -104,7 +104,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '💯',
     category: 'focus',
     condition: { type: 'sessions', value: 100 },
-    xpReward: 500
+    xpReward: 500,
   },
   {
     id: 'focus_marathon',
@@ -113,7 +113,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏃',
     category: 'focus',
     condition: { type: 'special', value: 5 },
-    xpReward: 250
+    xpReward: 250,
   },
 
   // ==========================================
@@ -126,7 +126,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌱',
     category: 'streaks',
     condition: { type: 'streak', value: 3 },
-    xpReward: 75
+    xpReward: 75,
   },
   {
     id: 'streak_7',
@@ -135,7 +135,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🔥',
     category: 'streaks',
     condition: { type: 'streak', value: 7 },
-    xpReward: 150
+    xpReward: 150,
   },
   {
     id: 'streak_14',
@@ -144,7 +144,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⚔️',
     category: 'streaks',
     condition: { type: 'streak', value: 14 },
-    xpReward: 300
+    xpReward: 300,
   },
   {
     id: 'streak_30',
@@ -153,7 +153,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⚡',
     category: 'streaks',
     condition: { type: 'streak', value: 30 },
-    xpReward: 500
+    xpReward: 500,
   },
   {
     id: 'streak_60',
@@ -162,7 +162,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌟',
     category: 'streaks',
     condition: { type: 'streak', value: 60 },
-    xpReward: 1000
+    xpReward: 1000,
   },
   {
     id: 'streak_100',
@@ -171,7 +171,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '👑',
     category: 'streaks',
     condition: { type: 'streak', value: 100 },
-    xpReward: 2000
+    xpReward: 2000,
   },
 
   // ==========================================
@@ -184,7 +184,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '✓',
     category: 'todos',
     condition: { type: 'todos', value: 1 },
-    xpReward: 25
+    xpReward: 25,
   },
   {
     id: 'todo_10',
@@ -193,7 +193,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '📝',
     category: 'todos',
     condition: { type: 'todos', value: 10 },
-    xpReward: 75
+    xpReward: 75,
   },
   {
     id: 'todo_25',
@@ -202,7 +202,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '📋',
     category: 'todos',
     condition: { type: 'todos', value: 25 },
-    xpReward: 150
+    xpReward: 150,
   },
   {
     id: 'todo_50',
@@ -211,7 +211,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '📊',
     category: 'todos',
     condition: { type: 'todos', value: 50 },
-    xpReward: 300
+    xpReward: 300,
   },
   {
     id: 'todo_100',
@@ -220,7 +220,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🏆',
     category: 'todos',
     condition: { type: 'todos', value: 100 },
-    xpReward: 500
+    xpReward: 500,
   },
 
   // ==========================================
@@ -233,7 +233,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⌨️',
     category: 'commands',
     condition: { type: 'commands', value: 1 },
-    xpReward: 25
+    xpReward: 25,
   },
   {
     id: 'cmd_5',
@@ -242,7 +242,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '📚',
     category: 'commands',
     condition: { type: 'commands', value: 5 },
-    xpReward: 75
+    xpReward: 75,
   },
   {
     id: 'cmd_10',
@@ -251,7 +251,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🗂️',
     category: 'commands',
     condition: { type: 'commands', value: 10 },
-    xpReward: 100
+    xpReward: 100,
   },
   {
     id: 'cmd_25',
@@ -260,7 +260,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🎖️',
     category: 'commands',
     condition: { type: 'commands', value: 25 },
-    xpReward: 200
+    xpReward: 200,
   },
   {
     id: 'cmd_ai',
@@ -269,7 +269,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🤖',
     category: 'commands',
     condition: { type: 'special', value: 10 },
-    xpReward: 200
+    xpReward: 200,
   },
 
   // ==========================================
@@ -283,7 +283,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: 'special',
     condition: { type: 'special', value: 1 },
     xpReward: 100,
-    secret: true
+    secret: true,
   },
   {
     id: 'early_bird',
@@ -293,7 +293,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: 'special',
     condition: { type: 'special', value: 1 },
     xpReward: 100,
-    secret: true
+    secret: true,
   },
   {
     id: 'weekend_warrior',
@@ -303,7 +303,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: 'special',
     condition: { type: 'special', value: 1 },
     xpReward: 150,
-    secret: true
+    secret: true,
   },
   {
     id: 'level_5',
@@ -312,7 +312,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '⭐',
     category: 'special',
     condition: { type: 'level', value: 5 },
-    xpReward: 100
+    xpReward: 100,
   },
   {
     id: 'level_10',
@@ -321,7 +321,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '🌠',
     category: 'special',
     condition: { type: 'level', value: 10 },
-    xpReward: 250
+    xpReward: 250,
   },
   {
     id: 'level_25',
@@ -330,7 +330,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '💫',
     category: 'special',
     condition: { type: 'level', value: 25 },
-    xpReward: 1000
+    xpReward: 1000,
   },
   {
     id: 'perfectionist',
@@ -340,7 +340,7 @@ export const ACHIEVEMENTS: Achievement[] = [
     category: 'special',
     condition: { type: 'special', value: 7 },
     xpReward: 300,
-    secret: true
+    secret: true,
   },
   {
     id: 'first_sync',
@@ -349,21 +349,21 @@ export const ACHIEVEMENTS: Achievement[] = [
     icon: '☁️',
     category: 'commands',
     condition: { type: 'special', value: 1 },
-    xpReward: 100
-  }
+    xpReward: 100,
+  },
 ];
 
 // Helper functions
 export function getAchievementById(id: string): Achievement | undefined {
-  return ACHIEVEMENTS.find(a => a.id === id);
+  return ACHIEVEMENTS.find((a) => a.id === id);
 }
 
 export function getAchievementsByCategory(category: AchievementCategory): Achievement[] {
-  return ACHIEVEMENTS.filter(a => a.category === category);
+  return ACHIEVEMENTS.filter((a) => a.category === category);
 }
 
 export function getVisibleAchievements(unlockedIds: Set<string>): Achievement[] {
-  return ACHIEVEMENTS.filter(a => !a.secret || unlockedIds.has(a.id));
+  return ACHIEVEMENTS.filter((a) => !a.secret || unlockedIds.has(a.id));
 }
 
 export function getTotalXPFromAchievements(): number {

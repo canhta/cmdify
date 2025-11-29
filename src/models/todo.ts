@@ -54,19 +54,19 @@ export type TodoStatus = 'open' | 'completed' | 'snoozed';
  * A detected TODO comment in the codebase
  */
 export interface DetectedTodo {
-  id: string;                   // hash(filePath + lineNumber)
+  id: string; // hash(filePath + lineNumber)
   filePath: string;
-  lineNumber: number;           // 0-based
-  type: string;                 // TODO, FIXME, HACK, XXX, BUG, etc.
-  text: string;                 // full comment text
-  description: string;          // extracted description without the type tag
-  dueDate?: Date;               // parsed from @date
-  dueDateRaw?: string;          // original date string (@2024-12-01)
-  assignee?: string;            // assigned contributor
+  lineNumber: number; // 0-based
+  type: string; // TODO, FIXME, HACK, XXX, BUG, etc.
+  text: string; // full comment text
+  description: string; // extracted description without the type tag
+  dueDate?: Date; // parsed from @date
+  dueDateRaw?: string; // original date string (@2024-12-01)
+  assignee?: string; // assigned contributor
   priority: TodoPriority;
   status: TodoStatus;
-  createdAt?: Date;             // when first detected
-  completedAt?: Date;           // when marked complete
+  createdAt?: Date; // when first detected
+  completedAt?: Date; // when marked complete
 }
 
 /**
@@ -78,7 +78,7 @@ export interface GlobalReminder {
   description?: string;
   dueAt: Date;
   recurring?: 'daily' | 'weekly' | 'monthly';
-  workspace?: string;           // optional workspace association
+  workspace?: string; // optional workspace association
   status: 'pending' | 'completed' | 'snoozed';
   snoozedUntil?: Date;
   createdAt: Date;
@@ -89,15 +89,15 @@ export interface GlobalReminder {
  * TODO scanner configuration
  */
 export interface TodoScannerConfig {
-  includePatterns: string[];    // glob patterns for files to scan
-  excludePatterns: string[];    // glob patterns to exclude
+  includePatterns: string[]; // glob patterns for files to scan
+  excludePatterns: string[]; // glob patterns to exclude
   scanOnSave: boolean;
-  customPatterns: string[];     // user-defined regex patterns
+  customPatterns: string[]; // user-defined regex patterns
   metadataFormat: {
-    datePattern: string;        // regex pattern to match due date (must have capture group for date)
-    assigneePattern: string;    // regex pattern to match assignee (must have capture group for name)
-    metadataWrapper: string;    // format for wrapping metadata, e.g., "({metadata})"
-    dateSeparator: string;      // separator between metadata items, e.g., ", "
+    datePattern: string; // regex pattern to match due date (must have capture group for date)
+    assigneePattern: string; // regex pattern to match assignee (must have capture group for name)
+    metadataWrapper: string; // format for wrapping metadata, e.g., "({metadata})"
+    dateSeparator: string; // separator between metadata items, e.g., ", "
   };
 }
 
@@ -115,8 +115,34 @@ export const DEFAULT_METADATA_FORMAT = {
  * Default scanner configuration
  */
 export const DEFAULT_SCANNER_CONFIG: TodoScannerConfig = {
-  includePatterns: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx', '**/*.py', '**/*.java', '**/*.go', '**/*.rs', '**/*.c', '**/*.cpp', '**/*.h', '**/*.cs', '**/*.rb', '**/*.php', '**/*.vue', '**/*.svelte'],
-  excludePatterns: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/out/**', '**/.git/**', '**/vendor/**', '**/__pycache__/**', '**/target/**'],
+  includePatterns: [
+    '**/*.ts',
+    '**/*.tsx',
+    '**/*.js',
+    '**/*.jsx',
+    '**/*.py',
+    '**/*.java',
+    '**/*.go',
+    '**/*.rs',
+    '**/*.c',
+    '**/*.cpp',
+    '**/*.h',
+    '**/*.cs',
+    '**/*.rb',
+    '**/*.php',
+    '**/*.vue',
+    '**/*.svelte',
+  ],
+  excludePatterns: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/out/**',
+    '**/.git/**',
+    '**/vendor/**',
+    '**/__pycache__/**',
+    '**/target/**',
+  ],
   scanOnSave: true,
   customPatterns: [],
   metadataFormat: DEFAULT_METADATA_FORMAT,
@@ -128,10 +154,10 @@ export const DEFAULT_SCANNER_CONFIG: TodoScannerConfig = {
 export interface StoredTodoMeta {
   id: string;
   status: TodoStatus;
-  snoozedUntil?: string;        // ISO date string
-  completedAt?: string;         // ISO date string
-  createdAt: string;            // ISO date string
-  assignee?: string;            // assigned contributor
+  snoozedUntil?: string; // ISO date string
+  completedAt?: string; // ISO date string
+  createdAt: string; // ISO date string
+  assignee?: string; // assigned contributor
 }
 
 /**

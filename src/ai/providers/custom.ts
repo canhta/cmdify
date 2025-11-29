@@ -15,7 +15,9 @@ export class CustomProvider implements AIProvider {
     const config = getAIConfig('gpt-4o-mini');
 
     if (!config.customEndpoint) {
-      throw new Error('Custom endpoint not configured. Use "Cmdify: Configure AI Provider" to set it up.');
+      throw new Error(
+        'Custom endpoint not configured. Use "Cmdify: Configure AI Provider" to set it up.'
+      );
     }
 
     const apiKey = await this.secretStorage.get('cmdify.custom');

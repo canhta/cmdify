@@ -33,9 +33,9 @@ const DESTRUCTIVE_PATTERNS: DestructivePattern[] = [
 ];
 
 const BLOCKED_PATTERNS: RegExp[] = [
-  /:()\s*{\s*:|:&\s*};:/,  // Fork bomb - never allow
-  /rm\s+-rf\s+\/\s*$/,     // rm -rf / (exact match)
-  />\s*\/dev\/(sda|hda|nvme)/i,  // Direct disk write
+  /:()\s*{\s*:|:&\s*};:/, // Fork bomb - never allow
+  /rm\s+-rf\s+\/\s*$/, // rm -rf / (exact match)
+  />\s*\/dev\/(sda|hda|nvme)/i, // Direct disk write
 ];
 
 /**
@@ -44,9 +44,7 @@ const BLOCKED_PATTERNS: RegExp[] = [
 export function analyzeCommand(command: string): SecurityAnalysis {
   const blocked = BLOCKED_PATTERNS.some((p) => p.test(command));
 
-  const warnings = DESTRUCTIVE_PATTERNS
-    .filter((p) => p.pattern.test(command))
-    .map((p) => p.label);
+  const warnings = DESTRUCTIVE_PATTERNS.filter((p) => p.pattern.test(command)).map((p) => p.label);
 
   return { blocked, warnings };
 }

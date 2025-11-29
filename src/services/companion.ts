@@ -45,7 +45,10 @@ export class CompanionService implements vscode.Disposable {
   private readonly _onXPGain = new vscode.EventEmitter<{ amount: number; source: string }>();
   readonly onXPGain = this._onXPGain.event;
 
-  private readonly _onUnlock = new vscode.EventEmitter<{ type: 'companion' | 'accessory'; item: string }>();
+  private readonly _onUnlock = new vscode.EventEmitter<{
+    type: 'companion' | 'accessory';
+    item: string;
+  }>();
   readonly onUnlock = this._onUnlock.event;
 
   private readonly _onMessageChange = new vscode.EventEmitter<string>();
@@ -167,11 +170,9 @@ export class CompanionService implements vscode.Disposable {
   async setCompanionType(type: CompanionType): Promise<void> {
     this.state.type = type;
     await this.saveState();
-    await vscode.workspace.getConfiguration('cmdify.focus').update(
-      'companionType',
-      type,
-      vscode.ConfigurationTarget.Global
-    );
+    await vscode.workspace
+      .getConfiguration('cmdify.focus')
+      .update('companionType', type, vscode.ConfigurationTarget.Global);
   }
 
   // =============================================================================
@@ -200,15 +201,18 @@ export class CompanionService implements vscode.Disposable {
   /**
    * Show a contextual message from the companion
    */
-  showMessage(category: CompanionMessageCategory, variables?: Record<string, string | number>): void {
+  showMessage(
+    category: CompanionMessageCategory,
+    variables?: Record<string, string | number>
+  ): void {
     const message = getCompanionMessage(category, {
       name: this.getCompanionName(),
-      ...variables
+      ...variables,
     });
-    
+
     this.currentMessage = message;
     this._onMessageChange.fire(message);
-    
+
     // Clear message after 5 seconds
     if (this.messageTimeout) {
       clearTimeout(this.messageTimeout);
@@ -409,13 +413,13 @@ export class CompanionService implements vscode.Disposable {
    * Get list of locked companions with unlock conditions
    */
   getLockedCompanions(): Array<{ type: CompanionType; name: string; condition: string }> {
-    return COMPANION_UNLOCKS
-      .filter(unlock => !this.state.unlockedCompanions.includes(unlock.type))
-      .map(unlock => ({
-        type: unlock.type,
-        name: unlock.name,
-        condition: unlock.unlockedBy.description || 'Unknown',
-      }));
+    return COMPANION_UNLOCKS.filter(
+      (unlock) => !this.state.unlockedCompanions.includes(unlock.type)
+    ).map((unlock) => ({
+      type: unlock.type,
+      name: unlock.name,
+      condition: unlock.unlockedBy.description || 'Unknown',
+    }));
   }
 
   /**
@@ -429,13 +433,13 @@ export class CompanionService implements vscode.Disposable {
    * Get list of locked accessories with unlock conditions
    */
   getLockedAccessories(): Array<{ id: AccessoryId; name: string; condition: string }> {
-    return ACCESSORIES
-      .filter(acc => !this.state.unlockedAccessories.includes(acc.id))
-      .map(acc => ({
+    return ACCESSORIES.filter((acc) => !this.state.unlockedAccessories.includes(acc.id)).map(
+      (acc) => ({
         id: acc.id,
         name: acc.name,
         condition: acc.unlockedBy.description || 'Unknown',
-      }));
+      })
+    );
   }
 
   /**
@@ -500,6 +504,6 @@ export class CompanionService implements vscode.Disposable {
     if (this.messageTimeout) {
       clearTimeout(this.messageTimeout);
     }
-    this.disposables.forEach(d => d.dispose());
+    this.disposables.forEach((d) => d.dispose());
   }
 }

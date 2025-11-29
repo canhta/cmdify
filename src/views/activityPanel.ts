@@ -23,9 +23,7 @@ export class ActivityPanelProvider implements vscode.Disposable {
     private readonly activityService: ActivityService
   ) {
     // Listen for activity updates
-    this.disposables.push(
-      activityService.onActivityUpdate(() => this.updatePanel())
-    );
+    this.disposables.push(activityService.onActivityUpdate(() => this.updatePanel()));
   }
 
   /**
@@ -66,10 +64,7 @@ export class ActivityPanelProvider implements vscode.Disposable {
             this.updatePanel();
             break;
           case 'openSettings':
-            vscode.commands.executeCommand(
-              'workbench.action.openSettings',
-              'cmdify.activity'
-            );
+            vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify.activity');
             break;
         }
       },

@@ -1,4 +1,10 @@
-import { AIProvider, AIContext, AIResponse, getSystemPrompt, parseAIResponse } from '../../services/ai';
+import {
+  AIProvider,
+  AIContext,
+  AIResponse,
+  getSystemPrompt,
+  parseAIResponse,
+} from '../../services/ai';
 import { getAIConfig, makeAPIRequest } from './base';
 
 /**
@@ -35,9 +41,7 @@ export class OllamaProvider implements AIProvider {
    */
   private getBaseUrl(): string {
     const config = getAIConfig('llama3.2');
-    return config.customEndpoint 
-      ? config.customEndpoint.replace(/\/api\/.*$/, '') 
-      : this.baseUrl;
+    return config.customEndpoint ? config.customEndpoint.replace(/\/api\/.*$/, '') : this.baseUrl;
   }
 
   /**
@@ -55,10 +59,8 @@ export class OllamaProvider implements AIProvider {
         return DEFAULT_MODELS;
       }
 
-      const data = await response.json() as OllamaModelsResponse;
-      return data.models?.length > 0 
-        ? data.models.map(m => m.name) 
-        : DEFAULT_MODELS;
+      const data = (await response.json()) as OllamaModelsResponse;
+      return data.models?.length > 0 ? data.models.map((m) => m.name) : DEFAULT_MODELS;
     } catch (error) {
       console.warn('Ollama not available, using default models:', error);
       return DEFAULT_MODELS;

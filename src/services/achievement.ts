@@ -41,7 +41,7 @@ const DEFAULT_DATA: AchievementData = {
 export class AchievementService implements vscode.Disposable {
   private data: AchievementData;
   private disposables: vscode.Disposable[] = [];
-  
+
   // Track near-completion notifications to avoid spam
   private notifiedNearCompletion: Set<string> = new Set();
 
@@ -152,13 +152,11 @@ export class AchievementService implements vscode.Disposable {
       ? `🏆 Secret Achievement Unlocked: ${achievement.icon} ${achievement.name}! (+${achievement.xpReward} XP)`
       : `🏆 Achievement Unlocked: ${achievement.icon} ${achievement.name}! (+${achievement.xpReward} XP)`;
 
-    vscode.window
-      .showInformationMessage(message, 'View Achievements')
-      .then((selection) => {
-        if (selection === 'View Achievements') {
-          vscode.commands.executeCommand('cmdify.showAchievements');
-        }
-      });
+    vscode.window.showInformationMessage(message, 'View Achievements').then((selection) => {
+      if (selection === 'View Achievements') {
+        vscode.commands.executeCommand('cmdify.showAchievements');
+      }
+    });
   }
 
   /**
@@ -230,8 +228,11 @@ export class AchievementService implements vscode.Disposable {
 
     // Check AI Whisperer achievement
     const aiAchievement = getAchievementById('cmd_ai');
-    if (aiAchievement && !this.isUnlocked('cmd_ai') && 
-        this.data.aiCommandsGenerated >= aiAchievement.condition.value) {
+    if (
+      aiAchievement &&
+      !this.isUnlocked('cmd_ai') &&
+      this.data.aiCommandsGenerated >= aiAchievement.condition.value
+    ) {
       await this.unlock(aiAchievement);
     }
   }
@@ -250,9 +251,7 @@ export class AchievementService implements vscode.Disposable {
    * Check level-based achievements
    */
   private async checkLevelAchievements(level: number): Promise<void> {
-    const levelAchievements = ACHIEVEMENTS.filter(
-      (a) => a.condition.type === 'level'
-    );
+    const levelAchievements = ACHIEVEMENTS.filter((a) => a.condition.type === 'level');
 
     for (const achievement of levelAchievements) {
       if (!this.isUnlocked(achievement.id) && level >= achievement.condition.value) {
@@ -292,8 +291,11 @@ export class AchievementService implements vscode.Disposable {
 
         // Check perfectionist achievement
         const perfectionistAchievement = getAchievementById('perfectionist');
-        if (perfectionistAchievement && !this.isUnlocked('perfectionist') &&
-            this.data.dailyGoalStreak >= perfectionistAchievement.condition.value) {
+        if (
+          perfectionistAchievement &&
+          !this.isUnlocked('perfectionist') &&
+          this.data.dailyGoalStreak >= perfectionistAchievement.condition.value
+        ) {
           await this.unlock(perfectionistAchievement);
         }
       }
@@ -353,8 +355,11 @@ export class AchievementService implements vscode.Disposable {
    */
   async trackDailySessions(sessionsToday: number): Promise<void> {
     const marathonAchievement = getAchievementById('focus_marathon');
-    if (marathonAchievement && !this.isUnlocked('focus_marathon') &&
-        sessionsToday >= marathonAchievement.condition.value) {
+    if (
+      marathonAchievement &&
+      !this.isUnlocked('focus_marathon') &&
+      sessionsToday >= marathonAchievement.condition.value
+    ) {
       await this.unlock(marathonAchievement);
     }
   }
@@ -425,22 +430,26 @@ export class AchievementService implements vscode.Disposable {
    */
   async checkNearCompletionNotifications(): Promise<void> {
     const config = vscode.workspace.getConfiguration('cmdify.achievements');
-    if (!config.get<boolean>('notifyNearCompletion', true)) {return;}
-    
+    if (!config.get<boolean>('notifyNearCompletion', true)) {
+      return;
+    }
+
     const progress = this.getProgress();
-    
+
     for (const p of progress) {
       if (p.percentage >= 90 && !this.notifiedNearCompletion.has(p.achievementId)) {
         const achievement = getAchievementById(p.achievementId);
-        if (!achievement || achievement.secret) {continue;}
-        
+        if (!achievement || achievement.secret) {
+          continue;
+        }
+
         this.notifiedNearCompletion.add(p.achievementId);
-        
+
         const action = await vscode.window.showInformationMessage(
           `🏆 Almost there! "${achievement.name}" - ${p.currentValue}/${p.targetValue}`,
           'View Achievements'
         );
-        
+
         if (action === 'View Achievements') {
           vscode.commands.executeCommand('cmdify.showAchievements');
         }
@@ -473,12 +482,18 @@ export class AchievementService implements vscode.Disposable {
   /**
    * Get achievements grouped by category
    */
-  getAchievementsByCategory(): Map<AchievementCategory, { achievement: Achievement; unlocked: boolean }[]> {
+  getAchievementsByCategory(): Map<
+    AchievementCategory,
+    { achievement: Achievement; unlocked: boolean }[]
+  > {
     const unlockedIds = this.getUnlockedIds();
     const visibleAchievements = getVisibleAchievements(unlockedIds);
-    
-    const grouped = new Map<AchievementCategory, { achievement: Achievement; unlocked: boolean }[]>();
-    
+
+    const grouped = new Map<
+      AchievementCategory,
+      { achievement: Achievement; unlocked: boolean }[]
+    >();
+
     const categories: AchievementCategory[] = ['focus', 'streaks', 'todos', 'commands', 'special'];
     for (const category of categories) {
       grouped.set(category, []);
@@ -502,7 +517,7 @@ export class AchievementService implements vscode.Disposable {
   async checkAllAchievements(): Promise<void> {
     await this.checkActivityAchievements();
     await this.checkTimeBasedAchievements();
-    
+
     const companionState = this.companionService.getState();
     await this.checkLevelAchievements(companionState.level);
   }

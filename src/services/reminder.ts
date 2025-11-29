@@ -196,9 +196,13 @@ export class ReminderService implements vscode.Disposable {
   /**
    * Add a global reminder
    */
-  async addGlobalReminder(title: string, dueAt: Date, description?: string): Promise<GlobalReminder> {
+  async addGlobalReminder(
+    title: string,
+    dueAt: Date,
+    description?: string
+  ): Promise<GlobalReminder> {
     const id = `gr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    
+
     const reminder: GlobalReminder = {
       id,
       title,
@@ -223,7 +227,7 @@ export class ReminderService implements vscode.Disposable {
     const title = await vscode.window.showInputBox({
       prompt: 'What would you like to be reminded about?',
       placeHolder: 'e.g., Review PR #123, Update documentation',
-      validateInput: (value) => value?.trim() ? undefined : 'Title is required',
+      validateInput: (value) => (value?.trim() ? undefined : 'Title is required'),
     });
 
     if (!title) {
@@ -383,7 +387,7 @@ export class ReminderService implements vscode.Disposable {
    * Get pending global reminders
    */
   getPendingReminders(): GlobalReminder[] {
-    return this.getGlobalReminders().filter(r => r.status === 'pending');
+    return this.getGlobalReminders().filter((r) => r.status === 'pending');
   }
 
   /**
@@ -391,7 +395,7 @@ export class ReminderService implements vscode.Disposable {
    */
   async editTodoInteractive(todo: DetectedTodo): Promise<boolean> {
     const gitService = getGitContributorService();
-    
+
     // Fetch contributors in background
     const contributors = await gitService.getContributors();
 
@@ -410,13 +414,10 @@ export class ReminderService implements vscode.Disposable {
       { label: 'Due Date', kind: vscode.QuickPickItemKind.Separator },
       { label: '$(calendar) Today', description: this.formatDate(0) },
       { label: '$(arrow-right) Tomorrow', description: this.formatDate(1) },
-      { label: '$(calendar) In 3 days', description: this.formatDate(3) },
       { label: '$(calendar) Next week', description: this.formatDate(7) },
-      { label: '$(calendar) In 2 weeks', description: this.formatDate(14) },
-      { label: '$(calendar) Next month', description: this.formatDate(30) },
-      { label: '$(edit) Custom date...', description: 'Enter a specific date' },
+      { label: '$(edit) Custom date...', description: 'Pick a date' },
       { label: '$(close) Clear due date', description: 'Remove due date' },
-      
+
       // Assignee section
       { label: 'Assign To', kind: vscode.QuickPickItemKind.Separator },
       { label: '$(edit) Enter name...', description: 'Type a custom name' },
@@ -426,7 +427,8 @@ export class ReminderService implements vscode.Disposable {
     // Add contributors
     if (contributors.length > 0) {
       items.push({ label: 'Contributors', kind: vscode.QuickPickItemKind.Separator });
-      for (const c of contributors.slice(0, 10)) { // Limit to top 10
+      for (const c of contributors.slice(0, 10)) {
+        // Limit to top 10
         items.push({
           label: `$(person) ${c.name}`,
           description: c.email,
@@ -485,18 +487,9 @@ export class ReminderService implements vscode.Disposable {
     } else if (label === '$(arrow-right) Tomorrow') {
       dueAt = new Date(now);
       dueAt.setDate(dueAt.getDate() + 1);
-    } else if (label === '$(calendar) In 3 days') {
-      dueAt = new Date(now);
-      dueAt.setDate(dueAt.getDate() + 3);
     } else if (label === '$(calendar) Next week') {
       dueAt = new Date(now);
       dueAt.setDate(dueAt.getDate() + 7);
-    } else if (label === '$(calendar) In 2 weeks') {
-      dueAt = new Date(now);
-      dueAt.setDate(dueAt.getDate() + 14);
-    } else if (label === '$(calendar) Next month') {
-      dueAt = new Date(now);
-      dueAt.setMonth(dueAt.getMonth() + 1);
     } else if (label === '$(edit) Custom date...') {
       const dateStr = await vscode.window.showInputBox({
         prompt: 'Enter date (YYYY-MM-DD)',
@@ -570,10 +563,87 @@ export class ReminderService implements vscode.Disposable {
   }
 
   /**
-   * Assign a TODO to someone - simplified, just calls editTodoInteractive
+   * Set due date only - shows quick pick with just date options
+   */
+  async setDueDateInteractive(todo: DetectedTodo): Promise<boolean> {
+    const currentDue = todo.dueDate ? todo.dueDate.toLocaleDateString() : 'Not set';
+
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.title = 'Set Due Date';
+    quickPick.placeholder = `Current: ${currentDue}`;
+
+    const items: vscode.QuickPickItem[] = [
+      { label: '$(calendar) Today', description: this.formatDate(0) },
+      { label: '$(arrow-right) Tomorrow', description: this.formatDate(1) },
+      { label: '$(calendar) Next week', description: this.formatDate(7) },
+      { label: '$(edit) Custom date...', description: 'Pick a date' },
+      { label: '$(close) Clear due date', description: 'Remove due date' },
+    ];
+
+    quickPick.items = items;
+
+    return new Promise<boolean>((resolve) => {
+      quickPick.onDidAccept(async () => {
+        const selected = quickPick.selectedItems[0];
+        quickPick.hide();
+        if (selected) {
+          const result = await this.handleQuickPickSelection(todo, selected.label);
+          resolve(result);
+        } else {
+          resolve(false);
+        }
+      });
+      quickPick.onDidHide(() => resolve(false));
+      quickPick.show();
+    });
+  }
+
+  /**
+   * Assign TODO only - shows quick pick with just assignee options
    */
   async assignTodoInteractive(todo: DetectedTodo): Promise<boolean> {
-    return this.editTodoInteractive(todo);
+    const gitService = getGitContributorService();
+    const contributors = await gitService.getContributors();
+    const currentAssignee = todo.assignee || 'Unassigned';
+
+    const quickPick = vscode.window.createQuickPick();
+    quickPick.title = 'Assign To';
+    quickPick.placeholder = `Current: ${currentAssignee}`;
+
+    const items: vscode.QuickPickItem[] = [
+      { label: '$(edit) Enter name...', description: 'Type a custom name' },
+      { label: '$(close) Unassign', description: 'Remove assignee' },
+    ];
+
+    // Add contributors
+    if (contributors.length > 0) {
+      items.push({ label: 'Contributors', kind: vscode.QuickPickItemKind.Separator });
+      for (const c of contributors.slice(0, 10)) {
+        items.push({
+          label: `$(person) ${c.name}`,
+          description: c.email,
+          detail: `${c.commits} commits`,
+        });
+      }
+    }
+
+    quickPick.items = items;
+    quickPick.matchOnDescription = true;
+
+    return new Promise<boolean>((resolve) => {
+      quickPick.onDidAccept(async () => {
+        const selected = quickPick.selectedItems[0];
+        quickPick.hide();
+        if (selected) {
+          const result = await this.handleQuickPickSelection(todo, selected.label);
+          resolve(result);
+        } else {
+          resolve(false);
+        }
+      });
+      quickPick.onDidHide(() => resolve(false));
+      quickPick.show();
+    });
   }
 
   dispose(): void {

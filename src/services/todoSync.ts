@@ -70,13 +70,13 @@ export class TodoSyncService implements vscode.Disposable {
   private buildMetadataString(dueDate?: string, assignee?: string): string {
     const format = this.getFormat();
     const parts: string[] = [];
-    
+
     if (dueDate) {
       // Extract the prefix from datePattern (e.g., "due@" from "due@(\\d{4}-\\d{2}-\\d{2})")
       const datePrefix = format.datePattern.replace(/\(.*\)/, '').replace(/\\/g, '');
       parts.push(`${datePrefix}${dueDate}`);
     }
-    
+
     if (assignee) {
       // Extract the prefix from assigneePattern (e.g., "@assigned:" from "@assigned:([^,)]+)")
       const assigneePrefix = format.assigneePattern.replace(/\(.*\)/, '').replace(/\\/g, '');
@@ -98,10 +98,10 @@ export class TodoSyncService implements vscode.Disposable {
    */
   private updateLineMetadata(lineText: string, newDueDate?: string, newAssignee?: string): string {
     const patterns = this.getPatterns();
-    
+
     // Parse existing metadata
     const existing = this.parseMetadata(lineText);
-    
+
     // Merge with new values (new values override existing)
     const dueDate = newDueDate !== undefined ? newDueDate : existing.dueDate;
     const assignee = newAssignee !== undefined ? newAssignee : existing.assignee;
@@ -125,7 +125,7 @@ export class TodoSyncService implements vscode.Disposable {
 
       // Format date
       const dateStr = formatDateString(dueDate);
-      
+
       // Update line with new metadata
       const newText = this.updateLineMetadata(lineText, dateStr, undefined);
 
@@ -159,10 +159,10 @@ export class TodoSyncService implements vscode.Disposable {
 
       // Get existing metadata
       const existing = this.parseMetadata(lineText);
-      
+
       // Remove existing metadata and rebuild without due date
       let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
-      
+
       // Re-add assignee if it existed
       if (existing.assignee) {
         cleanLine += this.buildMetadataString(undefined, existing.assignee);
@@ -241,7 +241,7 @@ export class TodoSyncService implements vscode.Disposable {
         document.lineAt(Math.min(todo.lineNumber + 1, document.lineCount - 1)).range.start
       );
       edit.delete(document.uri, range);
-      
+
       const success = await vscode.workspace.applyEdit(edit);
 
       if (success) {
@@ -264,12 +264,15 @@ export class TodoSyncService implements vscode.Disposable {
     try {
       const document = await vscode.workspace.openTextDocument(todo.filePath);
       const editor = await vscode.window.showTextDocument(document);
-      
+
       // Move cursor to the line
       const position = new vscode.Position(todo.lineNumber, 0);
       const selection = new vscode.Selection(position, position);
       editor.selection = selection;
-      editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+      editor.revealRange(
+        new vscode.Range(position, position),
+        vscode.TextEditorRevealType.InCenter
+      );
     } catch (error) {
       console.error('Error navigating to TODO:', error);
       vscode.window.showErrorMessage(`Failed to open file: ${todo.filePath}`);
@@ -318,10 +321,10 @@ export class TodoSyncService implements vscode.Disposable {
 
       // Get existing metadata
       const existing = this.parseMetadata(lineText);
-      
+
       // Remove existing metadata and rebuild without assignee
       let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
-      
+
       // Re-add due date if it existed
       if (existing.dueDate) {
         cleanLine += this.buildMetadataString(existing.dueDate, undefined);

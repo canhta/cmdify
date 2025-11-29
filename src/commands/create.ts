@@ -89,14 +89,18 @@ async function handleManualCreate(
   const existingTags = storage.getAllTags();
   const tagsInput = await vscode.window.showInputBox({
     prompt: 'Add tags (comma-separated, optional)',
-    placeHolder: existingTags.length > 0 
-      ? `e.g., ${existingTags.slice(0, 3).join(', ')}`
-      : 'e.g., git, cleanup',
+    placeHolder:
+      existingTags.length > 0
+        ? `e.g., ${existingTags.slice(0, 3).join(', ')}`
+        : 'e.g., git, cleanup',
     title: 'Tags',
   });
 
-  const tags = tagsInput 
-    ? tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0)
+  const tags = tagsInput
+    ? tagsInput
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0)
     : [];
 
   // Extract variables
@@ -156,7 +160,7 @@ async function handleAICreate(
     }
 
     const previewResult = await showAIPreview(prompt, result.response, storage, aiProvider);
-    
+
     if (previewResult.action === 'regenerate') {
       shouldRegenerate = true;
       continue;
@@ -172,7 +176,7 @@ async function handleAICreate(
   return undefined;
 }
 
-type PreviewResult = 
+type PreviewResult =
   | { action: 'regenerate' }
   | { action: 'cancelled' }
   | { action: 'saved'; command: CLICommand }
@@ -188,11 +192,7 @@ async function showAIPreview(
   aiProvider: AIProvider
 ): Promise<PreviewResult> {
   // Build a detailed preview message
-  const previewLines: string[] = [
-    '```',
-    response.command,
-    '```',
-  ];
+  const previewLines: string[] = ['```', response.command, '```'];
 
   if (response.explanation) {
     previewLines.push('', `**Explanation:** ${response.explanation}`);
@@ -203,7 +203,7 @@ async function showAIPreview(
   }
 
   if (response.variables?.length) {
-    const varNames = response.variables.map(v => `{{${v.name}}}`).join(', ');
+    const varNames = response.variables.map((v) => `{{${v.name}}}`).join(', ');
     previewLines.push('', `**Variables:** ${varNames}`);
   }
 

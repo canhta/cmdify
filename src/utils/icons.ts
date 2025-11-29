@@ -1,8 +1,8 @@
 /**
  * Centralized Icon System
- * 
+ *
  * This module provides a consistent icon system across the extension.
- * 
+ *
  * Icon Types:
  * - ThemeIcon: VS Code built-in icons for tree views and native UI
  * - Codicon: Text format $(icon-name) for status bar
@@ -19,38 +19,38 @@ import * as vscode from 'vscode';
  * TODO type icons for tree views
  */
 export const TODO_TYPE_THEME_ICONS: Record<string, string> = {
-  'TODO': 'checklist',
-  'FIXME': 'tools',
-  'BUG': 'bug',
-  'HACK': 'zap',
-  'XXX': 'warning',
-  'OPTIMIZE': 'rocket',
-  'REVIEW': 'eye',
-  'DEFAULT': 'note',
+  TODO: 'checklist',
+  FIXME: 'tools',
+  BUG: 'bug',
+  HACK: 'zap',
+  XXX: 'warning',
+  OPTIMIZE: 'rocket',
+  REVIEW: 'eye',
+  DEFAULT: 'note',
 };
 
 /**
  * TODO category icons for tree views
  */
 export const TODO_CATEGORY_THEME_ICONS: Record<string, string> = {
-  'overdue': 'error',
-  'today': 'calendar',
-  'thisWeek': 'watch',
-  'upcoming': 'clock',
-  'noDate': 'note',
-  'completed': 'pass-filled',
-  'reminder': 'bell',
+  overdue: 'error',
+  today: 'calendar',
+  thisWeek: 'watch',
+  upcoming: 'clock',
+  noDate: 'note',
+  completed: 'pass-filled',
+  reminder: 'bell',
 };
 
 /**
  * Command source icons for tree views
  */
 export const COMMAND_SOURCE_THEME_ICONS: Record<string, string> = {
-  'ai': 'sparkle',
-  'manual': 'edit',
-  'imported': 'cloud-download',
-  'shared': 'cloud',
-  'DEFAULT': 'terminal',
+  ai: 'sparkle',
+  manual: 'edit',
+  imported: 'cloud-download',
+  shared: 'cloud',
+  DEFAULT: 'terminal',
 };
 
 /**
@@ -63,27 +63,27 @@ export const COMMAND_TYPE_THEME_ICONS: Record<string, string> = {
   'git-merge': 'git-merge',
   'git-stash': 'git-stash',
   'git-default': 'git-commit',
-  'package': 'package',
-  'docker': 'server',
-  'file': 'file',
-  'folder': 'folder',
-  'network': 'globe',
-  'python': 'symbol-misc',
-  'build': 'tools',
-  'text': 'output',
-  'system': 'settings-gear',
-  'DEFAULT': 'terminal',
+  package: 'package',
+  docker: 'server',
+  file: 'file',
+  folder: 'folder',
+  network: 'globe',
+  python: 'symbol-misc',
+  build: 'tools',
+  text: 'output',
+  system: 'settings-gear',
+  DEFAULT: 'terminal',
 };
 
 /**
  * Category icons for tree views
  */
 export const CATEGORY_THEME_ICONS: Record<string, string> = {
-  'favorites': 'star-full',
-  'recent': 'history',
-  'tag': 'tag',
-  'source': 'symbol-misc',
-  'mostUsed': 'graph',
+  favorites: 'star-full',
+  recent: 'history',
+  tag: 'tag',
+  source: 'symbol-misc',
+  mostUsed: 'graph',
 };
 
 // ============================================
@@ -94,63 +94,63 @@ export const CATEGORY_THEME_ICONS: Record<string, string> = {
  * Companion status codicons for status bar
  */
 export const COMPANION_STATUS_CODICONS: Record<string, Record<string, string>> = {
-  'cat': {
+  cat: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'dog': {
+  dog: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'robot': {
+  robot: {
     idle: '$(hubot)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'plant': {
+  plant: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'flame': {
+  flame: {
     idle: '$(flame)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'fox': {
+  fox: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'owl': {
+  owl: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'panda': {
+  panda: {
     idle: '$(smiley)',
     focusing: '$(flame)',
     break: '$(coffee)',
     paused: '$(watch)',
     celebrating: '$(star-full)',
   },
-  'star': {
+  star: {
     idle: '$(star-full)',
     focusing: '$(flame)',
     break: '$(coffee)',
@@ -167,59 +167,59 @@ export const COMPANION_STATUS_CODICONS: Record<string, Record<string, string>> =
  * Companion type emojis
  */
 export const COMPANION_TYPE_EMOJIS: Record<string, string> = {
-  'robot': '🤖',
-  'cat': '🐱',
-  'dog': '🐕',
-  'plant': '🌱',
-  'flame': '🔥',
-  'fox': '🦊',
-  'owl': '🦉',
-  'panda': '🐼',
-  'star': '⭐',
+  robot: '🤖',
+  cat: '🐱',
+  dog: '🐕',
+  plant: '🌱',
+  flame: '🔥',
+  fox: '🦊',
+  owl: '🦉',
+  panda: '🐼',
+  star: '⭐',
 };
 
 /**
  * Companion mood emojis
  */
 export const COMPANION_MOOD_EMOJIS: Record<string, string> = {
-  'happy': '😊',
-  'focused': '🎯',
-  'tired': '😫',
-  'celebrating': '🤩',
+  happy: '😊',
+  focused: '🎯',
+  tired: '😫',
+  celebrating: '🤩',
 };
 
 /**
  * Accessory emojis
  */
 export const ACCESSORY_EMOJIS: Record<string, string> = {
-  'party_hat': '🎩',
-  'crown': '👑',
-  'sunglasses': '😎',
-  'nerd_glasses': '🤓',
-  'confetti': '🎊',
+  party_hat: '🎩',
+  crown: '👑',
+  sunglasses: '😎',
+  nerd_glasses: '🤓',
+  confetti: '🎊',
 };
 
 /**
  * Feature icons for onboarding
  */
 export const FEATURE_EMOJIS: Record<string, string> = {
-  'ai': '✨',
-  'focus': '🍅',
-  'todo': '📋',
-  'achievement': '🏆',
-  'keyboard': '⌨️',
-  'companion': '🤖',
+  ai: '✨',
+  focus: '🍅',
+  todo: '📋',
+  achievement: '🏆',
+  keyboard: '⌨️',
+  companion: '🤖',
 };
 
 /**
  * AI provider icons
  */
 export const AI_PROVIDER_EMOJIS: Record<string, string> = {
-  'openai': '🧠',
-  'anthropic': '🤖',
-  'ollama': '🦙',
-  'azure': '☁️',
-  'custom': '⚙️',
+  openai: '🧠',
+  anthropic: '🤖',
+  ollama: '🦙',
+  azure: '☁️',
+  custom: '⚙️',
 };
 
 // ============================================
@@ -279,4 +279,3 @@ export function getCompanionCodicon(companionType: string, status: string): stri
 export function getCompanionEmoji(companionType: string): string {
   return COMPANION_TYPE_EMOJIS[companionType] || COMPANION_TYPE_EMOJIS['robot'];
 }
-

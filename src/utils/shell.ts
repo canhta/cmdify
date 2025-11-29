@@ -11,11 +11,21 @@ export function detectShell(): ShellType {
 
   if (defaultProfile) {
     const lower = defaultProfile.toLowerCase();
-    if (lower.includes('zsh')) {return 'zsh';}
-    if (lower.includes('bash')) {return 'bash';}
-    if (lower.includes('fish')) {return 'fish';}
-    if (lower.includes('powershell') || lower.includes('pwsh')) {return 'powershell';}
-    if (lower.includes('cmd')) {return 'cmd';}
+    if (lower.includes('zsh')) {
+      return 'zsh';
+    }
+    if (lower.includes('bash')) {
+      return 'bash';
+    }
+    if (lower.includes('fish')) {
+      return 'fish';
+    }
+    if (lower.includes('powershell') || lower.includes('pwsh')) {
+      return 'powershell';
+    }
+    if (lower.includes('cmd')) {
+      return 'cmd';
+    }
   }
 
   // Fallback based on OS
@@ -65,10 +75,13 @@ export function getTerminal(reuseTerminal: boolean): vscode.Terminal {
 /**
  * Execute a command in the terminal
  */
-export function executeCommand(command: string, options?: { 
-  workingDirectory?: string;
-  reuseTerminal?: boolean;
-}): void {
+export function executeCommand(
+  command: string,
+  options?: {
+    workingDirectory?: string;
+    reuseTerminal?: boolean;
+  }
+): void {
   const config = vscode.workspace.getConfiguration('cmdify.execution');
   const mode = config.get<string>('mode', 'terminal');
   const reuseTerminal = options?.reuseTerminal ?? config.get<boolean>('reuseTerminal', true);
@@ -84,8 +97,8 @@ export function executeCommand(command: string, options?: {
  * Execute command in an integrated terminal
  */
 function executeInTerminal(
-  command: string, 
-  reuseTerminal: boolean, 
+  command: string,
+  reuseTerminal: boolean,
   workingDirectory?: string
 ): void {
   const terminal = getTerminal(reuseTerminal);
@@ -102,14 +115,11 @@ function executeInTerminal(
 /**
  * Execute command in background using child process
  */
-async function executeInBackground(
-  command: string, 
-  workingDirectory?: string
-): Promise<void> {
+async function executeInBackground(command: string, workingDirectory?: string): Promise<void> {
   const { exec } = await import('child_process');
-  
+
   const cwd = workingDirectory || getWorkspaceFolder();
-  
+
   const outputChannel = vscode.window.createOutputChannel('Cmdify Background');
   outputChannel.show(true);
   outputChannel.appendLine(`$ ${command}`);
@@ -121,15 +131,15 @@ async function executeInBackground(
       vscode.window.showErrorMessage(`Command failed: ${error.message}`);
       return;
     }
-    
+
     if (stdout) {
       outputChannel.appendLine(stdout);
     }
-    
+
     if (stderr) {
       outputChannel.appendLine(`stderr: ${stderr}`);
     }
-    
+
     outputChannel.appendLine('');
     outputChannel.appendLine('--- Command completed ---');
     vscode.window.showInformationMessage('Background command completed');

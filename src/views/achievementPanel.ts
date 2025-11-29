@@ -28,9 +28,7 @@ export class AchievementPanelProvider implements vscode.Disposable {
     private readonly achievementService: AchievementService
   ) {
     // Listen for achievement unlocks
-    this.disposables.push(
-      achievementService.onAchievementUnlocked(() => this.updatePanel())
-    );
+    this.disposables.push(achievementService.onAchievementUnlocked(() => this.updatePanel()));
   }
 
   /**
@@ -87,12 +85,15 @@ export class AchievementPanelProvider implements vscode.Disposable {
       const groupedAchievements = this.achievementService.getAchievementsByCategory();
 
       // Convert Map to serializable format
-      const achievements: Record<string, { achievement: Achievement; unlocked: boolean; unlockedAt?: string }[]> = {};
+      const achievements: Record<
+        string,
+        { achievement: Achievement; unlocked: boolean; unlockedAt?: string }[]
+      > = {};
       const unlockedList = this.achievementService.getUnlockedAchievements();
-      const unlockedMap = new Map(unlockedList.map(u => [u.id, u]));
+      const unlockedMap = new Map(unlockedList.map((u) => [u.id, u]));
 
       for (const [category, items] of groupedAchievements) {
-        achievements[category] = items.map(item => ({
+        achievements[category] = items.map((item) => ({
           ...item,
           unlockedAt: unlockedMap.get(item.achievement.id)?.unlockedAt,
         }));
@@ -114,12 +115,16 @@ export class AchievementPanelProvider implements vscode.Disposable {
     const stats = this.achievementService.getStats();
     const groupedAchievements = this.achievementService.getAchievementsByCategory();
     const unlockedList = this.achievementService.getUnlockedAchievements();
-    const unlockedMap = new Map(unlockedList.map(u => [u.id, u]));
+    const unlockedMap = new Map(unlockedList.map((u) => [u.id, u]));
     const progress = this.achievementService.getProgress();
-    const progressMap = new Map(progress.map(p => [p.achievementId, p]));
+    const progressMap = new Map(progress.map((p) => [p.achievementId, p]));
 
     // Build initial HTML
-    const categorySections = this.buildCategorySections(groupedAchievements, unlockedMap, progressMap);
+    const categorySections = this.buildCategorySections(
+      groupedAchievements,
+      unlockedMap,
+      progressMap
+    );
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -390,17 +395,25 @@ export class AchievementPanelProvider implements vscode.Disposable {
     </div>
   </div>
   
-  ${stats.recentUnlocks.length > 0 ? `
+  ${
+    stats.recentUnlocks.length > 0
+      ? `
   <div class="recent-unlocks">
     <div class="recent-title">Recent Unlocks</div>
     <div class="recent-list" id="recent-list">
-      ${stats.recentUnlocks.map(u => {
-        const achievement = getAchievementById(u.id);
-        return achievement ? `<span class="recent-chip">${achievement.icon} ${achievement.name}</span>` : '';
-      }).join('')}
+      ${stats.recentUnlocks
+        .map((u) => {
+          const achievement = getAchievementById(u.id);
+          return achievement
+            ? `<span class="recent-chip">${achievement.icon} ${achievement.name}</span>`
+            : '';
+        })
+        .join('')}
     </div>
   </div>
-  ` : ''}
+  `
+      : ''
+  }
   
   <div id="categories-container">
     ${categorySections}
@@ -466,17 +479,18 @@ export class AchievementPanelProvider implements vscode.Disposable {
     };
 
     const categories: AchievementCategory[] = ['focus', 'streaks', 'todos', 'commands', 'special'];
-    
-    return categories.map(category => {
-      const items = grouped.get(category) ?? [];
-      if (items.length === 0) {
-        return '';
-      }
 
-      const info = categoryInfo[category];
-      const unlockedInCategory = items.filter(i => i.unlocked).length;
+    return categories
+      .map((category) => {
+        const items = grouped.get(category) ?? [];
+        if (items.length === 0) {
+          return '';
+        }
 
-      return `
+        const info = categoryInfo[category];
+        const unlockedInCategory = items.filter((i) => i.unlocked).length;
+
+        return `
         <div class="category">
           <div class="category-header">
             <span class="category-icon">${info.icon}</span>
@@ -484,11 +498,12 @@ export class AchievementPanelProvider implements vscode.Disposable {
             <span class="category-count">${unlockedInCategory}/${items.length}</span>
           </div>
           <div class="achievement-list">
-            ${items.map(item => this.buildAchievementItem(item, unlockedMap, progressMap)).join('')}
+            ${items.map((item) => this.buildAchievementItem(item, unlockedMap, progressMap)).join('')}
           </div>
         </div>
       `;
-    }).join('');
+      })
+      .join('');
   }
 
   /**
@@ -509,12 +524,12 @@ export class AchievementPanelProvider implements vscode.Disposable {
     const name = isHiddenSecret ? '???' : achievement.name;
     const description = isHiddenSecret ? 'Secret achievement' : achievement.description;
 
-    const statusHtml = unlocked 
+    const statusHtml = unlocked
       ? `
         <div class="status-unlocked">${icon('check', 14)} Unlocked</div>
         ${unlockedData ? `<div class="status-date">${this.formatDate(unlockedData.unlockedAt)}</div>` : ''}
       `
-      : prog 
+      : prog
         ? `
           <div class="progress-bar">
             <div class="progress-fill" data-achievement-id="${achievement.id}" style="width: ${prog.percentage}%"></div>
@@ -551,6 +566,6 @@ export class AchievementPanelProvider implements vscode.Disposable {
 
   dispose(): void {
     this.panel?.dispose();
-    this.disposables.forEach(d => d.dispose());
+    this.disposables.forEach((d) => d.dispose());
   }
 }

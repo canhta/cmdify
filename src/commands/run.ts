@@ -36,11 +36,11 @@ async function runCommand(cmd: CLICommand, storage: StorageService): Promise<voi
   if (hasVariables(commandToRun)) {
     const variables = cmd.variables || extractVariables(commandToRun);
     const processed = await promptForVariablesWithPreview(variables, commandToRun);
-    
+
     if (!processed) {
       return; // User cancelled
     }
-    
+
     commandToRun = processed;
   }
 
@@ -52,16 +52,15 @@ async function runCommand(cmd: CLICommand, storage: StorageService): Promise<voi
     const analysis = analyzeCommand(commandToRun);
 
     if (analysis.blocked) {
-      vscode.window.showErrorMessage(
-        'This command is blocked for safety reasons.',
-        { modal: true }
-      );
+      vscode.window.showErrorMessage('This command is blocked for safety reasons.', {
+        modal: true,
+      });
       return;
     }
 
     if (analysis.warnings.length > 0) {
       const warningMessage = getWarningMessage(analysis);
-      
+
       const result = await vscode.window.showWarningMessage(
         `⚠️ Heads up - this looks destructive\n\n${commandToRun}\n\n${warningMessage}`,
         { modal: true },
@@ -163,7 +162,7 @@ export async function handleToggleFavorite(
 
   if (cmd) {
     const isFavorite = await storage.toggleFavorite(cmd.id);
-    const message = isFavorite 
+    const message = isFavorite
       ? `⭐ "${cmd.prompt || cmd.command}" added to favorites`
       : `"${cmd.prompt || cmd.command}" removed from favorites`;
     vscode.window.showInformationMessage(message);

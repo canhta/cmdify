@@ -1,5 +1,11 @@
 import * as vscode from 'vscode';
-import { AIProvider, AIContext, AIResponse, getSystemPrompt, parseAIResponse } from '../../services/ai';
+import {
+  AIProvider,
+  AIContext,
+  AIResponse,
+  getSystemPrompt,
+  parseAIResponse,
+} from '../../services/ai';
 import { getAIConfig, getApiKey, makeAPIRequest } from './base';
 
 /**

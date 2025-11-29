@@ -6,14 +6,14 @@
  * Focus timer configuration
  */
 export interface FocusConfig {
-  focusDuration: number;           // minutes, default 25
-  shortBreakDuration: number;      // minutes, default 5
-  longBreakDuration: number;       // minutes, default 15
+  focusDuration: number; // minutes, default 25
+  shortBreakDuration: number; // minutes, default 5
+  longBreakDuration: number; // minutes, default 15
   sessionsBeforeLongBreak: number; // default 4
   soundEnabled: boolean;
   autoStartBreak: boolean;
-  minimumFocusForStreak: number;   // minutes, minimum focus time to count for streak
-  minimumSessionPercent: number;   // percentage of session required for full credit (0-100)
+  minimumFocusForStreak: number; // minutes, minimum focus time to count for streak
+  minimumSessionPercent: number; // percentage of session required for full credit (0-100)
 }
 
 /**
@@ -26,12 +26,12 @@ export type FocusStatus = 'idle' | 'focusing' | 'break' | 'paused';
  */
 export interface FocusState {
   status: FocusStatus;
-  timeRemaining: number;      // seconds
-  currentSession: number;     // 1-4
+  timeRemaining: number; // seconds
+  currentSession: number; // 1-4
   todaySessions: number;
   todayFocusMinutes: number;
-  pausedAt?: number;          // timestamp when paused
-  wasBreak?: boolean;         // whether paused during break
+  pausedAt?: number; // timestamp when paused
+  wasBreak?: boolean; // whether paused during break
 }
 
 /**
@@ -39,28 +39,28 @@ export interface FocusState {
  */
 export interface FocusStats {
   totalSessions: number;
-  totalCompletedSessions: number;  // sessions that met minimum requirement
+  totalCompletedSessions: number; // sessions that met minimum requirement
   totalFocusMinutes: number;
   totalActualFocusMinutes: number; // actual time focused (not skipped)
-  currentStreak: number;           // consecutive days with 1+ completed session
+  currentStreak: number; // consecutive days with 1+ completed session
   longestStreak: number;
-  longestSessionMinutes: number;   // longest single session
-  lastSessionDate: string;         // YYYY-MM-DD (last completed session)
-  lastActivityDate: string;        // YYYY-MM-DD (any focus activity)
-  skippedSessions: number;         // sessions skipped before completion
-  dailyStats: DailyFocusStats[];   // last 30 days
+  longestSessionMinutes: number; // longest single session
+  lastSessionDate: string; // YYYY-MM-DD (last completed session)
+  lastActivityDate: string; // YYYY-MM-DD (any focus activity)
+  skippedSessions: number; // sessions skipped before completion
+  dailyStats: DailyFocusStats[]; // last 30 days
 }
 
 /**
  * Daily focus statistics
  */
 export interface DailyFocusStats {
-  date: string;  // YYYY-MM-DD
-  sessions: number;           // total sessions started
-  completedSessions: number;  // sessions meeting minimum requirement
-  focusMinutes: number;       // configured focus minutes
+  date: string; // YYYY-MM-DD
+  sessions: number; // total sessions started
+  completedSessions: number; // sessions meeting minimum requirement
+  focusMinutes: number; // configured focus minutes
   actualFocusMinutes: number; // actual time focused
-  skippedSessions: number;    // sessions skipped
+  skippedSessions: number; // sessions skipped
 }
 
 /**
@@ -73,8 +73,8 @@ export const DEFAULT_FOCUS_CONFIG: FocusConfig = {
   sessionsBeforeLongBreak: 4,
   soundEnabled: true,
   autoStartBreak: false,
-  minimumFocusForStreak: 10,    // at least 10 minutes to count for streak
-  minimumSessionPercent: 80,    // must complete 80% of session for full credit
+  minimumFocusForStreak: 10, // at least 10 minutes to count for streak
+  minimumSessionPercent: 80, // must complete 80% of session for full credit
 };
 
 /**

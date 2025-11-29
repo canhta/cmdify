@@ -93,7 +93,10 @@ export async function makeAPIRequest<T>(
 /**
  * Extract content from OpenAI-compatible response
  */
-export function extractOpenAIContent(data: ChatCompletionResponse, providerName: string): AIResponse {
+export function extractOpenAIContent(
+  data: ChatCompletionResponse,
+  providerName: string
+): AIResponse {
   const content = data.choices?.[0]?.message?.content;
 
   if (!content) {

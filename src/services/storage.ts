@@ -179,26 +179,26 @@ export class StorageService {
    */
   findDuplicate(commandText: string, excludeId?: string): CLICommand | undefined {
     const normalizedNew = this.normalizeCommand(commandText);
-    
+
     for (const cmd of this.commands.values()) {
       if (excludeId && cmd.id === excludeId) {
         continue;
       }
-      
+
       const normalizedExisting = this.normalizeCommand(cmd.command);
-      
+
       // Exact match
       if (normalizedNew === normalizedExisting) {
         return cmd;
       }
-      
+
       // Similar match (Levenshtein distance based similarity)
       const similarity = this.calculateSimilarity(normalizedNew, normalizedExisting);
       if (similarity > 0.85) {
         return cmd;
       }
     }
-    
+
     return undefined;
   }
 
@@ -206,10 +206,7 @@ export class StorageService {
    * Normalize command for comparison (remove extra whitespace, lowercase)
    */
   private normalizeCommand(command: string): string {
-    return command
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim();
+    return command.toLowerCase().replace(/\s+/g, ' ').trim();
   }
 
   /**
@@ -218,11 +215,11 @@ export class StorageService {
   private calculateSimilarity(str1: string, str2: string): number {
     const longer = str1.length > str2.length ? str1 : str2;
     const shorter = str1.length > str2.length ? str2 : str1;
-    
+
     if (longer.length === 0) {
       return 1.0;
     }
-    
+
     const distance = this.levenshteinDistance(longer, shorter);
     return (longer.length - distance) / longer.length;
   }
@@ -232,15 +229,15 @@ export class StorageService {
    */
   private levenshteinDistance(str1: string, str2: string): number {
     const matrix: number[][] = [];
-    
+
     for (let i = 0; i <= str2.length; i++) {
       matrix[i] = [i];
     }
-    
+
     for (let j = 0; j <= str1.length; j++) {
       matrix[0][j] = j;
     }
-    
+
     for (let i = 1; i <= str2.length; i++) {
       for (let j = 1; j <= str1.length; j++) {
         if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
@@ -254,7 +251,7 @@ export class StorageService {
         }
       }
     }
-    
+
     return matrix[str2.length][str1.length];
   }
 
@@ -263,48 +260,48 @@ export class StorageService {
    */
   fuzzySearch(query: string): Array<{ command: CLICommand; score: number }> {
     if (!query.trim()) {
-      return this.getAll().map(cmd => ({ command: cmd, score: 1 }));
+      return this.getAll().map((cmd) => ({ command: cmd, score: 1 }));
     }
-    
+
     const lowerQuery = query.toLowerCase();
-    const queryTerms = lowerQuery.split(/\s+/).filter(t => t.length > 0);
+    const queryTerms = lowerQuery.split(/\s+/).filter((t) => t.length > 0);
     const results: Array<{ command: CLICommand; score: number }> = [];
-    
+
     for (const cmd of this.commands.values()) {
       let score = 0;
       const searchText = `${cmd.prompt} ${cmd.command} ${cmd.tags.join(' ')}`.toLowerCase();
-      
+
       // Exact match bonus
       if (searchText.includes(lowerQuery)) {
         score += 100;
       }
-      
+
       // Term matching
       for (const term of queryTerms) {
         if (cmd.prompt.toLowerCase().includes(term)) {
-          score += 50;  // Prompt matches are most valuable
+          score += 50; // Prompt matches are most valuable
         }
         if (cmd.command.toLowerCase().includes(term)) {
-          score += 30;  // Command matches
+          score += 30; // Command matches
         }
-        if (cmd.tags.some(tag => tag.toLowerCase().includes(term))) {
-          score += 20;  // Tag matches
+        if (cmd.tags.some((tag) => tag.toLowerCase().includes(term))) {
+          score += 20; // Tag matches
         }
       }
-      
+
       // Favorite bonus
       if (cmd.isFavorite) {
         score += 10;
       }
-      
+
       // Usage bonus (max 20 points)
       score += Math.min(cmd.usageCount * 2, 20);
-      
+
       if (score > 0) {
         results.push({ command: cmd, score });
       }
     }
-    
+
     return results.sort((a, b) => b.score - a.score);
   }
 

@@ -2,16 +2,15 @@ import * as vscode from 'vscode';
 import { CLICommand, getDisplayName } from '../models/command';
 import { CommandTreeItem, TreeItemType } from '../models/types';
 import { StorageService } from '../services/storage';
-import {
-  COMMAND_SOURCE_THEME_ICONS,
-  CATEGORY_THEME_ICONS,
-} from '../utils/icons';
+import { COMMAND_SOURCE_THEME_ICONS, CATEGORY_THEME_ICONS } from '../utils/icons';
 
 /**
  * Tree data provider for the commands sidebar
  */
 export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTreeItem> {
-  private _onDidChangeTreeData = new vscode.EventEmitter<CommandTreeItem | undefined | null | void>();
+  private _onDidChangeTreeData = new vscode.EventEmitter<
+    CommandTreeItem | undefined | null | void
+  >();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   constructor(private storage: StorageService) {
@@ -68,7 +67,14 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showFavorites) {
       const favoritesCount = this.storage.getFavorites().length;
       if (favoritesCount > 0) {
-        items.push(this.createCategoryItem('Favorites', 'favorites', favoritesCount, CATEGORY_THEME_ICONS['favorites']));
+        items.push(
+          this.createCategoryItem(
+            'Favorites',
+            'favorites',
+            favoritesCount,
+            CATEGORY_THEME_ICONS['favorites']
+          )
+        );
       }
     }
 
@@ -76,7 +82,14 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showMostUsed) {
       const mostUsed = this.getMostUsedCommands();
       if (mostUsed.length > 0) {
-        items.push(this.createCategoryItem('Most Used', 'mostUsed', mostUsed.length, CATEGORY_THEME_ICONS['mostUsed']));
+        items.push(
+          this.createCategoryItem(
+            'Most Used',
+            'mostUsed',
+            mostUsed.length,
+            CATEGORY_THEME_ICONS['mostUsed']
+          )
+        );
       }
     }
 
@@ -84,7 +97,9 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     if (showRecent) {
       const recentCount = this.storage.getRecent().length;
       if (recentCount > 0) {
-        items.push(this.createCategoryItem('Recent', 'recent', recentCount, CATEGORY_THEME_ICONS['recent']));
+        items.push(
+          this.createCategoryItem('Recent', 'recent', recentCount, CATEGORY_THEME_ICONS['recent'])
+        );
       }
     }
 
@@ -101,23 +116,25 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
       const grouped = this.storage.getGroupedBySource();
       const sourceOrder = ['ai', 'manual', 'imported', 'shared'];
       const sourceLabels: Record<string, string> = {
-        'ai': 'AI Generated',
-        'manual': 'Manual',
-        'imported': 'Imported',
-        'shared': 'Shared',
+        ai: 'AI Generated',
+        manual: 'Manual',
+        imported: 'Imported',
+        shared: 'Shared',
       };
 
       for (const source of sourceOrder) {
         const commands = grouped.get(source);
         if (commands && commands.length > 0) {
-          items.push(this.createCategoryItem(
-            sourceLabels[source] || source,
-            'source' as TreeItemType,
-            commands.length,
-            COMMAND_SOURCE_THEME_ICONS[source] || COMMAND_SOURCE_THEME_ICONS['DEFAULT'],
-            undefined,
-            source
-          ));
+          items.push(
+            this.createCategoryItem(
+              sourceLabels[source] || source,
+              'source' as TreeItemType,
+              commands.length,
+              COMMAND_SOURCE_THEME_ICONS[source] || COMMAND_SOURCE_THEME_ICONS['DEFAULT'],
+              undefined,
+              source
+            )
+          );
         }
       }
     } else {
@@ -148,15 +165,16 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
 
   // Phase 4: Get most used commands (top 5)
   private getMostUsedCommands(): CLICommand[] {
-    return this.storage.getAll()
-      .filter(cmd => cmd.usageCount > 0)
+    return this.storage
+      .getAll()
+      .filter((cmd) => cmd.usageCount > 0)
       .sort((a, b) => b.usageCount - a.usageCount)
       .slice(0, 5);
   }
 
   // Phase 4: Get commands by most used
   private getMostUsedCommandItems(): CommandTreeItem[] {
-    return this.getMostUsedCommands().map(cmd => this.createCommandItem(cmd));
+    return this.getMostUsedCommands().map((cmd) => this.createCommandItem(cmd));
   }
 
   private getFavoriteCommands(): CommandTreeItem[] {
@@ -205,10 +223,10 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
   }
 
   private createCommandItem(cmd: CLICommand): CommandTreeItem {
-    const displayLabel = cmd.isFavorite 
+    const displayLabel = cmd.isFavorite
       ? `$(star-full) ${getDisplayName(cmd)}`
       : getDisplayName(cmd);
-    
+
     const item: CommandTreeItem = {
       label: displayLabel,
       tooltip: new vscode.MarkdownString(this.formatTooltip(cmd)),
@@ -224,13 +242,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
   }
 
   private formatTooltip(cmd: CLICommand): string {
-    const lines = [
-      `**${cmd.prompt}**`,
-      '',
-      '```',
-      cmd.command,
-      '```',
-    ];
+    const lines = [`**${cmd.prompt}**`, '', '```', cmd.command, '```'];
 
     if (cmd.tags.length > 0) {
       lines.push('', `Tags: ${cmd.tags.join(', ')}`);
@@ -285,11 +297,21 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
 
     // Git commands
     if (command.startsWith('git ')) {
-      if (command.includes('commit')) {return 'git-commit';}
-      if (command.includes('push') || command.includes('pull')) {return 'git-pull-request';}
-      if (command.includes('branch') || command.includes('checkout')) {return 'git-branch';}
-      if (command.includes('merge')) {return 'git-merge';}
-      if (command.includes('stash')) {return 'git-stash';}
+      if (command.includes('commit')) {
+        return 'git-commit';
+      }
+      if (command.includes('push') || command.includes('pull')) {
+        return 'git-pull-request';
+      }
+      if (command.includes('branch') || command.includes('checkout')) {
+        return 'git-branch';
+      }
+      if (command.includes('merge')) {
+        return 'git-merge';
+      }
+      if (command.includes('stash')) {
+        return 'git-stash';
+      }
       return 'git-commit';
     }
 

@@ -115,7 +115,7 @@ export function getShell(): string {
 
   const config = vscode.workspace.getConfiguration('terminal.integrated');
   const defaultProfile = config.get<string>('defaultProfile.' + getOSKey());
-  
+
   if (defaultProfile) {
     cachedShell = defaultProfile.toLowerCase();
   } else {
@@ -161,10 +161,10 @@ export function createAIContext(existingTags?: string[]): AIContext {
 export function detectInputType(input: string): 'natural' | 'command' {
   const commandIndicators = [
     /^(git|npm|yarn|pnpm|docker|kubectl|aws|gcloud|az|terraform|ansible)\s/,
-    /\|/,                     // Has pipe
-    /&&|\|\|/,                // Has operators
-    /^[a-z]+\s+-/,            // Has flags
-    /\$\(|\`/,                // Has subshell
+    /\|/, // Has pipe
+    /&&|\|\|/, // Has operators
+    /^[a-z]+\s+-/, // Has flags
+    /\$\(|\`/, // Has subshell
     /^(cd|ls|rm|cp|mv|cat|echo|grep|find|chmod|chown|mkdir|touch|tar|curl|wget|ssh|scp)\s/,
     /^(python|node|ruby|php|go|cargo|make|cmake|gcc|javac)\s/,
     /^(brew|apt|apt-get|yum|dnf|pacman)\s/,

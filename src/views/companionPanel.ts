@@ -3,23 +3,19 @@
  * Simplified focus timer UI with animated SVG companions
  */
 
-import * as vscode from "vscode";
-import { FocusService } from "../services/focus";
-import { CompanionService } from "../services/companion";
-import { formatTime } from "../utils/dateUtils";
-import { FocusState } from "../models/focus";
-import {
-  CompanionType,
-  ALL_COMPANIONS,
-  COMPANION_NAMES,
-} from "../models/companion";
-import { LUCIDE_ICONS, icon } from "../utils/lucide";
+import * as vscode from 'vscode';
+import { FocusService } from '../services/focus';
+import { CompanionService } from '../services/companion';
+import { formatTime } from '../utils/dateUtils';
+import { FocusState } from '../models/focus';
+import { CompanionType, ALL_COMPANIONS, COMPANION_NAMES } from '../models/companion';
+import { LUCIDE_ICONS, icon } from '../utils/lucide';
 
 /**
  * Companion Panel WebviewViewProvider
  */
 export class CompanionPanelProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = "cmdify.focus";
+  public static readonly viewType = 'cmdify.focus';
 
   private view?: vscode.WebviewView;
   private disposables: vscode.Disposable[] = [];
@@ -58,22 +54,22 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     webviewView.webview.onDidReceiveMessage(
       async (message) => {
         switch (message.command) {
-          case "start":
+          case 'start':
             await this.focusService.start();
             break;
-          case "pause":
+          case 'pause':
             await this.focusService.pause();
             break;
-          case "resume":
+          case 'resume':
             await this.focusService.resume();
             break;
-          case "stop":
+          case 'stop':
             await this.focusService.stop();
             break;
-          case "skip":
+          case 'skip':
             await this.focusService.skip();
             break;
-          case "changeCompanion":
+          case 'changeCompanion':
             await this.showCompanionPicker();
             break;
         }
@@ -96,7 +92,7 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
       const currentMessage = this.companionService.getCurrentMessage();
 
       this.view.webview.postMessage({
-        type: "update",
+        type: 'update',
         focusState,
         companionType: companionState.type,
         svgState,
@@ -120,8 +116,8 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
 
     const items = [
       ...unlocked.map((type) => ({
-        label: `${type === currentState.type ? "$(check) " : ""}${COMPANION_NAMES[type]}`,
-        description: type === currentState.type ? "Current" : "Unlocked",
+        label: `${type === currentState.type ? '$(check) ' : ''}${COMPANION_NAMES[type]}`,
+        description: type === currentState.type ? 'Current' : 'Unlocked',
         value: type,
         picked: type === currentState.type,
       })),
@@ -134,15 +130,15 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     ];
 
     const selected = await vscode.window.showQuickPick(items, {
-      title: "Choose Companion",
-      placeHolder: "Select your focus companion",
+      title: 'Choose Companion',
+      placeHolder: 'Select your focus companion',
     });
 
     if (selected) {
       // Check if locked
       if (!unlocked.includes(selected.value)) {
         vscode.window.showWarningMessage(
-          `${COMPANION_NAMES[selected.value]} is locked. ${locked.find(l => l.type === selected.value)?.condition}`
+          `${COMPANION_NAMES[selected.value]} is locked. ${locked.find((l) => l.type === selected.value)?.condition}`
         );
         return;
       }
@@ -151,19 +147,10 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private getSvgUri(
-    webview: vscode.Webview,
-    type: CompanionType,
-    state: string
-  ): string {
+  private getSvgUri(webview: vscode.Webview, type: CompanionType, state: string): string {
     return webview
       .asWebviewUri(
-        vscode.Uri.joinPath(
-          this.extensionUri,
-          "media",
-          "companions",
-          `${type}-${state}.svg`
-        )
+        vscode.Uri.joinPath(this.extensionUri, 'media', 'companions', `${type}-${state}.svg`)
       )
       .toString();
   }
@@ -178,10 +165,10 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     const svgUris: Record<string, Record<string, string>> = {};
     for (const type of ALL_COMPANIONS) {
       svgUris[type] = {
-        idle: this.getSvgUri(webview, type, "idle"),
-        focus: this.getSvgUri(webview, type, "focus"),
-        break: this.getSvgUri(webview, type, "break"),
-        celebrate: this.getSvgUri(webview, type, "celebrate"),
+        idle: this.getSvgUri(webview, type, 'idle'),
+        focus: this.getSvgUri(webview, type, 'focus'),
+        break: this.getSvgUri(webview, type, 'break'),
+        celebrate: this.getSvgUri(webview, type, 'celebrate'),
       };
     }
 
@@ -379,10 +366,7 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
     
     <div class="timer-info">
       <div class="timer-display ${focusState.status}" id="timer">
-        ${focusState.status === "idle"
-        ? "--:--"
-        : formatTime(focusState.timeRemaining)
-      }
+        ${focusState.status === 'idle' ? '--:--' : formatTime(focusState.timeRemaining)}
       </div>
       <div class="status ${focusState.status}" id="status">
         ${this.getStatusText(focusState.status)}
@@ -490,9 +474,7 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
 
   private getStatusText(status: string): string {
     return (
-      { focusing: "Focusing", break: "Break", paused: "Paused", idle: "Ready" }[
-      status
-      ] || "Ready"
+      { focusing: 'Focusing', break: 'Break', paused: 'Paused', idle: 'Ready' }[status] || 'Ready'
     );
   }
 
@@ -503,35 +485,32 @@ export class CompanionPanelProvider implements vscode.WebviewViewProvider {
       skip: icon('skipForward', 14),
       stop: icon('stop', 14),
     };
-    if (status === "idle") {
+    if (status === 'idle') {
       return `<button class="btn primary" data-action="start">${icons.play} Start</button>`;
     }
-    if (status === "focusing" || status === "break") {
+    if (status === 'focusing' || status === 'break') {
       return `<button class="btn" data-action="pause" title="Pause">${icons.pause}</button>
               <button class="btn" data-action="skip" title="Skip">${icons.skip}</button>
               <button class="btn" data-action="stop" title="Stop">${icons.stop}</button>`;
     }
-    if (status === "paused") {
+    if (status === 'paused') {
       return `<button class="btn primary" data-action="resume">${icons.play} Resume</button>
               <button class="btn" data-action="stop" title="Stop">${icons.stop}</button>`;
     }
-    return "";
+    return '';
   }
 
   private getSessionDots(focusState: FocusState): string {
-    let html = "";
+    let html = '';
     for (let i = 1; i <= 4; i++) {
-      let cls = "dot";
+      let cls = 'dot';
       if (
         i < focusState.currentSession ||
-        (i === focusState.currentSession && focusState.status === "break")
+        (i === focusState.currentSession && focusState.status === 'break')
       ) {
-        cls += " done";
-      } else if (
-        i === focusState.currentSession &&
-        focusState.status === "focusing"
-      ) {
-        cls += " active";
+        cls += ' done';
+      } else if (i === focusState.currentSession && focusState.status === 'focusing') {
+        cls += ' active';
       }
       html += `<div class="${cls}"></div>`;
     }

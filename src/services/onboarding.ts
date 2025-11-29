@@ -4,11 +4,7 @@
  */
 
 import * as vscode from 'vscode';
-import {
-  COMPANION_TYPE_EMOJIS,
-  AI_PROVIDER_EMOJIS,
-  FEATURE_EMOJIS,
-} from '../utils/icons';
+import { COMPANION_TYPE_EMOJIS, AI_PROVIDER_EMOJIS, FEATURE_EMOJIS } from '../utils/icons';
 
 // Storage keys
 const ONBOARDING_COMPLETED_KEY = 'cmdify.onboarding.completed';
@@ -78,10 +74,30 @@ export class OnboardingService implements vscode.Disposable {
    */
   getAvailableAIProviders(): { id: string; name: string; description: string; icon: string }[] {
     return [
-      { id: 'openai', name: 'OpenAI', description: 'GPT-4o, GPT-4o-mini', icon: AI_PROVIDER_EMOJIS['openai'] },
-      { id: 'anthropic', name: 'Anthropic', description: 'Claude 3.5 Sonnet', icon: AI_PROVIDER_EMOJIS['anthropic'] },
-      { id: 'ollama', name: 'Ollama', description: 'Local, free - runs on your machine', icon: AI_PROVIDER_EMOJIS['ollama'] },
-      { id: 'azure', name: 'Azure OpenAI', description: 'Enterprise Azure deployment', icon: AI_PROVIDER_EMOJIS['azure'] },
+      {
+        id: 'openai',
+        name: 'OpenAI',
+        description: 'GPT-4o, GPT-4o-mini',
+        icon: AI_PROVIDER_EMOJIS['openai'],
+      },
+      {
+        id: 'anthropic',
+        name: 'Anthropic',
+        description: 'Claude 3.5 Sonnet',
+        icon: AI_PROVIDER_EMOJIS['anthropic'],
+      },
+      {
+        id: 'ollama',
+        name: 'Ollama',
+        description: 'Local, free - runs on your machine',
+        icon: AI_PROVIDER_EMOJIS['ollama'],
+      },
+      {
+        id: 'azure',
+        name: 'Azure OpenAI',
+        description: 'Enterprise Azure deployment',
+        icon: AI_PROVIDER_EMOJIS['azure'],
+      },
     ];
   }
 

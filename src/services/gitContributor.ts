@@ -44,13 +44,13 @@ export class GitContributorService {
 
     try {
       // Use git shortlog to get contributors with commit counts
-      const { stdout } = await execAsync(
-        'git shortlog -sne HEAD --all',
-        { cwd: folder, maxBuffer: 1024 * 1024 }
-      );
+      const { stdout } = await execAsync('git shortlog -sne HEAD --all', {
+        cwd: folder,
+        maxBuffer: 1024 * 1024,
+      });
 
       const contributors = this.parseGitShortlog(stdout);
-      
+
       // Update cache
       this.contributorsCache.set(folder, contributors);
       this.cacheExpiry.set(folder, Date.now() + this.CACHE_TTL);
@@ -67,7 +67,10 @@ export class GitContributorService {
    * Format: "   123\tName <email>"
    */
   private parseGitShortlog(output: string): Contributor[] {
-    const lines = output.trim().split('\n').filter(l => l.trim());
+    const lines = output
+      .trim()
+      .split('\n')
+      .filter((l) => l.trim());
     const contributors: Contributor[] = [];
 
     for (const line of lines) {
@@ -103,14 +106,16 @@ export class GitContributorService {
     const contributors = await this.getContributors();
 
     if (contributors.length === 0) {
-      return [{
-        label: '$(person) No contributors found',
-        description: 'This may not be a git repository',
-        detail: 'You can still enter a name manually',
-      }];
+      return [
+        {
+          label: '$(person) No contributors found',
+          description: 'This may not be a git repository',
+          detail: 'You can still enter a name manually',
+        },
+      ];
     }
 
-    return contributors.map(c => ({
+    return contributors.map((c) => ({
       label: `$(person) ${c.name}`,
       description: c.email,
       detail: `${c.commits} commit${c.commits !== 1 ? 's' : ''}`,

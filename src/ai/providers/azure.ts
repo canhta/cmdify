@@ -16,7 +16,9 @@ export class AzureOpenAIProvider implements AIProvider {
     const config = getAIConfig('gpt-4o-mini');
 
     if (!config.customEndpoint) {
-      throw new Error('Azure OpenAI endpoint not configured. Use "Cmdify: Configure AI Provider" to set it up.');
+      throw new Error(
+        'Azure OpenAI endpoint not configured. Use "Cmdify: Configure AI Provider" to set it up.'
+      );
     }
 
     // Azure OpenAI uses deployment names in the URL

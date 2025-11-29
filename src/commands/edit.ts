@@ -92,9 +92,10 @@ async function editCommand(cmd: CLICommand, storage: StorageService): Promise<vo
 
   if (selection.label === '$(tag) Tags' || selection.label === '$(check-all) Edit All') {
     const existingTags = storage.getAllTags();
-    const tagHint = existingTags.length > 0 
-      ? `Existing tags: ${existingTags.slice(0, 5).join(', ')}${existingTags.length > 5 ? '...' : ''}`
-      : 'e.g., git, docker, npm';
+    const tagHint =
+      existingTags.length > 0
+        ? `Existing tags: ${existingTags.slice(0, 5).join(', ')}${existingTags.length > 5 ? '...' : ''}`
+        : 'e.g., git, docker, npm';
 
     const editedTags = await vscode.window.showInputBox({
       prompt: `Edit tags (comma-separated). ${tagHint}`,
