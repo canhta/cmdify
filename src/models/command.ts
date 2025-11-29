@@ -45,8 +45,40 @@ export interface CLICommand {
   // Organization
   isFavorite?: boolean;  // Mark as favorite for quick access
 
-  // Sync
-  syncId?: string;
+  // Sync metadata
+  syncId?: string;              // Unique ID for sync tracking
+  syncHash?: string;            // Hash of command content for conflict detection
+  lastSyncedAt?: string;        // Last time this command was synced
+  deletedAt?: string;           // Soft delete timestamp for sync purposes
+}
+
+/**
+ * Sync conflict types
+ */
+export type SyncConflictType = 'modified' | 'deleted_local' | 'deleted_remote';
+
+export interface SyncConflict {
+  commandId: string;
+  local: CLICommand;
+  remote: CLICommand;
+  type: SyncConflictType;
+}
+
+export type ConflictResolution = 'keep_local' | 'keep_remote' | 'keep_both';
+
+/**
+ * Generate a hash for command content (for conflict detection)
+ */
+export function generateCommandHash(cmd: CLICommand): string {
+  const content = `${cmd.prompt}|${cmd.command}|${cmd.tags.join(',')}|${cmd.shell || ''}|${cmd.isFavorite || false}`;
+  // Simple hash function
+  let hash = 0;
+  for (let i = 0; i < content.length; i++) {
+    const char = content.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash.toString(36);
 }
 
 /**

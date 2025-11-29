@@ -274,41 +274,55 @@ function initializeGamificationServices(
 
 function setupEventListeners(context: vscode.ExtensionContext): void {
   // Storage changes
-  storage.onDidChange(async () => {
-    await updateNoCommandsContext();
-    const commandCount = storage.getAll().length;
-    await achievementService.checkCommandAchievements(commandCount);
-  });
+  context.subscriptions.push(
+    storage.onDidChange(async () => {
+      await updateNoCommandsContext();
+      const commandCount = storage.getAll().length;
+      await achievementService.checkCommandAchievements(commandCount);
+    })
+  );
 
   // Focus timer events
-  focusService.onTick(() => updateFocusStatusBar());
-  focusService.onStateChange(() => updateFocusStatusBar());
-  companionService.onStateChange(() => updateFocusStatusBar());
+  context.subscriptions.push(
+    focusService.onTick(() => updateFocusStatusBar()),
+    focusService.onStateChange(() => updateFocusStatusBar()),
+    companionService.onStateChange(() => updateFocusStatusBar())
+  );
 
   // Focus session completion
-  focusService.onSessionComplete(async () => {
-    await handleFocusSessionComplete();
-  });
+  context.subscriptions.push(
+    focusService.onSessionComplete(async () => {
+      await handleFocusSessionComplete();
+    })
+  );
 
   // Break start
-  focusService.onBreakStart(async () => {
-    await companionService.awardXP(25, "breakTaken");
-  });
+  context.subscriptions.push(
+    focusService.onBreakStart(async () => {
+      await companionService.awardXP(25, "breakTaken");
+    })
+  );
 
   // Companion events
-  companionService.onLevelUp(handleLevelUp);
-  companionService.onUnlock(handleUnlock);
+  context.subscriptions.push(
+    companionService.onLevelUp(handleLevelUp),
+    companionService.onUnlock(handleUnlock)
+  );
 
   // TODO changes
-  todoScannerService.onTodosChanged(() => {
-    updateTodoStatusBar();
-    const completedCount = todoScannerService.getCompletedTodos().length;
-    companionService.updateTodoCount(completedCount);
-  });
+  context.subscriptions.push(
+    todoScannerService.onTodosChanged(() => {
+      updateTodoStatusBar();
+      const completedCount = todoScannerService.getCompletedTodos().length;
+      companionService.updateTodoCount(completedCount);
+    })
+  );
 
   // Activity updates
   if (activityStatusBarItem) {
-    activityService.onActivityUpdate(() => updateActivityStatusBar());
+    context.subscriptions.push(
+      activityService.onActivityUpdate(() => updateActivityStatusBar())
+    );
   }
 
   // Configuration changes
@@ -790,9 +804,12 @@ async function configureAIProvider(
       placeHolder: "https://your-resource.openai.azure.com",
       title: "Step 4: Azure OpenAI Endpoint",
       validateInput: (value) => {
-        if (!value) return "Endpoint is required for Azure";
-        if (!value.startsWith("https://"))
+        if (!value) {
+          return "Endpoint is required for Azure";
+        }
+        if (!value.startsWith("https://")) {
           return "Endpoint must start with https://";
+        }
         return undefined;
       },
     });
@@ -843,7 +860,9 @@ async function configureCustomProvider(
     placeHolder: "https://api.example.com/v1/chat/completions",
     title: "Step 2: Custom API Endpoint",
     validateInput: (value) => {
-      if (!value) return "Endpoint is required";
+      if (!value) {
+        return "Endpoint is required";
+      }
       if (!value.startsWith("http://") && !value.startsWith("https://")) {
         return "Endpoint must start with http:// or https://";
       }

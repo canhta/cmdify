@@ -473,6 +473,8 @@ export class AchievementService implements vscode.Disposable {
   }
 
   dispose(): void {
+    this._onAchievementUnlocked.dispose();
+    this._onProgressUpdate.dispose();
     this.disposables.forEach((d) => d.dispose());
   }
 }

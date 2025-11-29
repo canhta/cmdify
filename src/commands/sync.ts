@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { CLICommand } from '../models/command';
+import { CLICommand, SyncConflict, SyncConflictType, ConflictResolution, generateCommandHash } from '../models/command';
 import { StorageService } from '../services/storage';
 
 const GIST_FILENAME = 'cmdify-commands.json';
@@ -8,6 +8,7 @@ interface SyncPayload {
   version: string;
   commands: CLICommand[];
   exportedAt: string;
+  syncVersion?: number;  // Incremented on each sync
 }
 
 /**
@@ -48,12 +49,27 @@ export class GitHubSyncService {
       return false;
     }
 
-    const commands = this.storage.exportCommands();
+    const now = new Date().toISOString();
+    const commands = this.storage.exportCommands().map(cmd => ({
+      ...cmd,
+      syncId: cmd.syncId || cmd.id,
+      lastSyncedAt: now,
+      syncHash: generateCommandHash(cmd),
+    }));
+
+    // Update local storage with sync metadata
+    await this.storage.importCommands(commands, false);
+
+    const currentVersion = this.context.globalState.get<number>('cmdify.syncVersion', 0);
     const payload: SyncPayload = {
       version: '1.0',
       commands,
-      exportedAt: new Date().toISOString(),
+      exportedAt: now,
+      syncVersion: currentVersion + 1,
     };
+
+    // Store new sync version
+    await this.context.globalState.update('cmdify.syncVersion', currentVersion + 1);
 
     try {
       if (this.gistId) {
@@ -129,9 +145,305 @@ export class GitHubSyncService {
       await config.update('enabled', true, vscode.ConfigurationTarget.Global);
     }
 
-    // Pull first, then push
-    await this.pull();
-    return this.push();
+    const session = await this.authenticate();
+    if (!session) {
+      return false;
+    }
+
+    // Check if we have an existing gist
+    if (!this.gistId) {
+      const found = await this.findExistingGist(session.accessToken);
+      if (!found) {
+        // No remote, just push
+        return this.push();
+      }
+    }
+
+    try {
+      // Fetch remote commands
+      const remotePayload = await this.fetchGist(session.accessToken);
+      if (!remotePayload) {
+        // No remote data, just push
+        return this.push();
+      }
+
+      const localCommands = this.storage.exportCommands();
+      const remoteCommands = remotePayload.commands;
+
+      // Detect conflicts
+      const conflicts = this.detectConflicts(localCommands, remoteCommands);
+
+      if (conflicts.length > 0) {
+        // Show conflict resolution UI
+        const resolvedCommands = await this.resolveConflicts(conflicts, localCommands, remoteCommands);
+        if (!resolvedCommands) {
+          vscode.window.showInformationMessage('Sync cancelled.');
+          return false;
+        }
+
+        // Import resolved commands
+        await this.storage.importCommands(resolvedCommands, false);
+      } else {
+        // No conflicts, merge commands
+        const mergedCommands = this.mergeCommands(localCommands, remoteCommands);
+        await this.storage.importCommands(mergedCommands, false);
+      }
+
+      // Push merged result
+      return this.push();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      vscode.window.showErrorMessage(`Sync failed: ${message}`);
+      return false;
+    }
+  }
+
+  /**
+   * Detect conflicts between local and remote commands
+   */
+  private detectConflicts(local: CLICommand[], remote: CLICommand[]): SyncConflict[] {
+    const conflicts: SyncConflict[] = [];
+    const localMap = new Map(local.map(cmd => [cmd.syncId || cmd.id, cmd]));
+    const remoteMap = new Map(remote.map(cmd => [cmd.syncId || cmd.id, cmd]));
+
+    // Check for modified conflicts (same ID, different content)
+    for (const [id, localCmd] of localMap) {
+      const remoteCmd = remoteMap.get(id);
+      if (remoteCmd) {
+        const localHash = generateCommandHash(localCmd);
+        const remoteHash = generateCommandHash(remoteCmd);
+
+        // Both modified since last sync
+        if (localHash !== remoteHash) {
+          // Check if both have been updated after their last sync
+          const localUpdated = new Date(localCmd.updatedAt).getTime();
+          const remoteUpdated = new Date(remoteCmd.updatedAt).getTime();
+          const localLastSync = localCmd.lastSyncedAt ? new Date(localCmd.lastSyncedAt).getTime() : 0;
+
+          // If both sides have changes since last sync, it's a conflict
+          if (localUpdated > localLastSync && remoteUpdated > localLastSync) {
+            conflicts.push({
+              commandId: id,
+              local: localCmd,
+              remote: remoteCmd,
+              type: 'modified' as SyncConflictType,
+            });
+          }
+        }
+      }
+    }
+
+    // Check for deleted_local (exists in remote, soft-deleted locally)
+    for (const [id, localCmd] of localMap) {
+      if (localCmd.deletedAt && remoteMap.has(id)) {
+        const remoteCmd = remoteMap.get(id)!;
+        if (!remoteCmd.deletedAt) {
+          conflicts.push({
+            commandId: id,
+            local: localCmd,
+            remote: remoteCmd,
+            type: 'deleted_local' as SyncConflictType,
+          });
+        }
+      }
+    }
+
+    // Check for deleted_remote (exists locally, soft-deleted in remote)
+    for (const [id, remoteCmd] of remoteMap) {
+      if (remoteCmd.deletedAt && localMap.has(id)) {
+        const localCmd = localMap.get(id)!;
+        if (!localCmd.deletedAt) {
+          conflicts.push({
+            commandId: id,
+            local: localCmd,
+            remote: remoteCmd,
+            type: 'deleted_remote' as SyncConflictType,
+          });
+        }
+      }
+    }
+
+    return conflicts;
+  }
+
+  /**
+   * Merge commands without conflicts
+   */
+  private mergeCommands(local: CLICommand[], remote: CLICommand[]): CLICommand[] {
+    const merged = new Map<string, CLICommand>();
+    const now = new Date().toISOString();
+
+    // Add all local commands
+    for (const cmd of local) {
+      const id = cmd.syncId || cmd.id;
+      merged.set(id, { ...cmd, syncId: id, lastSyncedAt: now });
+    }
+
+    // Merge remote commands
+    for (const cmd of remote) {
+      const id = cmd.syncId || cmd.id;
+      const existing = merged.get(id);
+
+      if (!existing) {
+        // New from remote
+        merged.set(id, { ...cmd, syncId: id, lastSyncedAt: now });
+      } else {
+        // Take the more recently updated one
+        const localDate = new Date(existing.updatedAt).getTime();
+        const remoteDate = new Date(cmd.updatedAt).getTime();
+
+        if (remoteDate > localDate) {
+          merged.set(id, { ...cmd, syncId: id, lastSyncedAt: now });
+        } else {
+          // Keep local but update sync time
+          merged.set(id, { ...existing, lastSyncedAt: now });
+        }
+      }
+    }
+
+    // Filter out soft-deleted commands
+    return Array.from(merged.values()).filter(cmd => !cmd.deletedAt);
+  }
+
+  /**
+   * Show conflict resolution UI and return resolved commands
+   */
+  private async resolveConflicts(
+    conflicts: SyncConflict[],
+    localCommands: CLICommand[],
+    remoteCommands: CLICommand[]
+  ): Promise<CLICommand[] | undefined> {
+    const resolutions = new Map<string, ConflictResolution>();
+
+    for (const conflict of conflicts) {
+      const resolution = await this.showConflictDialog(conflict);
+      if (!resolution) {
+        return undefined; // User cancelled
+      }
+      resolutions.set(conflict.commandId, resolution);
+    }
+
+    // Apply resolutions
+    const merged = new Map<string, CLICommand>();
+    const now = new Date().toISOString();
+
+    // Start with local commands
+    for (const cmd of localCommands) {
+      const id = cmd.syncId || cmd.id;
+      merged.set(id, { ...cmd, syncId: id });
+    }
+
+    // Add remote-only commands
+    for (const cmd of remoteCommands) {
+      const id = cmd.syncId || cmd.id;
+      if (!merged.has(id)) {
+        merged.set(id, { ...cmd, syncId: id });
+      }
+    }
+
+    // Apply conflict resolutions
+    for (const conflict of conflicts) {
+      const resolution = resolutions.get(conflict.commandId)!;
+
+      switch (resolution) {
+        case 'keep_local':
+          merged.set(conflict.commandId, {
+            ...conflict.local,
+            syncId: conflict.commandId,
+            lastSyncedAt: now,
+          });
+          break;
+
+        case 'keep_remote':
+          merged.set(conflict.commandId, {
+            ...conflict.remote,
+            syncId: conflict.commandId,
+            lastSyncedAt: now,
+          });
+          break;
+
+        case 'keep_both':
+          // Keep local with original ID
+          merged.set(conflict.commandId, {
+            ...conflict.local,
+            syncId: conflict.commandId,
+            lastSyncedAt: now,
+          });
+          // Add remote as new command with new ID
+          const newId = `${conflict.commandId}_remote_${Date.now()}`;
+          merged.set(newId, {
+            ...conflict.remote,
+            id: newId,
+            syncId: newId,
+            prompt: `${conflict.remote.prompt} (from sync)`,
+            lastSyncedAt: now,
+          });
+          break;
+      }
+    }
+
+    // Filter out soft-deleted commands
+    return Array.from(merged.values()).filter(cmd => !cmd.deletedAt);
+  }
+
+  /**
+   * Show dialog for a single conflict
+   */
+  private async showConflictDialog(conflict: SyncConflict): Promise<ConflictResolution | undefined> {
+    // Check if user has a default resolution preference
+    const config = vscode.workspace.getConfiguration('cmdify.sync');
+    const defaultResolution = config.get<string>('conflictResolution', 'ask');
+
+    if (defaultResolution !== 'ask') {
+      return defaultResolution as ConflictResolution;
+    }
+
+    const typeLabel = {
+      'modified': 'Modified on both sides',
+      'deleted_local': 'Deleted locally, modified remotely',
+      'deleted_remote': 'Deleted remotely, modified locally',
+    }[conflict.type];
+
+    const localDisplay = this.formatCommandForDisplay(conflict.local);
+    const remoteDisplay = this.formatCommandForDisplay(conflict.remote);
+
+    const choice = await vscode.window.showQuickPick(
+      [
+        {
+          label: '$(arrow-left) Keep Local',
+          description: localDisplay,
+          detail: `Local: ${conflict.local.command}`,
+          value: 'keep_local' as ConflictResolution,
+        },
+        {
+          label: '$(arrow-right) Keep Remote',
+          description: remoteDisplay,
+          detail: `Remote: ${conflict.remote.command}`,
+          value: 'keep_remote' as ConflictResolution,
+        },
+        {
+          label: '$(git-merge) Keep Both',
+          description: 'Save both versions',
+          detail: 'The remote version will be saved as a new command',
+          value: 'keep_both' as ConflictResolution,
+        },
+      ],
+      {
+        placeHolder: `Conflict: "${conflict.local.prompt}" - ${typeLabel}`,
+        title: `⚠️ Sync Conflict (${conflict.type})`,
+        ignoreFocusOut: true,
+      }
+    );
+
+    return choice?.value;
+  }
+
+  /**
+   * Format command for display in conflict dialog
+   */
+  private formatCommandForDisplay(cmd: CLICommand): string {
+    const updated = new Date(cmd.updatedAt).toLocaleDateString();
+    return `Updated: ${updated} | Uses: ${cmd.usageCount}`;
   }
 
   /**

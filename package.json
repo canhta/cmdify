@@ -562,6 +562,19 @@
             "default": true,
             "description": "Automatically sync changes",
             "order": 2
+          },
+          "cmdify.sync.conflictResolution": {
+            "type": "string",
+            "default": "ask",
+            "enum": ["ask", "keep_local", "keep_remote", "keep_both"],
+            "enumDescriptions": [
+              "Ask for each conflict",
+              "Always keep local version",
+              "Always keep remote version",
+              "Always keep both versions"
+            ],
+            "description": "Default behavior when sync conflicts occur",
+            "order": 3
           }
         }
       },
