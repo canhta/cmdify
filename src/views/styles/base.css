@@ -1,0 +1,106 @@
+/**
+ * Base CSS Styles
+ * Common styles, variables, and reset for all webview panels
+ */
+
+:root {
+  /* Theme Colors */
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: var(--vscode-editor-background);
+  --text-color: var(--vscode-editor-foreground);
+  --border-color: var(--vscode-input-border);
+  --card-bg: var(--vscode-input-background);
+  --button-bg: var(--vscode-button-background);
+  --button-fg: var(--vscode-button-foreground);
+  --button-hover: var(--vscode-button-hoverBackground);
+  --secondary-text: var(--vscode-descriptionForeground);
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  
+  /* Border Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  color: var(--text-color);
+  background: var(--bg-color);
+  padding: var(--spacing-xl);
+  line-height: 1.5;
+}
+
+/* Typography */
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-md);
+}
+
+h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+}
+
+p {
+  margin-bottom: var(--spacing-md);
+  line-height: 1.6;
+}
+
+/* Links */
+a {
+  color: var(--vscode-textLink-foreground);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--vscode-textLink-activeForeground);
+  text-decoration: underline;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vscode-scrollbarSlider-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vscode-scrollbarSlider-hoverBackground);
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-scrollbarSlider-activeBackground);
+}

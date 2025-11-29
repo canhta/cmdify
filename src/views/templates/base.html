@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <style>
+    {{STYLES}}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="header-title">{{HEADER_TITLE}}</h1>
+    <div class="header-actions">
+      {{HEADER_ACTIONS}}
+    </div>
+  </div>
+
+  <div class="content">
+    {{CONTENT}}
+  </div>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+    {{SCRIPTS}}
+  </script>
+</body>
+</html>

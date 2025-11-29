@@ -424,14 +424,14 @@
           "group": "navigation@1"
         },
         {
+          "command": "cmdify.refresh",
+          "when": "view == cmdify.commands",
+          "group": "navigation@2"
+        },
+        {
           "command": "cmdify.search",
           "when": "view == cmdify.commands",
           "group": "1_actions@1"
-        },
-        {
-          "command": "cmdify.refresh",
-          "when": "view == cmdify.commands",
-          "group": "1_actions@2"
         },
         {
           "command": "cmdify.export",

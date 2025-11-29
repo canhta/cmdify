@@ -4,84 +4,80 @@
  */
 
 import * as vscode from 'vscode';
+import { BaseWebviewPanel } from '../ui/webview';
+import { StylesProvider } from '../ui/webview/StylesProvider';
 import { OnboardingService } from '../services/onboarding';
 import { CompanionService } from '../services/companion';
-import { LUCIDE_ICONS, icon, getLucideStyles } from '../utils/lucide';
+import { icon, getLucideStyles } from '../utils/lucide';
 
 /**
  * Onboarding Panel - Multi-step welcome flow
  */
-export class OnboardingPanelProvider {
-  private panel?: vscode.WebviewPanel;
+export class OnboardingPanelProvider extends BaseWebviewPanel {
+  public static readonly viewType = 'cmdify.onboarding';
 
   constructor(
-    private readonly extensionUri: vscode.Uri,
+    context: vscode.ExtensionContext,
     private readonly onboardingService: OnboardingService,
-    private readonly companionService: CompanionService,
-    private readonly context: vscode.ExtensionContext
-  ) {}
+    private readonly companionService: CompanionService
+  ) {
+    super(context, {
+      viewType: OnboardingPanelProvider.viewType,
+      title: 'Welcome to Cmdify',
+      showOptions: vscode.ViewColumn.One,
+    });
+
+    // Register message handlers
+    this.registerMessageHandler('selectCompanion', async (message) => {
+      await this.companionService.setCompanionType(message.type);
+    });
+
+    this.registerMessageHandler('configureAI', async () => {
+      await vscode.commands.executeCommand('cmdify.configureAI');
+    });
+
+    this.registerMessageHandler('skipAI', async () => {
+      // User chose to skip AI configuration
+    });
+
+    this.registerMessageHandler('complete', async () => {
+      await this.onboardingService.completeOnboarding();
+      this.panel?.dispose();
+      vscode.window.showInformationMessage(
+        'Welcome to Cmdify! Start coding and your companion will be with you.'
+      );
+    });
+
+    this.registerMessageHandler('openSettings', async () => {
+      await vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify');
+    });
+
+    this.registerMessageHandler('showCompanion', async () => {
+      await vscode.commands.executeCommand('cmdify.focus.showPanel');
+    });
+  }
 
   /**
    * Show the onboarding panel
    */
-  async show(): Promise<void> {
-    if (this.panel) {
-      this.panel.reveal();
-      return;
-    }
+  show(): void {
+    this.getPanel();
+  }
 
-    this.panel = vscode.window.createWebviewPanel(
-      'cmdifyOnboarding',
-      'Welcome to Cmdify',
-      vscode.ViewColumn.One,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [this.extensionUri],
-      }
-    );
-
-    this.panel.webview.html = this.getHtmlContent();
-
-    this.panel.webview.onDidReceiveMessage(async (message) => {
-      switch (message.command) {
-        case 'selectCompanion':
-          await this.companionService.setCompanionType(message.type);
-          break;
-        case 'configureAI':
-          await vscode.commands.executeCommand('cmdify.configureAI');
-          break;
-        case 'skipAI':
-          // User chose to skip AI configuration
-          break;
-        case 'complete':
-          await this.onboardingService.completeOnboarding();
-          this.panel?.dispose();
-          vscode.window.showInformationMessage(
-            'Welcome to Cmdify! Start coding and your companion will be with you.'
-          );
-          break;
-        case 'openSettings':
-          await vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify');
-          break;
-        case 'showCompanion':
-          await vscode.commands.executeCommand('cmdify.focus.showPanel');
-          break;
-      }
-    });
-
-    this.panel.onDidDispose(() => {
-      this.panel = undefined;
-    });
+  protected onPanelCreated(): void {
+    // Panel is ready, HTML content will be generated via getHtmlContent
   }
 
   /**
    * Generate HTML content for the onboarding webview
    */
-  private getHtmlContent(): string {
+  protected getHtmlContent(): string {
     const companions = this.onboardingService.getStarterCompanions();
     const aiProviders = this.onboardingService.getAvailableAIProviders();
     const tips = this.onboardingService.getQuickTips();
+
+    // Load external CSS
+    const panelStyles = StylesProvider.getPanelStyles('onboarding', this.context.extensionPath);
 
     return /* html */ `
       <!DOCTYPE html>
@@ -91,19 +87,6 @@ export class OnboardingPanelProvider {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Welcome to Cmdify</title>
         <style>
-          :root {
-            --primary-color: #6366f1;
-            --primary-hover: #4f46e5;
-            --bg-color: var(--vscode-editor-background);
-            --text-color: var(--vscode-editor-foreground);
-            --border-color: var(--vscode-input-border);
-            --card-bg: var(--vscode-input-background);
-            --button-bg: var(--vscode-button-background);
-            --button-fg: var(--vscode-button-foreground);
-            --button-hover: var(--vscode-button-hoverBackground);
-            --secondary-text: var(--vscode-descriptionForeground);
-          }
-
           * {
             box-sizing: border-box;
             margin: 0;
@@ -118,281 +101,7 @@ export class OnboardingPanelProvider {
             vertical-align: middle;
           }
 
-          body {
-            font-family: var(--vscode-font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 40px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-          }
-
-          .onboarding-container {
-            max-width: 600px;
-            width: 100%;
-          }
-
-          .step {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-          }
-
-          .step.active {
-            display: block;
-          }
-
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          .header {
-            text-align: center;
-            margin-bottom: 32px;
-          }
-
-          .header h1 {
-            font-size: 28px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-          }
-
-          .header p {
-            color: var(--secondary-text);
-            font-size: 16px;
-            line-height: 1.6;
-          }
-
-          .feature-list {
-            list-style: none;
-            margin: 24px 0;
-          }
-
-          .feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            font-size: 16px;
-          }
-
-          .feature-list .icon {
-            font-size: 24px;
-          }
-
-          .companions-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-            margin: 32px 0;
-          }
-
-          .companion-option {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 16px 8px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--card-bg);
-          }
-
-          .companion-option:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-          }
-
-          .companion-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(99, 102, 241, 0.1);
-          }
-
-          .companion-option.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-          }
-
-          .companion-option.locked:hover {
-            transform: none;
-            border-color: var(--border-color);
-          }
-
-          .companion-option .emoji {
-            font-size: 40px;
-            margin-bottom: 8px;
-          }
-
-          .companion-option .name {
-            font-size: 12px;
-            color: var(--secondary-text);
-          }
-
-          .companion-option .lock-icon {
-            font-size: 10px;
-            color: var(--secondary-text);
-          }
-
-          .unlock-hint {
-            text-align: center;
-            color: var(--secondary-text);
-            font-size: 13px;
-            margin-top: -16px;
-            margin-bottom: 24px;
-          }
-
-          .ai-providers {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin: 24px 0;
-          }
-
-          .ai-provider {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: var(--card-bg);
-          }
-
-          .ai-provider:hover {
-            border-color: var(--primary-color);
-          }
-
-          .ai-provider .icon {
-            font-size: 28px;
-          }
-
-          .ai-provider .info {
-            flex: 1;
-          }
-
-          .ai-provider .info .name {
-            font-weight: 600;
-            margin-bottom: 4px;
-          }
-
-          .ai-provider .info .description {
-            font-size: 13px;
-            color: var(--secondary-text);
-          }
-
-          .tips-list {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            margin: 24px 0;
-          }
-
-          .tip-card {
-            padding: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            background: var(--card-bg);
-          }
-
-          .tip-card .icon {
-            font-size: 28px;
-            margin-bottom: 12px;
-          }
-
-          .tip-card .title {
-            font-weight: 600;
-            margin-bottom: 6px;
-            font-size: 14px;
-          }
-
-          .tip-card .description {
-            font-size: 13px;
-            color: var(--secondary-text);
-          }
-
-          .actions {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 32px;
-          }
-
-          .btn {
-            padding: 12px 28px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-          }
-
-          .btn-primary {
-            background: var(--button-bg);
-            color: var(--button-fg);
-          }
-
-          .btn-primary:hover {
-            background: var(--button-hover);
-          }
-
-          .btn-secondary {
-            background: transparent;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-          }
-
-          .btn-secondary:hover {
-            background: var(--card-bg);
-          }
-
-          .progress-dots {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 32px;
-          }
-
-          .dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--border-color);
-            transition: all 0.2s;
-          }
-
-          .dot.active {
-            background: var(--primary-color);
-            width: 24px;
-            border-radius: 5px;
-          }
-
-          .dot.completed {
-            background: var(--primary-color);
-          }
-
-          .celebration {
-            text-align: center;
-            margin: 24px 0;
-          }
-
-          .celebration .emoji {
-            font-size: 64px;
-            animation: bounce 1s ease infinite;
-          }
-
-          @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-          }
+          ${panelStyles}
         </style>
       </head>
       <body>
@@ -600,10 +309,7 @@ export class OnboardingPanelProvider {
     `;
   }
 
-  /**
-   * Dispose the panel
-   */
-  dispose(): void {
-    this.panel?.dispose();
+  protected handleMessage(message: any): void {
+    // All messages handled through registered handlers
   }
 }

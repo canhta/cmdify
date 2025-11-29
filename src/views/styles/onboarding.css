@@ -1,0 +1,309 @@
+/**
+ * Onboarding Panel Styles
+ * Multi-step onboarding flow for new users
+ */
+
+:root {
+  --primary-color: #6366f1;
+  --primary-hover: #4f46e5;
+  --bg-color: var(--vscode-editor-background);
+  --text-color: var(--vscode-editor-foreground);
+  --border-color: var(--vscode-input-border);
+  --card-bg: var(--vscode-input-background);
+  --button-bg: var(--vscode-button-background);
+  --button-fg: var(--vscode-button-foreground);
+  --button-hover: var(--vscode-button-hoverBackground);
+  --secondary-text: var(--vscode-descriptionForeground);
+}
+
+body {
+  font-family: var(--vscode-font-family);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 40px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.onboarding-container {
+  max-width: 600px;
+  width: 100%;
+}
+
+.step {
+  display: none;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.step.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.header h1 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.header p {
+  color: var(--secondary-text);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.feature-list {
+  list-style: none;
+  margin: 24px 0;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  font-size: 16px;
+}
+
+.feature-list .icon {
+  font-size: 24px;
+}
+
+/* Companions Grid */
+.companions-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin: 32px 0;
+}
+
+.companion-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--card-bg);
+}
+
+.companion-option:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.companion-option.selected {
+  border-color: var(--primary-color);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.companion-option.locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.companion-option.locked:hover {
+  transform: none;
+  border-color: var(--border-color);
+}
+
+.companion-option .emoji {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.companion-option .name {
+  font-size: 12px;
+  color: var(--secondary-text);
+}
+
+.companion-option .lock-icon {
+  font-size: 10px;
+  color: var(--secondary-text);
+}
+
+.unlock-hint {
+  text-align: center;
+  color: var(--secondary-text);
+  font-size: 13px;
+  margin-top: -16px;
+  margin-bottom: 24px;
+}
+
+/* AI Providers */
+.ai-providers {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.ai-provider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--card-bg);
+}
+
+.ai-provider:hover {
+  border-color: var(--primary-color);
+}
+
+.ai-provider .icon {
+  font-size: 28px;
+}
+
+.ai-provider .info {
+  flex: 1;
+}
+
+.ai-provider .info .name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.ai-provider .info .description {
+  font-size: 13px;
+  color: var(--secondary-text);
+}
+
+/* Tips Grid */
+.tips-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.tip-card {
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--card-bg);
+}
+
+.tip-card .icon {
+  font-size: 28px;
+  margin-bottom: 12px;
+}
+
+.tip-card .title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.tip-card .description {
+  font-size: 13px;
+  color: var(--secondary-text);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.btn {
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--button-bg);
+  color: var(--button-fg);
+}
+
+.btn-primary:hover {
+  background: var(--button-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--card-bg);
+}
+
+/* Progress Dots */
+.progress-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-color);
+  transition: all 0.2s;
+}
+
+.dot.active {
+  background: var(--primary-color);
+  width: 24px;
+  border-radius: 5px;
+}
+
+.dot.completed {
+  background: var(--primary-color);
+}
+
+/* Celebration */
+.celebration {
+  text-align: center;
+  margin: 24px 0;
+}
+
+.celebration .emoji {
+  font-size: 64px;
+  animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}

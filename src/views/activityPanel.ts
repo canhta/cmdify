@@ -4,6 +4,8 @@
  */
 
 import * as vscode from 'vscode';
+import { BaseWebviewPanel } from '../ui/webview';
+import { StylesProvider } from '../ui/webview/StylesProvider';
 import { ActivityService } from '../services/activity';
 import { DailyActivity } from '../models/activity';
 import { formatMinutes } from '../utils/dateUtils';
@@ -12,95 +14,71 @@ import { icon, getLucideStyles } from '../utils/lucide';
 /**
  * Activity Panel Webview Provider
  */
-export class ActivityPanelProvider implements vscode.Disposable {
+export class ActivityPanelProvider extends BaseWebviewPanel {
   public static readonly viewType = 'cmdify.activityPanel';
 
-  private panel: vscode.WebviewPanel | undefined;
-  private disposables: vscode.Disposable[] = [];
-
   constructor(
-    private readonly extensionUri: vscode.Uri,
+    context: vscode.ExtensionContext,
     private readonly activityService: ActivityService
   ) {
+    super(context, {
+      viewType: ActivityPanelProvider.viewType,
+      title: '📊 Activity Dashboard',
+      showOptions: vscode.ViewColumn.One,
+    });
+
+    // Register message handlers
+    this.registerMessageHandler('refresh', () => this.refresh());
+    this.registerMessageHandler('openSettings', async () => {
+      await vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify.activity');
+    });
+
     // Listen for activity updates
-    this.disposables.push(activityService.onActivityUpdate(() => this.updatePanel()));
+    this.disposables.push(activityService.onActivityUpdate(() => this.updateWebview()));
   }
 
   /**
    * Show the activity dashboard panel
    */
   show(): void {
-    if (this.panel) {
-      this.panel.reveal(vscode.ViewColumn.One);
-      this.updatePanel();
-      return;
-    }
+    this.getPanel();
+    this.updateWebview();
+  }
 
-    this.panel = vscode.window.createWebviewPanel(
-      ActivityPanelProvider.viewType,
-      '📊 Activity Dashboard',
-      vscode.ViewColumn.One,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [this.extensionUri],
-      }
-    );
-
-    this.panel.webview.html = this.getHtmlContent();
-
-    this.panel.onDidDispose(
-      () => {
-        this.panel = undefined;
-      },
-      null,
-      this.disposables
-    );
-
-    this.panel.webview.onDidReceiveMessage(
-      async (message) => {
-        switch (message.command) {
-          case 'refresh':
-            this.updatePanel();
-            break;
-          case 'openSettings':
-            vscode.commands.executeCommand('workbench.action.openSettings', 'cmdify.activity');
-            break;
-        }
-      },
-      undefined,
-      this.disposables
-    );
+  protected onPanelCreated(): void {
+    this.updateWebview();
   }
 
   /**
    * Update the panel content
    */
-  private updatePanel(): void {
-    if (this.panel) {
-      const today = this.activityService.getToday();
-      const stats = this.activityService.getStats();
-      const topLanguages = this.activityService.getTopLanguages(5);
-      const config = this.activityService.getConfig();
-
-      this.panel.webview.postMessage({
-        type: 'update',
-        today,
-        stats,
-        topLanguages,
-        dailyGoalMinutes: config.dailyGoalMinutes,
-      });
+  private updateWebview(): void {
+    if (!this.panel) {
+      return;
     }
-  }
 
-  /**
-   * Get the HTML content for the webview
-   */
-  private getHtmlContent(): string {
     const today = this.activityService.getToday();
     const stats = this.activityService.getStats();
     const topLanguages = this.activityService.getTopLanguages(5);
     const config = this.activityService.getConfig();
+
+    this.postMessage({
+      type: 'update',
+      today,
+      stats,
+      topLanguages,
+      dailyGoalMinutes: config.dailyGoalMinutes,
+    });
+  }
+
+  protected getHtmlContent(): string {
+    const today = this.activityService.getToday();
+    const stats = this.activityService.getStats();
+    const topLanguages = this.activityService.getTopLanguages(5);
+    const config = this.activityService.getConfig();
+
+    // Load external CSS
+    const panelStyles = StylesProvider.getPanelStyles('activity', this.context.extensionPath);
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -119,220 +97,9 @@ export class ActivityPanelProvider implements vscode.Disposable {
       color: var(--vscode-foreground);
       background: var(--vscode-editor-background);
       padding: 24px;
-      max-width: 600px;
-      margin: 0 auto;
     }
     
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .header-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .btn {
-      border: none;
-      background: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .btn:hover { background: var(--vscode-button-secondaryHoverBackground); }
-    
-    .card {
-      background: var(--vscode-editor-inactiveSelectionBackground);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    
-    .card-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--vscode-descriptionForeground);
-      margin-bottom: 12px;
-    }
-    
-    .today-time {
-      font-size: 36px;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    
-    .progress-bar {
-      height: 8px;
-      background: var(--vscode-progressBar-background);
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 8px;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: var(--vscode-charts-blue);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-    
-    .progress-label {
-      font-size: 12px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .sessions-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 16px;
-    }
-    
-    .sessions-label {
-      font-size: 13px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .tomato {
-      font-size: 16px;
-    }
-    
-    .tomato.empty {
-      opacity: 0.3;
-    }
-    
-    .divider {
-      height: 1px;
-      background: var(--vscode-widget-border);
-      margin: 12px 0;
-    }
-    
-    .languages-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    
-    .language-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .language-name {
-      width: 100px;
-      font-size: 13px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .language-bar {
-      flex: 1;
-      height: 12px;
-      background: var(--vscode-progressBar-background);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    
-    .language-bar-fill {
-      height: 100%;
-      background: var(--vscode-charts-purple);
-      border-radius: 3px;
-    }
-    
-    .language-time {
-      width: 60px;
-      font-size: 12px;
-      text-align: right;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .week-chart {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      height: 80px;
-      padding-top: 10px;
-    }
-    
-    .day-bar {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex: 1;
-      gap: 4px;
-    }
-    
-    .bar {
-      width: 24px;
-      background: var(--vscode-charts-blue);
-      border-radius: 3px 3px 0 0;
-      min-height: 4px;
-      transition: height 0.3s ease;
-    }
-    
-    .bar.today {
-      background: var(--vscode-charts-green);
-    }
-    
-    .day-label {
-      font-size: 10px;
-      color: var(--vscode-descriptionForeground);
-      text-transform: uppercase;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-    
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    
-    .stat-value {
-      font-size: 24px;
-      font-weight: 600;
-      line-height: 1;
-    }
-    
-    .stat-label {
-      font-size: 12px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 24px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .empty-state-icon {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
+    ${panelStyles}
   </style>
 </head>
 <body>
@@ -411,22 +178,15 @@ export class ActivityPanelProvider implements vscode.Disposable {
       
       const { today, stats, topLanguages, dailyGoalMinutes } = msg;
       
-      // Update today's time
       document.getElementById('todayTime').textContent = formatHoursMinutes(today.totalMinutes);
       document.getElementById('progressFill').style.width = stats.todayGoalProgress + '%';
       document.getElementById('progressLabel').textContent = 
         'Goal: ' + formatMinutes(dailyGoalMinutes) + ' (' + stats.todayGoalProgress + '%)';
       
-      // Update tomatoes
       document.getElementById('tomatoDisplay').innerHTML = getTomatoDisplay(today.focusSessions, 6);
-      
-      // Update languages
       document.getElementById('languagesList').innerHTML = getLanguagesHtml(topLanguages, today.totalMinutes);
-      
-      // Update week chart
       document.getElementById('weekChart').innerHTML = getWeekChartHtml(stats.weeklyData);
       
-      // Update stats - use innerHTML to preserve icons
       const flameIcon = '${icon('flame', 24).replace(/'/g, "\\'")}';
       const trophyIcon = '${icon('trophy', 24).replace(/'/g, "\\'")}';
       const targetIcon = '${icon('target', 24).replace(/'/g, "\\'")}';
@@ -501,9 +261,6 @@ export class ActivityPanelProvider implements vscode.Disposable {
 </html>`;
   }
 
-  /**
-   * Format minutes as hours and minutes
-   */
   private formatHoursMinutes(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = Math.round(minutes % 60);
@@ -513,9 +270,6 @@ export class ActivityPanelProvider implements vscode.Disposable {
     return `${h}h ${m}m`;
   }
 
-  /**
-   * Get tomato display for focus sessions
-   */
   private getTomatoDisplay(sessions: number, max: number): string {
     let html = '';
     for (let i = 0; i < max; i++) {
@@ -525,9 +279,6 @@ export class ActivityPanelProvider implements vscode.Disposable {
     return html;
   }
 
-  /**
-   * Get languages breakdown HTML
-   */
   private getLanguagesHtml(
     languages: Array<{ language: string; minutes: number }>,
     totalMinutes: number
@@ -553,9 +304,6 @@ export class ActivityPanelProvider implements vscode.Disposable {
     return html;
   }
 
-  /**
-   * Get weekly chart HTML
-   */
   private getWeekChartHtml(weeklyData: DailyActivity[]): string {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const maxMinutes = Math.max(...weeklyData.map((d) => d.totalMinutes), 60);
@@ -576,13 +324,7 @@ export class ActivityPanelProvider implements vscode.Disposable {
     return html;
   }
 
-  /**
-   * Clean up resources
-   */
-  dispose(): void {
-    if (this.panel) {
-      this.panel.dispose();
-    }
-    this.disposables.forEach((d) => d.dispose());
+  protected handleMessage(message: any): void {
+    // All messages handled through registered handlers
   }
 }

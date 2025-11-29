@@ -3,6 +3,7 @@ import { CLICommand, getDisplayName } from '../models/command';
 import { CommandTreeItem, TreeItemType } from '../models/types';
 import { StorageService } from '../services/storage';
 import { COMMAND_SOURCE_THEME_ICONS, CATEGORY_THEME_ICONS } from '../utils/icons';
+import { formatRelativeTime } from '../utils/dateUtils';
 
 /**
  * Tree data provider for the commands sidebar
@@ -223,18 +224,16 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
   }
 
   private createCommandItem(cmd: CLICommand): CommandTreeItem {
-    const displayLabel = cmd.isFavorite
-      ? `$(star-full) ${getDisplayName(cmd)}`
-      : getDisplayName(cmd);
-
     const item: CommandTreeItem = {
-      label: displayLabel,
+      label: getDisplayName(cmd),
       tooltip: new vscode.MarkdownString(this.formatTooltip(cmd)),
       description: this.getCommandDescription(cmd),
       itemType: 'command',
       commandData: cmd,
       collapsibleState: vscode.TreeItemCollapsibleState.None,
-      iconPath: new vscode.ThemeIcon(this.getCommandIcon(cmd)),
+      iconPath: new vscode.ThemeIcon(
+        cmd.isFavorite ? CATEGORY_THEME_ICONS['favorites'] : this.getCommandIcon(cmd)
+      ),
       contextValue: cmd.isFavorite ? 'commandFavorite' : 'command',
     };
 
@@ -254,7 +253,7 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
 
     if (cmd.lastUsedAt) {
       const lastUsed = new Date(cmd.lastUsedAt);
-      lines.push(`Last used: ${this.formatRelativeTime(lastUsed)}`);
+      lines.push(`Last used: ${formatRelativeTime(lastUsed)}`);
     }
 
     return lines.join('\n');
@@ -361,40 +360,6 @@ export class CommandsTreeProvider implements vscode.TreeDataProvider<CommandTree
     }
 
     return 'terminal';
-  }
-
-  private formatRelativeTime(date: Date): string {
-    const now = new Date();
-    const diff = now.getTime() - date.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (days === 0) {
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      if (hours === 0) {
-        const minutes = Math.floor(diff / (1000 * 60));
-        if (minutes === 0) {
-          return 'just now';
-        }
-        return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-      }
-      return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-    }
-
-    if (days === 1) {
-      return 'yesterday';
-    }
-
-    if (days < 7) {
-      return `${days} days ago`;
-    }
-
-    if (days < 30) {
-      const weeks = Math.floor(days / 7);
-      return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
-    }
-
-    const months = Math.floor(days / 30);
-    return `${months} month${months === 1 ? '' : 's'} ago`;
   }
 
   dispose(): void {

@@ -1,0 +1,232 @@
+/**
+ * Achievement Panel Styles
+ * Displays achievements and progress in a webview
+ */
+
+body {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-size: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stats-badge {
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+/* Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: var(--vscode-editor-inactiveSelectionBackground);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.summary-icon {
+  margin-bottom: 8px;
+  color: var(--vscode-textLink-foreground);
+}
+
+.summary-icon svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* Categories */
+.category {
+  margin-bottom: 24px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-count {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.category-icon {
+  font-size: 16px;
+}
+
+/* Achievement List */
+.achievement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--vscode-editor-inactiveSelectionBackground);
+  border-radius: 8px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.achievement-item.locked {
+  opacity: 0.6;
+}
+
+.achievement-item.unlocked {
+  border-left: 3px solid var(--vscode-charts-green);
+}
+
+.achievement-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+}
+
+.achievement-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-name {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.achievement-xp {
+  font-size: 10px;
+  color: var(--vscode-charts-yellow);
+  font-weight: 500;
+}
+
+.achievement-description {
+  font-size: 12px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.achievement-status {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.status-unlocked {
+  color: var(--vscode-charts-green);
+  font-size: 12px;
+}
+
+.status-date {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* Progress Bar */
+.progress-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--vscode-progressBar-background);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--vscode-charts-blue);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 10px;
+  color: var(--vscode-descriptionForeground);
+}
+
+/* Badges */
+.secret-badge {
+  font-size: 10px;
+  background: var(--vscode-charts-purple);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Recent Unlocks */
+.recent-unlocks {
+  margin-bottom: 24px;
+}
+
+.recent-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vscode-descriptionForeground);
+  margin-bottom: 8px;
+}
+
+.recent-list {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.recent-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+}

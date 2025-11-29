@@ -4,6 +4,8 @@
  */
 
 import * as vscode from 'vscode';
+import { BaseWebviewPanel } from '../ui/webview';
+import { StylesProvider } from '../ui/webview/StylesProvider';
 import { NotesService } from '../services/notes';
 import { CodeNote, NOTE_COLORS, NoteColor, getLanguageInfo } from '../models/note';
 import { icon, getLucideStyles } from '../utils/lucide';
@@ -11,105 +13,62 @@ import { icon, getLucideStyles } from '../utils/lucide';
 /**
  * Notes Panel Webview Provider
  */
-export class NotesPanelProvider implements vscode.Disposable {
+export class NotesPanelProvider extends BaseWebviewPanel {
   public static readonly viewType = 'cmdify.notes';
 
-  private panel: vscode.WebviewPanel | undefined;
-  private disposables: vscode.Disposable[] = [];
-
   constructor(
-    private readonly extensionUri: vscode.Uri,
+    context: vscode.ExtensionContext,
     private readonly notesService: NotesService
   ) {
-    // Update panel when notes change
-    this.disposables.push(notesService.onNotesChanged(() => this.updatePanel()));
-  }
+    super(context, {
+      viewType: NotesPanelProvider.viewType,
+      title: 'Code Notes',
+      showOptions: vscode.ViewColumn.Two,
+    });
 
-  /**
-   * Show the notes panel
-   */
-  show(): void {
-    if (this.panel) {
-      this.panel.reveal();
-      return;
-    }
-
-    this.panel = vscode.window.createWebviewPanel(
-      NotesPanelProvider.viewType,
-      'Code Notes',
-      vscode.ViewColumn.Two,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [this.extensionUri],
+    // Register message handlers
+    this.registerMessageHandler('goToNote', async (data) => {
+      if (!data.noteId) {
+        vscode.window.showWarningMessage('No note ID provided');
+        return;
       }
-    );
+      const note = this.notesService.getNote(data.noteId);
+      if (note) {
+        await this.notesService.goToNote(note);
+      } else {
+        vscode.window.showWarningMessage('Note not found');
+      }
+    });
 
-    this.panel.webview.html = this.getHtmlContent();
+    this.registerMessageHandler('deleteNote', async (data) => {
+      const confirmDelete = await vscode.window.showWarningMessage(
+        'Delete this note?',
+        { modal: true },
+        'Delete'
+      );
+      if (confirmDelete === 'Delete') {
+        await this.notesService.deleteNote(data.noteId);
+      }
+    });
 
-    this.panel.webview.onDidReceiveMessage(
-      async (message) => {
-        switch (message.command) {
-          case 'goToNote':
-            if (!message.noteId) {
-              vscode.window.showWarningMessage('No note ID provided');
-              return;
-            }
-            const note = this.notesService.getNote(message.noteId);
-            if (note) {
-              await this.notesService.goToNote(note);
-            } else {
-              vscode.window.showWarningMessage('Note not found');
-            }
-            break;
-          case 'deleteNote':
-            const confirmDelete = await vscode.window.showWarningMessage(
-              'Delete this note?',
-              { modal: true },
-              'Delete'
-            );
-            if (confirmDelete === 'Delete') {
-              await this.notesService.deleteNote(message.noteId);
-            }
-            break;
-          case 'editNote':
-            const noteToEdit = this.notesService.getNote(message.noteId);
-            if (noteToEdit) {
-              await this.showEditNoteDialog(noteToEdit);
-            }
-            break;
-        }
-      },
-      undefined,
-      this.disposables
-    );
+    this.registerMessageHandler('editNote', async (data) => {
+      const noteToEdit = this.notesService.getNote(data.noteId);
+      if (noteToEdit) {
+        await this.showEditNoteDialog(noteToEdit);
+      }
+    });
 
-    this.panel.onDidDispose(
-      () => {
-        this.panel = undefined;
-      },
-      undefined,
-      this.disposables
-    );
+    // Update panel when notes change
+    this.disposables.push(notesService.onNotesChanged(() => this.refresh()));
   }
 
-  /**
-   * Update the panel content
-   */
-  private updatePanel(): void {
-    if (this.panel) {
-      // Re-generate the HTML content to refresh the view
-      this.panel.webview.html = this.getHtmlContent();
-    }
+  show(): void {
+    this.getPanel();
   }
 
-  /**
-   * Get the HTML content for the webview
-   */
-  private getHtmlContent(): string {
+  protected getHtmlContent(): string {
     const notes = this.notesService.getAllNotes();
 
-    // Group notes by file
     const notesByFile = new Map<string, CodeNote[]>();
     for (const note of notes) {
       if (!notesByFile.has(note.filePath)) {
@@ -135,6 +94,9 @@ export class NotesPanelProvider implements vscode.Disposable {
       )
       .join('');
 
+    // Load external CSS
+    const panelStyles = StylesProvider.getPanelStyles('notes', this.context.extensionPath);
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,189 +116,7 @@ export class NotesPanelProvider implements vscode.Disposable {
       line-height: 1.5;
     }
     
-    .header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--vscode-widget-border);
-    }
-    
-    .header h1 {
-      font-size: 20px;
-      font-weight: 600;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .total-count {
-      font-size: 12px;
-      background: var(--vscode-badge-background);
-      color: var(--vscode-badge-foreground);
-      padding: 2px 8px;
-      border-radius: 10px;
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .empty-state svg {
-      margin-bottom: 16px;
-      opacity: 0.5;
-    }
-    
-    .empty-state h2 {
-      font-size: 16px;
-      margin-bottom: 8px;
-    }
-    
-    .empty-state p {
-      font-size: 13px;
-    }
-    
-    .file-group {
-      margin-bottom: 20px;
-    }
-    
-    .file-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      background: var(--vscode-editor-inactiveSelectionBackground);
-      border-radius: 6px 6px 0 0;
-      font-weight: 500;
-      font-size: 12px;
-    }
-    
-    .file-path {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .note-count {
-      background: var(--vscode-badge-background);
-      color: var(--vscode-badge-foreground);
-      padding: 1px 6px;
-      border-radius: 8px;
-      font-size: 11px;
-    }
-    
-    .notes-list {
-      border: 1px solid var(--vscode-widget-border);
-      border-top: none;
-      border-radius: 0 0 6px 6px;
-    }
-    
-    .note-item {
-      padding: 12px;
-      border-bottom: 1px solid var(--vscode-widget-border);
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    
-    .note-item:last-child {
-      border-bottom: none;
-    }
-    
-    .note-item:hover {
-      background: var(--vscode-list-hoverBackground);
-    }
-    
-    .note-header {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    
-    .note-color {
-      width: 12px;
-      height: 12px;
-      border-radius: 3px;
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-    
-    .note-content {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .note-text {
-      font-size: 13px;
-      margin-bottom: 4px;
-      word-wrap: break-word;
-    }
-    
-    .note-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--vscode-descriptionForeground);
-    }
-    
-    .note-location {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    
-    .code-preview {
-      background: var(--vscode-textCodeBlock-background);
-      border-radius: 4px;
-      padding: 8px;
-      margin-top: 8px;
-      font-family: var(--vscode-editor-font-family);
-      font-size: 12px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-all;
-      max-height: 80px;
-      overflow-y: auto;
-    }
-    
-    .note-actions {
-      display: flex;
-      gap: 4px;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-    
-    .note-item:hover .note-actions {
-      opacity: 1;
-    }
-    
-    .action-btn {
-      border: none;
-      background: var(--vscode-button-secondaryBackground);
-      color: var(--vscode-button-secondaryForeground);
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .action-btn:hover {
-      background: var(--vscode-button-secondaryHoverBackground);
-    }
-    
-    .action-btn.danger:hover {
-      background: var(--vscode-errorBackground);
-      color: var(--vscode-errorForeground);
-    }
+    ${panelStyles}
   </style>
 </head>
 <body>
@@ -384,22 +164,11 @@ export class NotesPanelProvider implements vscode.Disposable {
         vscode.postMessage({ command: 'goToNote', noteId });
       }
     });
-    
-    window.addEventListener('message', (e) => {
-      const msg = e.data;
-      if (msg.type === 'update') {
-        // Refresh the page to update content
-        location.reload();
-      }
-    });
   </script>
 </body>
 </html>`;
   }
 
-  /**
-   * Get HTML for a single note item
-   */
   private getNoteHtml(note: CodeNote): string {
     const color = NOTE_COLORS[note.color || 'yellow'];
     const lineInfo =
@@ -444,9 +213,6 @@ export class NotesPanelProvider implements vscode.Disposable {
     `;
   }
 
-  /**
-   * Show edit note dialog with multiple fields
-   */
   private async showEditNoteDialog(note: CodeNote): Promise<void> {
     const editOptions = [
       { label: '$(edit) Edit Note Text', value: 'text' },
@@ -511,9 +277,6 @@ export class NotesPanelProvider implements vscode.Disposable {
     }
   }
 
-  /**
-   * Truncate code preview
-   */
   private truncateCode(code: string): string {
     const maxLength = 200;
     if (code.length <= maxLength) {
@@ -522,9 +285,6 @@ export class NotesPanelProvider implements vscode.Disposable {
     return code.substring(0, maxLength) + '...';
   }
 
-  /**
-   * Escape HTML special characters
-   */
   private escapeHtml(text: string): string {
     return text
       .replace(/&/g, '&amp;')
@@ -534,8 +294,7 @@ export class NotesPanelProvider implements vscode.Disposable {
       .replace(/'/g, '&#039;');
   }
 
-  dispose(): void {
-    this.panel?.dispose();
-    this.disposables.forEach((d) => d.dispose());
+  protected handleMessage(message: any): void {
+    // All messages handled through registered handlers
   }
 }

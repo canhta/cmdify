@@ -1,0 +1,218 @@
+/**
+ * Companion Panel Styles
+ * Focus timer UI with animated SVG companions
+ */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.companion-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.level-badge {
+  font-size: 10px;
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.message-bubble {
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+  padding: 8px 12px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+  display: none;
+}
+
+.message-bubble.visible {
+  display: block;
+}
+
+.xp-bar {
+  height: 4px;
+  background: var(--vscode-progressBar-background);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.xp-fill {
+  height: 100%;
+  background: var(--vscode-charts-purple);
+  transition: width 0.3s ease;
+}
+
+.xp-label {
+  font-size: 9px;
+  color: var(--vscode-descriptionForeground);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.timer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.companion {
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.companion:hover {
+  transform: scale(1.08);
+}
+
+.timer-info {
+  flex: 1;
+}
+
+.timer-display {
+  font-size: 32px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.timer-display.idle {
+  opacity: 0.4;
+}
+
+.status {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.status.focusing {
+  color: var(--vscode-charts-orange);
+}
+
+.status.break {
+  color: var(--vscode-charts-green);
+}
+
+.controls {
+  display: flex;
+  gap: 4px;
+}
+
+.btn {
+  border: none;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.btn:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.btn.primary {
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  width: auto;
+  padding: 0 12px;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+
+.divider {
+  height: 1px;
+  background: var(--vscode-widget-border);
+  margin: 12px 0;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.stats-label {
+  color: var(--vscode-descriptionForeground);
+}
+
+.stats-value {
+  font-weight: 500;
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--vscode-widget-border);
+}
+
+.dot.done {
+  background: var(--vscode-charts-green);
+}
+
+.dot.active {
+  background: var(--vscode-charts-yellow);
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -115,21 +115,18 @@ export class TodoSyncService implements vscode.Disposable {
   }
 
   /**
-   * Add a due date to a TODO comment in code
+   * Helper to apply a line edit and save
    */
-  async addReminder(todo: DetectedTodo, dueDate: Date): Promise<boolean> {
+  private async applyLineEdit(
+    todo: DetectedTodo,
+    editFn: (lineText: string) => string,
+    errorContext: string
+  ): Promise<boolean> {
     try {
       const document = await vscode.workspace.openTextDocument(todo.filePath);
       const line = document.lineAt(todo.lineNumber);
-      const lineText = line.text;
+      const newText = editFn(line.text);
 
-      // Format date
-      const dateStr = formatDateString(dueDate);
-
-      // Update line with new metadata
-      const newText = this.updateLineMetadata(lineText, dateStr, undefined);
-
-      // Apply edit
       const edit = new vscode.WorkspaceEdit();
       edit.replace(document.uri, line.range, newText);
       const success = await vscode.workspace.applyEdit(edit);
@@ -141,48 +138,44 @@ export class TodoSyncService implements vscode.Disposable {
 
       return success;
     } catch (error) {
-      console.error('Error adding reminder to TODO:', error);
-      vscode.window.showErrorMessage(`Failed to add reminder: ${error}`);
+      console.error(`Error ${errorContext}:`, error);
       return false;
     }
+  }
+
+  /**
+   * Add a due date to a TODO comment in code
+   */
+  async addReminder(todo: DetectedTodo, dueDate: Date): Promise<boolean> {
+    const dateStr = formatDateString(dueDate);
+    const result = await this.applyLineEdit(
+      todo,
+      (lineText) => this.updateLineMetadata(lineText, dateStr, undefined),
+      'adding reminder to TODO'
+    );
+    if (!result) {
+      vscode.window.showErrorMessage('Failed to add reminder');
+    }
+    return result;
   }
 
   /**
    * Remove the due date from a TODO comment
    */
   async removeReminder(todo: DetectedTodo): Promise<boolean> {
-    try {
-      const document = await vscode.workspace.openTextDocument(todo.filePath);
-      const line = document.lineAt(todo.lineNumber);
-      const lineText = line.text;
-      const patterns = this.getPatterns();
-
-      // Get existing metadata
-      const existing = this.parseMetadata(lineText);
-
-      // Remove existing metadata and rebuild without due date
-      let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
-
-      // Re-add assignee if it existed
-      if (existing.assignee) {
-        cleanLine += this.buildMetadataString(undefined, existing.assignee);
-      }
-
-      // Apply edit
-      const edit = new vscode.WorkspaceEdit();
-      edit.replace(document.uri, line.range, cleanLine);
-      const success = await vscode.workspace.applyEdit(edit);
-
-      if (success) {
-        await document.save();
-        await this.scanner.scanFile(document.uri);
-      }
-
-      return success;
-    } catch (error) {
-      console.error('Error removing reminder from TODO:', error);
-      return false;
-    }
+    const patterns = this.getPatterns();
+    return this.applyLineEdit(
+      todo,
+      (lineText) => {
+        const existing = this.parseMetadata(lineText);
+        let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
+        if (existing.assignee) {
+          cleanLine += this.buildMetadataString(undefined, existing.assignee);
+        }
+        return cleanLine;
+      },
+      'removing reminder from TODO'
+    );
   }
 
   /**
@@ -283,97 +276,50 @@ export class TodoSyncService implements vscode.Disposable {
    * Add an assignee to a TODO comment in code
    */
   async addAssignee(todo: DetectedTodo, assignee: string): Promise<boolean> {
-    try {
-      const document = await vscode.workspace.openTextDocument(todo.filePath);
-      const line = document.lineAt(todo.lineNumber);
-      const lineText = line.text;
-
-      // Update line with new assignee (passing empty string for dueDate to preserve existing)
-      const newText = this.updateLineMetadata(lineText, undefined, assignee);
-
-      // Apply edit
-      const edit = new vscode.WorkspaceEdit();
-      edit.replace(document.uri, line.range, newText);
-      const success = await vscode.workspace.applyEdit(edit);
-
-      if (success) {
-        await document.save();
-        await this.scanner.scanFile(document.uri);
-      }
-
-      return success;
-    } catch (error) {
-      console.error('Error adding assignee to TODO:', error);
-      vscode.window.showErrorMessage(`Failed to add assignee: ${error}`);
-      return false;
+    const result = await this.applyLineEdit(
+      todo,
+      (lineText) => this.updateLineMetadata(lineText, undefined, assignee),
+      'adding assignee to TODO'
+    );
+    if (!result) {
+      vscode.window.showErrorMessage('Failed to add assignee');
     }
+    return result;
   }
 
   /**
    * Remove the assignee from a TODO comment
    */
   async removeAssignee(todo: DetectedTodo): Promise<boolean> {
-    try {
-      const document = await vscode.workspace.openTextDocument(todo.filePath);
-      const line = document.lineAt(todo.lineNumber);
-      const lineText = line.text;
-      const patterns = this.getPatterns();
-
-      // Get existing metadata
-      const existing = this.parseMetadata(lineText);
-
-      // Remove existing metadata and rebuild without assignee
-      let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
-
-      // Re-add due date if it existed
-      if (existing.dueDate) {
-        cleanLine += this.buildMetadataString(existing.dueDate, undefined);
-      }
-
-      // Apply edit
-      const edit = new vscode.WorkspaceEdit();
-      edit.replace(document.uri, line.range, cleanLine);
-      const success = await vscode.workspace.applyEdit(edit);
-
-      if (success) {
-        await document.save();
-        await this.scanner.scanFile(document.uri);
-      }
-
-      return success;
-    } catch (error) {
-      console.error('Error removing assignee from TODO:', error);
-      return false;
-    }
+    const patterns = this.getPatterns();
+    return this.applyLineEdit(
+      todo,
+      (lineText) => {
+        const existing = this.parseMetadata(lineText);
+        let cleanLine = lineText.replace(patterns.metadataPattern, '').trimEnd();
+        if (existing.dueDate) {
+          cleanLine += this.buildMetadataString(existing.dueDate, undefined);
+        }
+        return cleanLine;
+      },
+      'removing assignee from TODO'
+    );
   }
 
   /**
    * Update both due date and assignee at once
    */
   async updateMetadata(todo: DetectedTodo, dueDate?: Date, assignee?: string): Promise<boolean> {
-    try {
-      const document = await vscode.workspace.openTextDocument(todo.filePath);
-      const line = document.lineAt(todo.lineNumber);
-      const lineText = line.text;
-
-      const dateStr = dueDate ? formatDateString(dueDate) : undefined;
-      const newText = this.updateLineMetadata(lineText, dateStr, assignee);
-
-      const edit = new vscode.WorkspaceEdit();
-      edit.replace(document.uri, line.range, newText);
-      const success = await vscode.workspace.applyEdit(edit);
-
-      if (success) {
-        await document.save();
-        await this.scanner.scanFile(document.uri);
-      }
-
-      return success;
-    } catch (error) {
-      console.error('Error updating TODO metadata:', error);
-      vscode.window.showErrorMessage(`Failed to update TODO: ${error}`);
-      return false;
+    const dateStr = dueDate ? formatDateString(dueDate) : undefined;
+    const result = await this.applyLineEdit(
+      todo,
+      (lineText) => this.updateLineMetadata(lineText, dateStr, assignee),
+      'updating TODO metadata'
+    );
+    if (!result) {
+      vscode.window.showErrorMessage('Failed to update TODO');
     }
+    return result;
   }
 
   dispose(): void {
