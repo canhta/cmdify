@@ -61,6 +61,7 @@ export class NoteTreeItem extends vscode.TreeItem {
   private setupFileItem(filePath: string): void {
     this.iconPath = new vscode.ThemeIcon('file-code');
     this.tooltip = filePath;
+    this.contextValue = 'noteFile';
   }
 }
 

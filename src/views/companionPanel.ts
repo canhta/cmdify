@@ -100,6 +100,7 @@ export class CompanionPanelProvider extends BaseWebviewViewProvider {
     const selected = await vscode.window.showQuickPick(items, {
       title: 'Choose Companion',
       placeHolder: 'Select your focus companion',
+      ignoreFocusOut: true,
     });
 
     if (selected) {

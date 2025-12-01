@@ -194,6 +194,42 @@ export class NotesService implements vscode.Disposable {
   }
 
   /**
+   * Delete all notes
+   */
+  async deleteAllNotes(): Promise<number> {
+    const count = this.notes.size;
+    this.notes.clear();
+    await this.save();
+    this.updateDecorations();
+    return count;
+  }
+
+  /**
+   * Delete all notes for a specific file
+   */
+  async deleteNotesForFile(filePath: string): Promise<number> {
+    const relativePath = vscode.workspace.asRelativePath(filePath);
+    const idsToDelete: string[] = [];
+
+    for (const [id, note] of this.notes) {
+      if (note.filePath === relativePath) {
+        idsToDelete.push(id);
+      }
+    }
+
+    for (const id of idsToDelete) {
+      this.notes.delete(id);
+    }
+
+    if (idsToDelete.length > 0) {
+      await this.save();
+      this.updateDecorations();
+    }
+
+    return idsToDelete.length;
+  }
+
+  /**
    * Get all notes
    */
   getAllNotes(): CodeNote[] {

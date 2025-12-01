@@ -132,6 +132,7 @@ export class FileSync {
       {
         placeHolder: 'How would you like to import?',
         title: 'Import Commands',
+        ignoreFocusOut: true,
       }
     );
 

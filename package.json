@@ -2,7 +2,7 @@
   "name": "cmdify",
   "displayName": "Cmdify",
   "description": "Developer productivity toolkit with AI command generation, focus timer, TODO scanner, and achievements.",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "publisher": "canhta",
   "author": {
     "name": "Canh Ta",
@@ -189,6 +189,12 @@
         "category": "Cmdify"
       },
       {
+        "command": "cmdify.deleteAll",
+        "title": "Delete All Commands",
+        "icon": "$(trash)",
+        "category": "Cmdify"
+      },
+      {
         "command": "cmdify.runFromTree",
         "title": "Run",
         "icon": "$(play)"
@@ -260,7 +266,7 @@
       {
         "command": "cmdify.todos.scan",
         "title": "Scan Workspace for TODOs",
-        "icon": "$(search)",
+        "icon": "$(refresh)",
         "category": "Cmdify TODOs"
       },
       {
@@ -303,6 +309,18 @@
         "command": "cmdify.todo.delete",
         "title": "Delete TODO",
         "icon": "$(trash)",
+        "category": "Cmdify TODOs"
+      },
+      {
+        "command": "cmdify.todos.completeAll",
+        "title": "Complete All TODOs",
+        "icon": "$(check-all)",
+        "category": "Cmdify TODOs"
+      },
+      {
+        "command": "cmdify.todos.completeForFile",
+        "title": "Complete TODOs in File",
+        "icon": "$(file-code)",
         "category": "Cmdify TODOs"
       },
       {
@@ -368,7 +386,7 @@
       {
         "command": "cmdify.notes.add",
         "title": "Add Note to Selection",
-        "icon": "$(note)",
+        "icon": "$(add)",
         "category": "Cmdify Notes"
       },
       {
@@ -393,6 +411,18 @@
         "command": "cmdify.notes.delete",
         "title": "Delete Note",
         "icon": "$(trash)",
+        "category": "Cmdify Notes"
+      },
+      {
+        "command": "cmdify.notes.deleteAll",
+        "title": "Delete All Notes",
+        "icon": "$(trash)",
+        "category": "Cmdify Notes"
+      },
+      {
+        "command": "cmdify.notes.deleteForFile",
+        "title": "Delete Notes for File",
+        "icon": "$(file-code)",
         "category": "Cmdify Notes"
       }
     ],
@@ -428,39 +458,44 @@
           "group": "navigation@2"
         },
         {
-          "command": "cmdify.search",
+          "command": "cmdify.deleteAll",
           "when": "view == cmdify.commands",
-          "group": "1_actions@1"
-        },
-        {
-          "command": "cmdify.export",
-          "when": "view == cmdify.commands",
-          "group": "2_data@1"
-        },
-        {
-          "command": "cmdify.import",
-          "when": "view == cmdify.commands",
-          "group": "2_data@2"
-        },
-        {
-          "command": "cmdify.sync",
-          "when": "view == cmdify.commands",
-          "group": "2_data@3"
-        },
-        {
-          "command": "cmdify.todos.scan",
-          "when": "view == cmdify.todos",
-          "group": "navigation@1"
+          "group": "1_bulk@1"
         },
         {
           "command": "cmdify.reminder.add",
           "when": "view == cmdify.todos",
+          "group": "navigation@1"
+        },
+        {
+          "command": "cmdify.todos.scan",
+          "when": "view == cmdify.todos",
           "group": "navigation@2"
+        },
+        {
+          "command": "cmdify.todos.completeForFile",
+          "when": "view == cmdify.todos",
+          "group": "1_bulk@2"
+        },
+        {
+          "command": "cmdify.todos.completeAll",
+          "when": "view == cmdify.todos",
+          "group": "1_bulk@3"
         },
         {
           "command": "cmdify.notes.add",
           "when": "view == cmdify.notes",
           "group": "navigation@1"
+        },
+        {
+          "command": "cmdify.notes.deleteForFile",
+          "when": "view == cmdify.notes",
+          "group": "1_bulk@1"
+        },
+        {
+          "command": "cmdify.notes.deleteAll",
+          "when": "view == cmdify.notes",
+          "group": "1_bulk@2"
         }
       ],
       "view/item/context": [
@@ -553,6 +588,11 @@
           "command": "cmdify.notes.delete",
           "when": "view == cmdify.notes && viewItem == note",
           "group": "inline@3"
+        },
+        {
+          "command": "cmdify.notes.deleteForFile",
+          "when": "view == cmdify.notes && viewItem == noteFile",
+          "group": "inline@1"
         }
       ],
       "editor/context": [

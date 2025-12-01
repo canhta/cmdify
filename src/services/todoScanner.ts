@@ -533,6 +533,71 @@ export class TodoScannerService implements vscode.Disposable {
   }
 
   /**
+   * Mark all open TODOs as completed
+   */
+  async markAllComplete(): Promise<number> {
+    const openTodos = this.getTodos();
+    let count = 0;
+
+    for (const todo of openTodos) {
+      if (todo.status === 'open') {
+        todo.status = 'completed';
+        todo.completedAt = new Date();
+
+        const meta = this.storedMeta.get(todo.id) || {
+          id: todo.id,
+          status: 'open',
+          createdAt: new Date().toISOString(),
+        };
+        meta.status = 'completed';
+        meta.completedAt = new Date().toISOString();
+        this.storedMeta.set(todo.id, meta);
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      await this.saveStoredMeta();
+      this._onTodosChanged.fire(this.getTodos());
+      this._onTodoCompleted.fire(this.getCompletedTodos().length);
+    }
+
+    return count;
+  }
+
+  /**
+   * Mark all TODOs in a specific file as completed
+   */
+  async markFileComplete(filePath: string): Promise<number> {
+    let count = 0;
+
+    for (const [id, todo] of this.todos) {
+      if (todo.filePath === filePath && todo.status === 'open') {
+        todo.status = 'completed';
+        todo.completedAt = new Date();
+
+        const meta = this.storedMeta.get(id) || {
+          id,
+          status: 'open',
+          createdAt: new Date().toISOString(),
+        };
+        meta.status = 'completed';
+        meta.completedAt = new Date().toISOString();
+        this.storedMeta.set(id, meta);
+        count++;
+      }
+    }
+
+    if (count > 0) {
+      await this.saveStoredMeta();
+      this._onTodosChanged.fire(this.getTodos());
+      this._onTodoCompleted.fire(this.getCompletedTodos().length);
+    }
+
+    return count;
+  }
+
+  /**
    * Mark a TODO as open
    */
   async markOpen(id: string): Promise<void> {

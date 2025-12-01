@@ -51,6 +51,7 @@ export function createFocusCommands(deps: FocusCommandDependencies): CommandGrou
         const selected = await vscode.window.showQuickPick(items, {
           placeHolder: 'Select session type',
           title: 'Start Focus Session',
+          ignoreFocusOut: true,
         });
 
         if (!selected) {

@@ -57,6 +57,7 @@ export async function promptForVariables(
       placeHolder: variable.defaultValue || variable.name,
       value: variable.defaultValue,
       title: `Variable: ${variable.name}`,
+      ignoreFocusOut: true,
     });
 
     if (value === undefined) {
@@ -98,6 +99,7 @@ export async function promptForVariablesWithPreview(
       value: variable.defaultValue,
       title: `Variable ${i + 1}/${variables.length}: ${variable.name}`,
       valueSelection: variable.defaultValue ? [0, variable.defaultValue.length] : undefined,
+      ignoreFocusOut: true,
       validateInput: () => {
         // Show preview in validation (using null to not show error)
         return null;
@@ -129,6 +131,7 @@ export async function promptForVariablesWithPreview(
     {
       title: 'Command Preview',
       placeHolder: finalCommand,
+      ignoreFocusOut: true,
     }
   );
 

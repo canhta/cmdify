@@ -223,6 +223,7 @@ export class NotesPanelProvider extends BaseWebviewPanel {
     const selection = await vscode.window.showQuickPick(editOptions, {
       placeHolder: 'What would you like to edit?',
       title: 'Edit Note',
+      ignoreFocusOut: true,
     });
 
     if (!selection) {
@@ -235,6 +236,7 @@ export class NotesPanelProvider extends BaseWebviewPanel {
           prompt: 'Edit note text',
           value: note.note,
           placeHolder: 'Enter your note',
+          ignoreFocusOut: true,
         });
         if (newText !== undefined) {
           await this.notesService.updateNote(note.id, { note: newText });
@@ -251,6 +253,7 @@ export class NotesPanelProvider extends BaseWebviewPanel {
         const colorSelection = await vscode.window.showQuickPick(colorOptions, {
           placeHolder: 'Select a color',
           title: 'Change Note Color',
+          ignoreFocusOut: true,
         });
 
         if (colorSelection) {
@@ -264,6 +267,7 @@ export class NotesPanelProvider extends BaseWebviewPanel {
           prompt: 'Edit tags (comma-separated)',
           value: currentTags,
           placeHolder: 'e.g., bug, important, review',
+          ignoreFocusOut: true,
         });
 
         if (newTags !== undefined) {

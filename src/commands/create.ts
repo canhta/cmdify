@@ -16,6 +16,7 @@ export async function handleCreate(
     prompt: 'What do you want to do?',
     placeHolder: 'Describe a command or type the actual command...',
     title: 'Create Command',
+    ignoreFocusOut: true,
   });
 
   if (!input) {
@@ -83,6 +84,7 @@ async function handleManualCreate(
     prompt: 'Add a description (optional)',
     placeHolder: 'e.g., "Delete merged branches"',
     title: 'Command Description',
+    ignoreFocusOut: true,
   });
 
   // Ask for tags
@@ -94,6 +96,7 @@ async function handleManualCreate(
         ? `e.g., ${existingTags.slice(0, 3).join(', ')}`
         : 'e.g., git, cleanup',
     title: 'Tags',
+    ignoreFocusOut: true,
   });
 
   const tags = tagsInput
@@ -239,6 +242,7 @@ async function showAIPreview(
     title: '$(sparkle) AI Generated Command',
     placeHolder: response.command,
     matchOnDescription: true,
+    ignoreFocusOut: true,
   });
 
   // Also show the explanation in an information message for better visibility
@@ -263,6 +267,7 @@ async function showAIPreview(
       prompt: 'Edit the command',
       value: response.command,
       title: 'Edit Command',
+      ignoreFocusOut: true,
     });
 
     if (!edited) {

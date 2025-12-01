@@ -42,6 +42,7 @@ export function createNoteCommands(deps: NoteCommandDependencies): CommandGroup 
       const noteText = await vscode.window.showInputBox({
         prompt: 'Add a note for this code',
         placeHolder: 'Enter your note...',
+        ignoreFocusOut: true,
       });
 
       if (noteText) {
@@ -89,6 +90,7 @@ export function createNoteCommands(deps: NoteCommandDependencies): CommandGroup 
           prompt: 'Edit note',
           value: item.note.note,
           placeHolder: 'Enter your note...',
+          ignoreFocusOut: true,
         });
         if (newText !== undefined) {
           await notesService.updateNote(item.note.id, { note: newText });
@@ -108,6 +110,71 @@ export function createNoteCommands(deps: NoteCommandDependencies): CommandGroup 
           await notesService.deleteNote(item.note.id);
           await updateNoNotesContext();
           vscode.window.showInformationMessage('Note deleted');
+        }
+      }
+    }),
+
+    defineCommand('cmdify.notes.deleteAll', async () => {
+      const notes = notesService.getAllNotes();
+      if (notes.length === 0) {
+        vscode.window.showInformationMessage('No notes to delete');
+        return;
+      }
+
+      const confirm = await vscode.window.showWarningMessage(
+        `Delete all ${notes.length} notes?`,
+        { modal: true },
+        'Delete All'
+      );
+
+      if (confirm === 'Delete All') {
+        const count = await notesService.deleteAllNotes();
+        await updateNoNotesContext();
+        vscode.window.showInformationMessage(`🗑️ Deleted ${count} notes`);
+      }
+    }),
+
+    defineCommand('cmdify.notes.deleteForFile', async (item?: NoteTreeItem) => {
+      let filePath: string | undefined;
+
+      // If called from tree view with a file item
+      if (item?.filePath) {
+        filePath = item.filePath;
+      } else {
+        // Show picker to select file
+        const notes = notesService.getAllNotes();
+        const filesWithNotes = [...new Set(notes.map((n) => n.filePath))];
+
+        if (filesWithNotes.length === 0) {
+          vscode.window.showInformationMessage('No notes to delete');
+          return;
+        }
+
+        const selected = await vscode.window.showQuickPick(
+          filesWithNotes.map((f) => ({
+            label: f,
+            description: `${notes.filter((n) => n.filePath === f).length} notes`,
+          })),
+          { placeHolder: 'Select a file to delete all notes from' }
+        );
+
+        if (selected) {
+          filePath = selected.label;
+        }
+      }
+
+      if (filePath) {
+        const fileNotes = notesService.getNotesForFile(filePath);
+        const confirm = await vscode.window.showWarningMessage(
+          `Delete ${fileNotes.length} notes from ${filePath}?`,
+          { modal: true },
+          'Delete'
+        );
+
+        if (confirm === 'Delete') {
+          const count = await notesService.deleteNotesForFile(filePath);
+          await updateNoNotesContext();
+          vscode.window.showInformationMessage(`🗑️ Deleted ${count} notes from file`);
         }
       }
     }),

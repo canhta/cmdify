@@ -36,6 +36,7 @@ export function createCompanionCommands(deps: CompanionCommandDependencies): Com
         prompt: 'Name your companion',
         value: currentName,
         placeHolder: 'Enter a name (max 20 characters)',
+        ignoreFocusOut: true,
         validateInput: (value) => {
           if (value.length > 20) {
             return 'Name must be 20 characters or less';

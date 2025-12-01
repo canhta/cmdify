@@ -125,6 +125,16 @@ export class StorageService {
   }
 
   /**
+   * Delete all commands
+   */
+  async deleteAll(): Promise<number> {
+    const count = this.commands.size;
+    this.commands.clear();
+    await this.save();
+    return count;
+  }
+
+  /**
    * Record command usage
    */
   async recordUsage(id: string): Promise<void> {

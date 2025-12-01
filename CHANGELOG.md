@@ -5,6 +5,19 @@ All notable changes to Cmdify will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-12-01
+
+### ✨ New Features
+
+- **Bulk Actions** - Manage multiple items at once, similar to Source Control staging:
+  - **Commands**: Delete selected, delete by tag, delete all
+  - **TODOs**: Complete selected, complete by file, complete all
+  - **Notes**: Delete for file, delete all
+- All bulk actions available from view title menus and context menus
+- Multi-select pickers for granular control over which items to affect
+- Confirmation dialogs to prevent accidental deletions
+- XP rewards for bulk TODO completions
+
 ## [1.0.1] - 2025-12-01
 
 ### 🐛 Bug Fixes

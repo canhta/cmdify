@@ -25,6 +25,7 @@ export async function createGlobalReminderDialog(): Promise<
   const title = await vscode.window.showInputBox({
     prompt: 'What would you like to be reminded about?',
     placeHolder: 'e.g., Review PR #123, Update documentation',
+    ignoreFocusOut: true,
     validateInput: (value) => (value?.trim() ? undefined : 'Title is required'),
   });
 
@@ -36,6 +37,7 @@ export async function createGlobalReminderDialog(): Promise<
   const dateOptions = getCommonDateOptions();
   const dateChoice = await vscode.window.showQuickPick(dateOptions, {
     placeHolder: 'When should I remind you?',
+    ignoreFocusOut: true,
   });
 
   if (!dateChoice) {
@@ -71,6 +73,7 @@ export async function createGlobalReminderDialog(): Promise<
       const dateStr = await vscode.window.showInputBox({
         prompt: 'Enter date (YYYY-MM-DD) or relative (e.g., "3 days", "2 weeks")',
         placeHolder: 'YYYY-MM-DD or "3 days"',
+        ignoreFocusOut: true,
         validateInput: (value) => {
           if (!value) {
             return 'Date is required';
@@ -100,6 +103,7 @@ export async function createGlobalReminderDialog(): Promise<
   const description = await vscode.window.showInputBox({
     prompt: 'Add a description (optional)',
     placeHolder: 'Additional details...',
+    ignoreFocusOut: true,
   });
 
   return { title, dueAt, description };
@@ -315,6 +319,7 @@ async function handleQuickPickSelection(
     const dateStr = await vscode.window.showInputBox({
       prompt: 'Enter date (YYYY-MM-DD)',
       placeHolder: 'YYYY-MM-DD',
+      ignoreFocusOut: true,
       validateInput: (value) => {
         if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
           return 'Please use YYYY-MM-DD format';
@@ -333,6 +338,7 @@ async function handleQuickPickSelection(
     assignee = await vscode.window.showInputBox({
       prompt: 'Enter assignee name',
       placeHolder: 'e.g., John Doe',
+      ignoreFocusOut: true,
     });
     if (!assignee) {
       return false;

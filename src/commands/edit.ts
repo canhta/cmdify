@@ -53,6 +53,7 @@ async function editCommand(cmd: CLICommand, storage: StorageService): Promise<vo
   const selection = await vscode.window.showQuickPick(editOptions, {
     placeHolder: 'What would you like to edit?',
     title: `Edit: ${cmd.prompt || cmd.command}`,
+    ignoreFocusOut: true,
   });
 
   if (!selection) {
@@ -69,6 +70,7 @@ async function editCommand(cmd: CLICommand, storage: StorageService): Promise<vo
       prompt: 'Edit the command',
       value: cmd.command,
       title: 'Edit Command',
+      ignoreFocusOut: true,
     });
 
     if (editedCommand === undefined) {
@@ -82,6 +84,7 @@ async function editCommand(cmd: CLICommand, storage: StorageService): Promise<vo
       prompt: 'Edit the description',
       value: cmd.prompt,
       title: 'Edit Description',
+      ignoreFocusOut: true,
     });
 
     if (editedPrompt === undefined) {
@@ -101,6 +104,7 @@ async function editCommand(cmd: CLICommand, storage: StorageService): Promise<vo
       prompt: `Edit tags (comma-separated). ${tagHint}`,
       value: cmd.tags.join(', '),
       title: 'Edit Tags',
+      ignoreFocusOut: true,
     });
 
     if (editedTags === undefined) {

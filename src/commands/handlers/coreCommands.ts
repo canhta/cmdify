@@ -62,5 +62,25 @@ export function createCoreCommands(deps: CoreCommandDependencies): CommandGroup 
     defineCommand('cmdify.toggleFavoriteFromTree', (item) => handleToggleFavorite(item, storage)),
 
     defineCommand('cmdify.refresh', () => treeProvider.refresh()),
+
+    defineCommand('cmdify.deleteAll', async () => {
+      const commands = storage.getAll();
+      if (commands.length === 0) {
+        vscode.window.showInformationMessage('No commands to delete');
+        return;
+      }
+
+      const confirm = await vscode.window.showWarningMessage(
+        `Delete all ${commands.length} commands? This cannot be undone.`,
+        { modal: true },
+        'Delete All'
+      );
+
+      if (confirm === 'Delete All') {
+        const count = await storage.deleteAll();
+        treeProvider.refresh();
+        vscode.window.showInformationMessage(`🗑️ Deleted ${count} commands`);
+      }
+    }),
   ]);
 }

@@ -180,6 +180,7 @@ export async function promptWorkingDirectory(): Promise<string | undefined> {
 
   const selection = await vscode.window.showQuickPick(options, {
     placeHolder: 'Select working directory',
+    ignoreFocusOut: true,
   });
 
   if (!selection) {

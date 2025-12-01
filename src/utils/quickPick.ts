@@ -128,6 +128,7 @@ export async function selectCommand(
     placeHolder: options.placeHolder,
     matchOnDetail: true,
     matchOnDescription: true,
+    ignoreFocusOut: true,
   });
 
   return (selection as CommandQuickPickItem)?.command;

@@ -135,6 +135,7 @@ async function configureAIProvider(
   const selectedProvider = await vscode.window.showQuickPick(providers, {
     placeHolder: 'Select AI provider',
     title: 'Step 1: Select AI Provider',
+    ignoreFocusOut: true,
   });
 
   if (!selectedProvider) {
@@ -156,6 +157,7 @@ async function configureAIProvider(
   const selectedModel = await vscode.window.showQuickPick(models, {
     placeHolder: 'Select model',
     title: 'Step 2: Select AI Model',
+    ignoreFocusOut: true,
   });
 
   if (!selectedModel) {
@@ -170,6 +172,7 @@ async function configureAIProvider(
     placeHolder: selectedProvider.value === 'azure' ? 'Your Azure API key' : 'sk-...',
     title: `Step 3: ${selectedProvider.label} API Key`,
     value: existingKey ? '' : undefined,
+    ignoreFocusOut: true,
     validateInput: (value) => (!value && !existingKey ? 'API key is required' : undefined),
   });
 
@@ -186,6 +189,7 @@ async function configureAIProvider(
       prompt: 'Enter your Azure OpenAI endpoint',
       placeHolder: 'https://your-resource.openai.azure.com',
       title: 'Step 4: Azure OpenAI Endpoint',
+      ignoreFocusOut: true,
       validateInput: (value) => {
         if (!value) {
           return 'Endpoint is required for Azure';
